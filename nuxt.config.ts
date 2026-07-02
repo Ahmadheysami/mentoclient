@@ -35,7 +35,7 @@ export default defineNuxtConfig({
       {provider: 'local', name: "Liana", preload: true, src: '/fonts/liana/font.woff2'},
       {provider: 'local', name: "Yekan-Light", src: '/fonts/yekan/light.woff2', formats: ['woff', 'woff2']},
       {provider: 'local', name: "Yekan-Bold", src: '/fonts/yekan/bold.woff2', formats: ['woff', 'woff2']},
-      {provider: 'local', name: "Yekan-Reqular", src: '/fonts/yekan/reqular.woff2', formats: ['woff', 'woff2']},
+      {provider: 'local', name: "Yekan-Regular", src: '/fonts/yekan/regular.woff2', formats: ['woff', 'woff2']},
       {provider: 'local', name: "Yekan-Extra", src: '/fonts/yekan/extra.woff2', formats: ['woff', 'woff2']},
     ]
   },
