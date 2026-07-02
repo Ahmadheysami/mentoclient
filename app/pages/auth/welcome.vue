@@ -20,7 +20,7 @@ useSeoMeta({
 
                 <div class="relative">
                     <img src="/images/char/mentoya-welcome.png"
-                        class="drop-shadow-2xl animate__animated animate__fadeInUp mt-10 relative z-10"
+                        class="drop-shadow-2xl animate__animated animate__fadeInUp -mt-7 relative z-10"
                         alt="Welcome image">
 
                     <div
@@ -31,7 +31,7 @@ useSeoMeta({
                 <div
                     class="absolute left-0 right-0 text-center bottom-0 animate__animated animate__fadeInUp bg-x-primary-500 px-4 pt-11 pb-8 outline-8 outline-blue-200 text-x-white shadow-inner ">
                     <h1 class="font-[Liana] text-4xl">یه منتویا خوش آمدی</h1>
-                    <p clas="my-2">همین الان شروع کن</p>
+                    <p class="my-2">همین الان شروع کن</p>
                     <ULink to="/auth" class="btn btn-block btn-xl bg-x-white rounded-full mt-5 text-x-text-title">شروع
                         کن
                     </ULink>
