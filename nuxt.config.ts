@@ -51,7 +51,7 @@ export default defineNuxtConfig({
     }
   },
 
-  css: ['~/assets/css/main.css', 'animate.css/animate.min.css'],
+  css: ['~/assets/css/main.css', 'animate.css/animate.min.css', 'vue-sonner/style.css'],
 
   runtimeConfig: {
     apiKey: import.meta.env.NUXT_API_KEY,

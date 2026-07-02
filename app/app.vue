@@ -1,15 +1,11 @@
 <script setup lang="ts">
-  // const loading = ref(true),
-  //   {hooks} = useNuxtApp()
+import {Toaster} from "vue-sonner"
 
-  // hooks.hook("app:mounted", () => {
-  //   loading.value = false
-  // })
 </script>
 
 <template>
   <UApp>
-    <!-- <AppSplashScreen v-if="loading" /> -->
+    <Toaster :dir="'rtl'" :class="'font-yekan-regular! text-13'" :theme="'light'" :position="'top-center'" rich-colors :gap="10" />
     <NuxtLayout>
       <NuxtPage />
     </NuxtLayout>
