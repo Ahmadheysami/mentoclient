@@ -1,0 +1,24 @@
+{
+  "files.associations": {
+    "*.css": "tailwindcss"
+  },
+  "editor.quickSuggestions": {
+    "strings": "on"
+  },
+  "tailwindCSS.classAttributes": ["class", "ui"],
+  "tailwindCSS.classFunctions": ["defineAppConfig"],
+  "files.watcherExclude": {
+      "**/.git/**": true,
+      "**/.nuxt/**": true,
+      "**/.output/**": true,
+      "**/node_modules/**": true
+    },
+
+    "search.exclude": {
+      "**/.nuxt": true,
+      "**/.output": true,
+      "**/node_modules": true
+    },
+
+    "typescript.tsserver.maxTsServerMemory": 4096
+}

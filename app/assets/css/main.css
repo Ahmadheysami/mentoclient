@@ -1,0 +1,62 @@
+@import "tailwindcss";
+@import "@nuxt/ui";
+@plugin "daisyui";
+
+@theme {
+  --color-x-primary-50: #e8f1ff;
+  --color-x-primary-100: #c5daff;
+  --color-x-primary-200: #8fb8ff;
+  --color-x-primary-300: #5c99ff;
+  --color-x-primary-400: #3b85ff;
+  --color-x-primary-500: #2b7fff;
+  --color-x-primary-600: #1f6ae6;
+  --color-x-primary-700: #1452b8;
+  --color-x-primary-800: #0e3d8a;
+  --color-x-primary-900: #07285c;
+  --color-x-primary-content-50: #ffffff;
+  --color-x-primary-content-100: #fafcfe;
+  --color-x-primary-content-200: #f2f6fa;
+  --color-x-primary-content-300: #dbe3ed;
+  --color-x-primary-content-400: #bcc9d9;
+  --color-x-primary-content-500: #9aadc4;
+  --color-x-primary-content-600: #7a91ab;
+  --color-x-primary-content-700: #5b728c;
+  --color-x-primary-content-800: #3e5269;
+  --color-x-primary-content-900: #223346;
+  --color-x-secondary-50: #f0f1ff;
+  --color-x-secondary-100: #d6d9ff;
+  --color-x-secondary-200: #b0b7ff;
+  --color-x-secondary-300: #929dff;
+  --color-x-secondary-400: #848eff;
+  --color-x-secondary-500: #7c86ff;
+  --color-x-secondary-600: #6a74e6;
+  --color-x-secondary-700: #565fb8;
+  --color-x-secondary-800: #3f478a;
+  --color-x-secondary-900: #282e5c;
+  --color-x-white: #eff6ff;
+  --color-x-text-title: #262626;
+  --color-x-text-subtitle: #404040;
+  --color-x-text-body: #292524;
+  --color-x-text-muted: #a1a1a1;
+  --color-x-text-placeholder: #c4c4c4;
+  --color-x-text-disabled: #e0e0e0;
+  --color-x-text-link: #51a2ff;
+  --font-yekan-light: "Yekan-Light";
+  --font-yekan-reqular: "Yekan-Regular";
+  --font-yekan-bold: "Yekan-Bold";
+  --font-yekan-extra: "Yekan-Extra";
+  --font-liana: "Liana";
+  --animate-move-bg: moveBg 360s ease infinite;
+
+  /* keyframes */
+
+  @keyframes moveBg {
+    0%,
+    100% {
+      background-position: 0% 50%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
+  }
+}
