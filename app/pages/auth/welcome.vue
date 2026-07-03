@@ -10,7 +10,7 @@ useSeoMeta({
 
 <template>
     <UPage>
-        <div class="min-h-dvh relative bg-x-primary-content-200 p-3">
+        <div class="min-h-dvh relative bg-x-primary-content-100 p-3">
 
             <div class="text-center animate__animated animate__flash">
                 <p class="font-[Liana] text-8xl text-x-text-title mt-8 mb-3 ">منتویا</p>

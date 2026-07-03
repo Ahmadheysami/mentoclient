@@ -14,7 +14,7 @@
   --color-x-primary-800: #0e3d8a;
   --color-x-primary-900: #07285c;
   --color-x-primary-content-50: #ffffff;
-  --color-x-primary-content-100: #fafcfe;
+  --color-x-primary-content-100: #ecf0fb;
   --color-x-primary-content-200: #f2f6fa;
   --color-x-primary-content-300: #dbe3ed;
   --color-x-primary-content-400: #bcc9d9;
@@ -59,6 +59,10 @@
       background-position: 100% 50%;
     }
   }
+}
+
+* {
+  font-family: "Yekan-Regular";
 }
 
 body, html {

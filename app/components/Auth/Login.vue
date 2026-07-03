@@ -56,7 +56,7 @@ watch(mobile, () => {
 <template>
     <div class="animate__animated animate__bounceInUp">
         <div class="space-y-3">
-            <h1 class="text-2xl font-liana">ورود به حساب کاربری </h1>
+            <h1 class="text-2xl font-liana!">ورود به حساب کاربری </h1>
             <p class="font-yekan-light">به منتویا خوش آمدید برای ورود به حساب کاربری شماره تماس خودتون رو وارد
                 کنید
             </p>

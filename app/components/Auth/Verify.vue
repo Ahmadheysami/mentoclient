@@ -79,7 +79,7 @@ onMounted(() => {
 <template>
     <div class="animate__animated animate__bounceInUp">
         <div class="space-y-3">
-            <h1 class="text-2xl font-liana">تایید کد ورود</h1>
+            <h1 class="text-2xl font-liana!">تایید کد ورود</h1>
             <p class="font-yekan-light">
                 برای ورود به منتویا کد ورود ارسال شده را به صورت صحیح ارسال کنید
             </p>

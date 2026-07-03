@@ -14,7 +14,7 @@
             <!-- Mentoya Brand -->
              <AppLogo  type="typo-medium" size="xl" class="animate__animated animate__bounceInDown"/>
             <br><br>
-            <div class=" bg-x-primary-50/70 border border-slate-100 shadow-inner rounded-3xl backdrop-blur-sm px-5 pt-9 pb-5 ">
+            <div class=" bg-x-primary-content-200 border border-slate-100 shadow-inner rounded-3xl backdrop-blur-sm px-5 pt-9 pb-5 ">
                 <AuthLogin v-if="auth.state.currentPage === 'login'"/>
                 <AuthVerify v-if="auth.state.currentPage === 'verify'"/>
             </div>
