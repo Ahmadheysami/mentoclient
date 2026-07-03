@@ -10,7 +10,7 @@ export default defineNuxtConfig({
   app: {
     head: {
       meta: [
-        {name: "theme-color", content: '#f2f6fa'}
+        {name: "theme-color", content: '#ecf0fb'}
       ],
       htmlAttrs: {
         dir: 'rtl'
