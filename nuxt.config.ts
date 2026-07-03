@@ -4,7 +4,7 @@ export default defineNuxtConfig({
   devtools: { enabled: false },
 
   devServer: {
-    port: 3001
+    port: 3002
   },
 
   app: {
