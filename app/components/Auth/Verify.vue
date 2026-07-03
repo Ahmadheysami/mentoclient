@@ -89,7 +89,7 @@ onMounted(() => {
         <form class="space-y-3 pt-7 pb-4 px-2">
             <!-- OTP Inputs -->
             <div class="grid place-items-center">
-                <UPinInput size="xl" :disabled="otpDisabled" :length="4" :variant="'subtle'" :otp="true" type="number" v-model:model-value="otp"
+                <UPinInput size="xl" :disabled="otpDisabled" :length="4" :otp="true" type="number" v-model:model-value="otp"
                     @complete="otpVerification" :ui="{ base: `w-17 h-17 rounded-2xl font-liana! text-lg outline ${verified === 'yes' ? 'outline-green-500' : verified === 'no' ? 'outline-red-500' : ''}`}" />
             </div>
             
