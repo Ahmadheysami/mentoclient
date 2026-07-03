@@ -42,7 +42,7 @@
   --color-x-text-disabled: #e0e0e0;
   --color-x-text-link: #51a2ff;
   --font-yekan-light: "Yekan-Light";
-  --font-yekan-regular: "Yekan-Regular";
+  --font-yekan-reqular: "Yekan-Regular";
   --font-yekan-bold: "Yekan-Bold";
   --font-yekan-extra: "Yekan-Extra";
   --font-liana: "Liana";
@@ -59,4 +59,8 @@
       background-position: 100% 50%;
     }
   }
+}
+
+body, html {
+  background: var(--color-x-primary-content-200);
 }
