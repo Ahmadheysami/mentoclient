@@ -1,6 +1,7 @@
 <script setup lang="ts">
 definePageMeta({
-    middleware: ['auth']
+    middleware: ['auth'],
+    layout: "blank"
 })
 useSeoMeta({
     title: "منتویا - خوش آمد گویی",
