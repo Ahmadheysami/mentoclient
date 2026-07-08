@@ -46,7 +46,14 @@ export default defineNuxtConfig({
       colors: [
         'x-primary',
         'x-secondary',
-        'x-primary-content'
+        'x-primary-content',
+        'primary',
+        'secondary',
+        'success',
+        'info',
+        'warning',
+        'error',
+        'neutral',
       ]
     }
   },
