@@ -1,7 +1,10 @@
 @import "tailwindcss";
 @import "@nuxt/ui";
-@plugin "daisyui";
-
+@plugin "daisyui" {
+  themes: light;
+  darkTheme: "light"
+};
+@variant dark (false);
 @theme {
   --color-x-primary-50: #e8f1ff;
   --color-x-primary-100: #c5daff;
@@ -67,4 +70,17 @@
 
 body, html {
   background: var(--color-x-primary-content-50);
+}
+
+
+.ltr {
+  direction: ltr;
+}
+.rtl {
+  direction: rtl;
+}
+
+/* BA Bootom sheet */
+:root {
+  --ba-bg: green !important;
 }
