@@ -5,6 +5,7 @@
   "editor.quickSuggestions": {
     "strings": "on"
   },
+  "editor.linkedEditing": true,
   "tailwindCSS.classAttributes": ["class", "ui"],
   "tailwindCSS.classFunctions": ["defineAppConfig"],
   "files.watcherExclude": {
