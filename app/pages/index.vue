@@ -3,12 +3,24 @@
         middleware: ['auth']
     })
 
-    const user = useUser()
+    const route = useRoute()
     
 </script>
 
 <template>
     <UPage>
-        "WELCOME {{ user.state.user?.fullName.first }} TO INDEX PAGE"
+        <div>
+            <!-- Top Bar Component -->
+            <AppTopBar />
+            <!-- Story Component -->
+            <FeaturesStory />
+            <!-- Home Services Component -->
+             <HomeServices />
+             
+             <!-- Ads Carousel -->
+              <FeaturesCarousel :size="'xl'" key="fd" />
+            <!-- Popups -->
+             <PopupPro v-if="route.hash === '#pro'" />
+        </div>
     </UPage>
 </template>
