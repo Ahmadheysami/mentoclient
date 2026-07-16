@@ -63,5 +63,8 @@ export default defineNuxtConfig({
   runtimeConfig: {
     apiKey: import.meta.env.NUXT_API_KEY,
     apiUrl: import.meta.env.NUXT_API_BASE,
+    public: {
+      base: 'http://localhost:3000'
+    }
   }
 })
