@@ -107,7 +107,7 @@ const services: {
                 <div
                     class="absolute w-14 h-14 bg-blue-500/8 rounded-3xl group-hover:scale-0 group-hover:bg-purple-500/15 transition-all -top-2 left-1/2 -translate-x-1/2">
                 </div>
-                <UChip position="top-left" color="error" size="xl"
+                <UChip position="top-left" color="x-secondary" size="xl"
                     :ui="{ base: `-top-2 ${typeof item.chip == 'string' ? 'py-2 left-1/2  px-1 text-[11px]' : ''}` }"
                     :text="(typeof item.chip === 'string') ? item.chip : ''"
                     :show="typeof item.chip == 'string' || item.chip === true">
