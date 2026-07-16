@@ -1,6 +1,7 @@
 export const useUser = defineStore("user", () => {
   const state = reactive<{
     user: {
+      userId: string;
       role: string;
       isActive: boolean;
       mobile: string;
