@@ -93,7 +93,7 @@ onMounted(async () => {
             </button>
 
             <div class="absolute right-4 top-4 flex items-center gap-2">
-                <span class="text-white font-bold mt-1">{{ wallet.state.coinsBalance || 0 }}</span>
+                <span class="text-white font-bold mt-1">{{ wallet.state.coinsBalance?.toFixed() || 0 }}</span>
                 <UIcon name="duo-icons:coin-stack" size="29" class="text-yellow-400" />
             </div>
 
