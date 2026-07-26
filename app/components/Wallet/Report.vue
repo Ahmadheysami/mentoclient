@@ -78,7 +78,8 @@ onMounted(async () => {
                                 {{ log.status == 'success' ? 'موفق' : 'ناموفق' }}
                             </span>
                             <span class="text-xs px-2 py-1 bg-x-secondary-500 text-slate-100 rounded-lg font-bold">
-                                {{ log.from == 'payment-gateway' ? 'درگاه پرداخت' : 'کیف پول' }}
+                                <span v-if="!((log as any)?.metadata?.withdrawFrom)">{{ log.from == 'payment-gateway' ? 'درگاه پرداخت' : 'کیف پول' }}</span>
+                                <span v-if="((log as any)?.metadata?.withdrawFrom)">{{ (log as any)?.metadata.withdrawFrom == 'star' ? 'از سکه' : 'کیف پول' }}</span>
                             </span>
                         </div>
                     </div>
@@ -112,7 +113,7 @@ onMounted(async () => {
                 <p>تا این لحظه تراکنشی انجام نشده</p>
             </div>
             <!-- Pagination -->
-            <div class="w-full flex items-center justify-between my-2" v-if="(wallet.state.logs.length > 10)">
+            <div class="w-full flex items-center justify-between my-2" v-if="(wallet.state.logsStat.logsCount as number) > limit">
                 <UButton @click="nextPage"
                     :disabled="((wallet.state.logsStat.currentPage as number) >= (wallet.state.logsStat.pagesCount as number))"
                     label="بعدی" variant="solid" color="x-secondary" size="md" />
