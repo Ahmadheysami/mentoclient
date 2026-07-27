@@ -11,7 +11,6 @@ watch(
   () => user.state.user?.userId,
   (newUserId) => {
     if (newUserId) {
-      console.log("Reconnecting socket with new userId:", newUserId);
       const socket = $connectNotifSocket(newUserId);
       io.value = socket;
     }
