@@ -21,6 +21,7 @@
     "apexcharts": "^6.5.0",
     "better-sqlite3": "^12.11.1",
     "comma-number": "^2.1.0",
+    "marked": "^18.0.7",
     "motion-v": "^2.3.0",
     "nuxt": "^4.4.8",
     "socket.io-client": "^4.8.3",
