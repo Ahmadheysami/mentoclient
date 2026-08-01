@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import comma from "comma-number"
 import { DrawerContent, DrawerOverlay, DrawerPortal, DrawerRoot, DrawerTrigger } from 'vaul-vue'
-import { toast } from "vue-sonner"
 const walletOptions = [
     {
         label: 'شارژ',

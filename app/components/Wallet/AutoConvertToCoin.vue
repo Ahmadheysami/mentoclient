@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { toast } from 'vue-sonner'
 
 const emit = defineEmits(['request-end'])
-const wallet = useWallet()
+const wallet = useWallet(),
+    {$toast} = useNuxtApp();
 onBeforeMount(async () => {
     await wallet.irrToCoins((wallet.state.wallet.spending.balance as number) || 0)
 })
@@ -11,7 +11,7 @@ const convert = async () => {
     const response: any = await wallet.autoConvertToCoin()
 
     if (!response?.success) {
-        toast.error(response?.message, {duration: 10000})
+        $toast.error(response?.message, {duration: 10000})
         emit('request-end')
         return;
     }
@@ -21,7 +21,7 @@ const convert = async () => {
         await wallet.getWalletLogs({})
         await wallet.getCoinBalance()
         emit('request-end')
-        toast.success(response?.message)
+        $toast.success(response?.message)
     }
 }
 </script>

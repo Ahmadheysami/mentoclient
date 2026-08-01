@@ -1,7 +1,6 @@
 <script setup lang="ts">
-import { toast } from 'vue-sonner'
-
 const auth = useAuth(),
+    {$toast} = useNuxtApp(),
     otp = ref<number[]>([]),
     second = 100,
     resendOtp = reactive({
@@ -16,19 +15,19 @@ const auth = useAuth(),
     },
     otpVerification = async () => {
         otpDisabled.value = true
-        let loadingToast = toast.loading('در حال تایید کد ورود', {})
+        let loading$toast = $toast.loading('در حال تایید کد ورود', {})
         const code = otp.value.toString().split(",").map(str => str.trim()).join(""),
             verify: any = await auth.verifyOtp(code)
 
-        toast.dismiss(loadingToast)
+        $toast.dismiss(loading$toast)
         
         if (verify?.success) {
-            toast.success(verify?.message)
+            $toast.success(verify?.message)
             verified.value = 'yes'
             await auth.removeCookie('otp-token')
             await navigateTo('/', {external: true})
         } else {
-            toast.error(verify?.message)
+            $toast.error(verify?.message)
             verified.value = 'no'
             otp.value = []
             otpDisabled.value = false
@@ -47,7 +46,7 @@ const auth = useAuth(),
     },
     resendOtpHandler = async () => {
         if (!resendOtp.active) {
-            toast.error("بعد از پایان زمان صبر کنید", {
+            $toast.error("بعد از پایان زمان صبر کنید", {
                 description: ` زمان باقی مانده‌ : ${resendOtp.seconds} ثانیه`
             })
             return;
@@ -56,11 +55,11 @@ const auth = useAuth(),
         // get new otp code
         const newOtpCode: any = await auth.resendOtp()
         if (!newOtpCode?.success) {
-            toast.error(newOtpCode?.message)
+            $toast.error(newOtpCode?.message)
             return;
         }
 
-        toast.success(newOtpCode?.message)
+        $toast.success(newOtpCode?.message)
         resendOtp.active = false
         resendOtp.seconds = second
         resendOtpTimer()

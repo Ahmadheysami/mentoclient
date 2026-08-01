@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import comma from "comma-number"
-import { toast } from "vue-sonner"
 
 const wallet = useWallet(),
+    {$toast} = useNuxtApp(),
     formData = wallet.state.formData,
     suggestedAmounts = [500_000, 1_000_000, 2_000_000, 5_000_000, 10_000_000, 12_000_000, 15_000_000],
     isValid = computed(() => {
@@ -15,17 +15,17 @@ const wallet = useWallet(),
             wallet.state.sheetDissmiable = true
             const res: any = await wallet.deposit(formData.amount)
             if (!res.success && res.reason === 'ERR_VALIDATION') {
-                res.data?.errors.forEach((err: { message: string }) => toast.error(err.message))
+                res.data?.errors.forEach((err: { message: string }) => $toast.error(err.message))
                 return;
             }
 
             // check response failed
             if (!res?.success) {
-                toast.error(res?.message)
+                $toast.error(res?.message)
                 return;
             }
 
-            toast.success("به درگاه پرداخت هدایت میشوید ...")
+            $toast.success("به درگاه پرداخت هدایت میشوید ...")
             if (import.meta.client) {
                 localStorage.setItem("pay_active", '1')
             }

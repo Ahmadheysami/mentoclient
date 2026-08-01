@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { toast } from 'vue-sonner';
 import { DrawerContent, DrawerOverlay, DrawerPortal, DrawerRoot, DrawerTrigger } from 'vaul-vue'
 
 useSeoMeta({
@@ -11,6 +10,7 @@ definePageMeta({
 
 const user = useUser(),
     auth = useAuth(),
+    {$toast} = useNuxtApp(),
     me = user.state.user,
     sidebarOpen = ref<boolean>(false),
     sidebarAction = ref<string | null>(''),
@@ -136,7 +136,7 @@ const user = useUser(),
         sidebarAction.value = null
         clearInputFile()
 
-        toast.success(response?.message)
+        $toast.success(response?.message)
     },
     clearInputFile = () => {
         avatarPreview.value = ''
@@ -171,11 +171,11 @@ const user = useUser(),
 
         if (!response?.success) {
             if (response?.statusCode === 400) {
-                (response?.data.errors as []).forEach((item: any) => toast.error(item.message))
+                (response?.data.errors as []).forEach((item: any) => $toast.error(item.message))
                 return
             }
 
-            toast.error(response.message)
+            $toast.error(response.message)
             return;
         }
         if (user.state.user) {
@@ -201,7 +201,7 @@ const user = useUser(),
 
         sidebarOpen.value = false
         sidebarAction.value = ''
-        toast.success(response?.message)
+        $toast.success(response?.message)
     },
     // Email Verification and registration
     emailFormData = reactive({
@@ -216,18 +216,18 @@ const user = useUser(),
         console.log(res);
 
         if (res?.reason && res.reason === "ERR_VALIDATION") {
-            toast.error(res?.data.errors[0]?.message)
+            $toast.error(res?.data.errors[0]?.message)
             return;
         }
 
         if (!res?.success) {
-            toast.error(res?.message)
+            $toast.error(res?.message)
             return;
         }
 
 
         sidebarToggleAction(true, 'edit-verify')
-        toast.success('کد تایید به ایمیل شما ارسال شد')
+        $toast.success('کد تایید به ایمیل شما ارسال شد')
     },
     returnToEmailSidebar = () => {
         sidebarToggleAction(true, 'edit-email')
@@ -239,7 +239,7 @@ const user = useUser(),
 
         if (!res?.success) {
             emailFormData.otp = []
-            toast.error(res?.message)
+            $toast.error(res?.message)
             return
         }
         sidebarAction.value = ''
@@ -260,7 +260,7 @@ const user = useUser(),
         }
 
         setTimeout(() => {
-            toast.success(res?.message)
+            $toast.success(res?.message)
         }, 500)
     }
 

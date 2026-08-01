@@ -1,6 +1,5 @@
 <script lang="ts" setup>
 import { motion } from "motion-v";
-import { toast } from "vue-sonner";
 definePageMeta({
   middleware: ["auth"],
   layout: "blank",
@@ -8,6 +7,7 @@ definePageMeta({
 
 const acceptTerms = ref<boolean>(false),
   route = useRoute(),
+  { $toast } = useNuxtApp(),
   testStore = useTest(),
   terms = [
     "این آزمون صرفاً برای اهداف اطلاع‌رسانی و خودشناسی طراحی شده است و نتایج آن جایگزین تشخیص و درمان تخصصی روانشناسی یا روانپزشکی نمی‌باشد.",
@@ -60,7 +60,7 @@ const acceptTerms = ref<boolean>(false),
 
     // validation inputs
     if (!selectedItem.qId || !selectedItem.oId) {
-      toast.info("لطفا به سوال آزمون پاسخ مناسب دهید");
+      $toast.info("لطفا به سوال آزمون پاسخ مناسب دهید");
       return;
     }
     answerKeys.value.push({
@@ -87,11 +87,11 @@ const acceptTerms = ref<boolean>(false),
 
     if (!res?.success) {
       if (res?.reason === "ERR_VALIDATION") {
-        toast.error(res?.data?.errors[0].message);
+        $toast.error(res?.data?.errors[0].message);
         return;
       }
 
-      toast.error(res?.message);
+      $toast.error(res?.message);
       return;
     }
 
@@ -104,7 +104,7 @@ const acceptTerms = ref<boolean>(false),
   sendResultAndScoring = async () => {
     // validation inputs
     if (!selectedItem.qId || !selectedItem.oId) {
-      toast.info("لطفا به سوال آزمون پاسخ مناسب دهید");
+      $toast.info("لطفا به سوال آزمون پاسخ مناسب دهید");
       return;
     }
 
@@ -123,7 +123,7 @@ onBeforeMount(async () => {
   // if invalid test asset
   if (!getQuestions?.success) {
     testStore.state.loading.getQuestions = true;
-    toast.error("خطای اعتبار سنجی", {
+    $toast.error("خطای اعتبار سنجی", {
       description: getQuestions?.message,
     });
     await navigateTo("/test/active");

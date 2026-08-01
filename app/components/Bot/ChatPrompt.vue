@@ -1,8 +1,8 @@
 <script lang="ts" setup>
-import { toast } from "vue-sonner";
 const props = defineProps<{ normal: boolean }>();
 const emit = defineEmits(["finish", "start"]);
 const botStore = useBot(),
+  {$toast} = useNuxtApp(),
   prompt = ref("");
 
 async function sendMessage() {
@@ -28,7 +28,7 @@ async function sendMessage() {
         result: null,
         error: true,
       } as any;
-    toast.error(response?.message);
+    $toast.error(response?.message);
     return;
   }
   // update last object in chatHistory

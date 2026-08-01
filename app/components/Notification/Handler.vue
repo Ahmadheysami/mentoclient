@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { Socket } from "socket.io-client";
-import { toast } from "vue-sonner";
 
 const { $connectNotifSocket } = useNuxtApp();
 const user = useUser(),
+  {$toast} = useNuxtApp(),
   io = ref<Socket | null>(null),
   notification = useNotification();
 
@@ -21,7 +21,7 @@ watch(
 io.value?.on("success:notification", async (data: any) => {
   const audio = new Audio("/sounds/notif.mp3");
   audio.play();
-  toast.info(data?.title, {
+  $toast.info(data?.title, {
     description: data?.body,
     duration: 10000
   });

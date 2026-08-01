@@ -1,9 +1,8 @@
 <script setup lang="ts">
-import { toast } from "vue-sonner"
-
 const mobile = ref<string>(''),
-    mobileIsValid = ref<boolean>(true);
-const auth = useAuth(),
+    {$toast} = useNuxtApp(),
+    mobileIsValid = ref<boolean>(true),
+        auth = useAuth(),
     mobileValidation = (mobile: string): boolean => {
         const validate = mobile.match(/^(\+98|0)?9\d{9}$/g)
 
@@ -20,13 +19,13 @@ const auth = useAuth(),
 
         if (!mobile.value || mobile.value.length <= 0) {
             mobileIsValid.value = false
-            toast.error('لطفا شماره موبایل خود را وارد کنید')
+            $toast.error('لطفا شماره موبایل خود را وارد کنید')
             return;
         }
 
         if (!validate) {
             mobileIsValid.value = false
-            toast.error('شماره تلفن وارد شده صحیح نیست')
+            $toast.error('شماره تلفن وارد شده صحیح نیست')
             return;
         }
 
@@ -36,15 +35,15 @@ const auth = useAuth(),
 
         if (!response?.success) {
             if (response.reason === 'ERR_VALIDATION') {
-                (response?.data.errors as any[])?.forEach(err => toast.error(err.message))
+                (response?.data.errors as any[])?.forEach(err => $toast.error(err.message))
                 return;
             }
 
-            toast.error(response?.message)
+            $toast.error(response?.message)
             return;
         }
 
-        toast.success(response?.message)
+        $toast.success(response?.message)
         auth.state.currentPage = 'verify'
     }
 watch(mobile, () => {

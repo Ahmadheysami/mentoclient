@@ -1,9 +1,9 @@
 <script setup lang="ts">
 const props = withDefaults(defineProps<{ testId: string }>(), {});
 import comma from "comma-number";
-import { toast } from "vue-sonner";
 const testStore = useTest(),
   route = useRoute(),
+  {$toast} = useNuxtApp(),
   couponToggle = ref(false),
   couponCode = ref<string>(),
   testImageIsloaded = ref<boolean>(true),
@@ -20,7 +20,7 @@ const testStore = useTest(),
   loadTest = async (id: string) => {
     await testStore.getSingleTest(id);
     if (testStore.state.singleTest === null) {
-      toast.error("صفحه مورد نظر پیدا نشد", {
+      $toast.error("صفحه مورد نظر پیدا نشد", {
         description: "صفحه ای که به دنبال آن هستید پیدا نشد",
       });
       return await navigateTo("/test");
@@ -67,7 +67,7 @@ const testStore = useTest(),
     couponToggle.value = false;
     couponCode.value = "";
     error.value = "";
-    toast.success("خرید موفق", {
+    $toast.success("خرید موفق", {
       description: response?.message,
     });
     await navigateTo("/test/active");

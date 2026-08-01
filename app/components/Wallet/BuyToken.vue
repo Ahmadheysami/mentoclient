@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import comma from "comma-number"
-import { toast } from "vue-sonner"
 
 const emit = defineEmits(['request-end'])
 const wallet = useWallet(),
+    {$toast} = useNuxtApp(),
     formData = wallet.state.buyCoinFormData,
     calculateToken = (val: number) => {
         setTimeout(async () => {
@@ -16,12 +16,12 @@ const wallet = useWallet(),
         const data: any = await wallet.buyCoin(formData.coin)
 
         if (!data?.success && data?.reason === 'ERR_VALIDATION') {
-            toast.error(data?.data.errors[0].message)
+            $toast.error(data?.data.errors[0].message)
             return;
         }
 
         if (!data?.success) {
-            toast.error(data?.message)
+            $toast.error(data?.message)
             return;
         }
 
@@ -32,7 +32,7 @@ const wallet = useWallet(),
             wallet.getCoinBalance()
         ])
         emit("request-end")
-        toast.success('خرید سکه انجام شد با تشکر از اعتماد شما')
+        $toast.success('خرید سکه انجام شد با تشکر از اعتماد شما')
         wallet.state.loading.buy = false
     }
 
