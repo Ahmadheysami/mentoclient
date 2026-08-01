@@ -21,14 +21,8 @@ export default defineNuxtConfig({
   modules: [
     '@nuxt/ui',
     "@nuxt/image",
-    "@pinia/nuxt",
-    "@nuxt/content",
-    "@vite-pwa/nuxt"
+    "@pinia/nuxt"
   ],
-
-  pwa: {
-    
-  },
 
   fonts: {
     families: [
@@ -58,7 +52,7 @@ export default defineNuxtConfig({
     }
   },
 
-  css: ['~/assets/css/main.css', 'animate.css/animate.min.css', 'vue-sonner/style.css'],
+  css: ['~/assets/css/main.css', 'animate.css/animate.min.css'],
 
   runtimeConfig: {
     apiKey: import.meta.env.NUXT_API_KEY,
