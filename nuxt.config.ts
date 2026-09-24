@@ -1,10 +1,10 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   compatibilityDate: '2025-07-15',
-  devtools: { enabled: false },
+  devtools: { enabled: true },
 
   devServer: {
-    port: 3002
+    port: 3000
   },
 
   app: {
@@ -58,7 +58,8 @@ export default defineNuxtConfig({
     apiKey: import.meta.env.NUXT_API_KEY,
     apiUrl: import.meta.env.NUXT_API_BASE,
     public: {
-      base: 'http://localhost:3000'
+      // base: 'https://api.mentoya.ir'
+      base: 'http://localhost:3001'
     }
   }
 })
