@@ -1,4 +1,25 @@
+# Dependencies
 node_modules
+.pnpm-store
+
+# Nuxt / build output
 .nuxt
 .output
 dist
+.data
+
+# Env (keep secrets out of image; compose injects them)
+.env
+.env.*
+!.env.example
+
+# VCS & editor
+.git
+.gitignore
+.github
+.vscode
+.idea
+
+# Logs & OS
+*.log
+.DS_Store
