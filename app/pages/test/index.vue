@@ -3,7 +3,6 @@ const testStore = useTest(),
   limit = ref<number>(30),
   pagination = testStore.state.storePagination,
   paginationHandler = async (action: "next" | "prev") => {
-    console.log(pagination);
     if (action === "next" && !testStore.state.storePagination?.hasNext) return;
     // if (action === "prev" && !pagination?.hasPrev) return;
     
@@ -25,7 +24,7 @@ onMounted(async () => {
 <template>
   <TestTabItems />
   <div class="grid gap-y-4 mt-2 w-11/12 mx-auto">
-    <p class="text-sm mt-2 mb-4 inline-block font-bold">آزمون ها</p>
+    <p class="text-sm my-1 inline-block font-bold">آزمون ها</p>
     <div>
       <div
         class="h-[50dvh] grid place-items-center"
@@ -51,6 +50,7 @@ onMounted(async () => {
         <TestCard
           v-if="!testStore.state.loading?.getStore"
           v-for="test of testStore.state.store"
+          :key="test.testId"
           :title="test.title"
           :thumbnail="test.image"
           :to="test.testId"

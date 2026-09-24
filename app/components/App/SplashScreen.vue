@@ -1,10 +1,8 @@
 <template>
-    <div class="h-dvh fixed inset-0 bg-x-primary-content-200 z-1029">
+    <div class="h-dvh fixed inset-0 bg-x-primary-content-200 z-1090">
         <div class="loader scale-125"></div>
         <div class="absolute bottom-11 w-full grid place-items-center">
-            <p class="font-liana text-3xl first-letter:text-6xl">
-                Mentoya
-            </p>
+            <AppLogo size="md" :type="'typo-colorize'"/>
         </div>
     </div>
 </template>

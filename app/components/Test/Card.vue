@@ -15,12 +15,12 @@ const props = defineProps<{
 <template>
   <ULink
     :to="`/test?s=${props.to}`"
-    class="text-right bg-white flex gap-2 hover:shadow-2xl hover:shadow-black/10 transition-all items-center rounded-3xl p-3"
+    class="text-right bg-white flex gap-2 hover:shadow-2xl hover:shadow-black/10 transition-all items-center rounded-3xl"
   >
     <NuxtImg
       :src="props.thumbnail || '/logo.png'"
       :class="{ 'opacity-60 object-cover! p-7!': !props.thumbnail }"
-      class="h-34 min-w-30 max-w-30 object-cover rounded-3xl"
+      class="h-36 min-w-31 max-w-31 object-cover rounded-r-3xl"
       :alt="props.title"
       @error="imageLoaded = false"
       v-if="imageLoaded"
@@ -32,7 +32,7 @@ const props = defineProps<{
       v-else
       :alt="props.title"
     />
-    <div class="w-full">
+    <div class="w-full p-3">
       <strong class="line-clamp-2 text-x-text-title">
         {{ props.title }}
       </strong>

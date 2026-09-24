@@ -1,7 +1,7 @@
 <script setup lang="ts">
 const user = useUser(),
     notification = useNotification(),
-    fullName = `${user.state.user?.fullName.first || 'کاربر'} ${user.state.user?.fullName.last || 'عادی'}`
+    fullName = `${user.state.user?.fullName?.first || 'کاربر'} ${user.state.user?.fullName?.last || 'عادی'}`
 
 onMounted(async () => {
     await notification.get({public: '1'})

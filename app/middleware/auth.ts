@@ -7,7 +7,7 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
     
     if (!access) {
       if (!to.path.startsWith("/auth")) {
-        return await navigateTo("/auth/welcome")
+        return await navigateTo("/auth")
       }
       
       return;
@@ -18,7 +18,7 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
     
     if (user.state.user === null) {
       if (!to.path.startsWith("/auth")) {
-        return await navigateTo("/auth/welcome")
+        return await navigateTo("/auth")
       }
       return;
     }

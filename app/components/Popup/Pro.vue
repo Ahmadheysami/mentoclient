@@ -41,7 +41,7 @@ const panels = [
     <div class="fixed min-h-dvh overflow-y-auto inset-0 bg-x-primary-500 z-1061">
         <!-- UI Leayer -->
         <div class="absolute inset-0 leyer-1 z-9"></div>
-        <div class="absolute inset-0 leyer-2 z-10"></div>
+        <!-- <div class="absolute inset-0 leyer-2 z-10"></div> -->
         <div class="absolute inset-0 leyer-3"></div>
 
         <div class="h-full w-full overflow-y-auto z-11 relative">

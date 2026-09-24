@@ -60,7 +60,7 @@ const user = useUser(),
         {
             icon: 'solar:user-broken',
             title: 'نام و نام خانوادگی',
-            description: `${me?.fullName.first || 'بدون'} ${me?.fullName.last || 'نام'}`,
+            description: `${me?.fullName?.first || 'بدون'} ${me?.fullName?.last || 'نام'}`,
             action: 'edit-fullName'
         },
         {
@@ -96,8 +96,8 @@ const user = useUser(),
     ]),
     formData = reactive({
         fullName: {
-            first: me?.fullName.first,
-            last: me?.fullName.last
+            first: me?.fullName?.first,
+            last: me?.fullName?.last
         },
         position: me?.position,
         age: me?.age || +''
@@ -180,10 +180,10 @@ const user = useUser(),
         }
         if (user.state.user) {
             // update user
-            user.state.user.fullName.first = formData.fullName.first as string
-            user.state.user.fullName.last = formData.fullName.last as string
-            user.state.user.age = +formData.age
-            user.state.user.position = formData.position as string
+            user.state.user.fullName.first = formData.fullName?.first as string
+            user.state.user.fullName.last = formData.fullName?.last as string
+            user.state.user.age = +formData?.age
+            user.state.user.position = formData?.position as string
 
             // update user info
             const index = userInfos.findIndex(i => i.action === sidebarAction.value)

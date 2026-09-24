@@ -35,17 +35,17 @@ const sizes: Record<typeof props.size, { textSize: number, size: number }> = {
 </script>
 
 <template>
-    <div :to="props.to as string" dir="ltr">
+    <div :to="(props.to as string)" dir="ltr">
         <!-- Colorize -->
         
          <div class="flex items-end justify-center gap-1" v-if="props.type === 'colorize' || props.type === 'typo-colorize'">
             <NuxtImg src="/logo.png" :width="sizes[props.size].size + 'px'" :height="sizes[props.size].size + 'px'" alt="mentoya logo" />
-            <p :style="{fontSize: `${sizes[props.size].textSize}rem`}" v-if="props.type !== 'colorize'">entoya</p>
+            <p :style="{fontSize: `${sizes[props.size].textSize}rem`}" v-if="props.type !== 'colorize'">mentoya</p>
          </div>
          <!-- Medium -->
          <div class="flex items-end justify-center gap-1" v-if="props.type === 'medium' || props.type === 'typo-medium'">
-            <NuxtImg src="/logo-b.png" :width="sizes[props.size].size + 'px'" :height="sizes[props.size].size + 'px'" alt="mentoya logo" />
-            <p :style="{fontSize: `${sizes[props.size].textSize}rem`}" v-if="props.type !== 'medium'">entoya</p>
+            <NuxtImg src="/logo.png" :width="sizes[props.size].size + 'px'" :height="sizes[props.size].size + 'px'" alt="mentoya logo" />
+            <p :style="{fontSize: `${sizes[props.size].textSize}rem`}" v-if="props.type !== 'medium'">mentoya</p>
          </div>
         </div>
 </template>

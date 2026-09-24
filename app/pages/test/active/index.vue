@@ -1,6 +1,10 @@
 <script setup lang="ts">
 const testStore = useTest();
 
+const reversedMyTests = computed(() => {
+  return testStore.state.myTests ? [...testStore.state.myTests].reverse() : [];
+});
+
 onMounted(async () => {
   await testStore.getMyTests('available');
 });
@@ -35,7 +39,8 @@ onMounted(async () => {
       <div v-if="!testStore.state.loading?.getMyTests" class="space-y-4">
         <UCollapsible
           class="flex flex-col gap-2 w-full bg-white rounded-2xl"
-          v-for="(item, index) of testStore.state.myTests?.reverse()"
+          v-for="(item, index) of reversedMyTests"
+          :key="item.id"
           :default-open="index == 0"
         >
           <div class="flex px-3 py-5.5 items-center justify-between">
@@ -53,8 +58,8 @@ onMounted(async () => {
             <div class="px-5 pb-3 space-y-2">
               <img
                 :src="item.test[0]?.image"
-                alt=""
-                class="w-22 outline-6 outline-x-secondary-100 scale-125 translate-y-5 h-22 mx-auto rounded-full"
+                :alt="item.test[0]?.title"
+                class="w-22 outline-6 object-cover outline-x-secondary-100 scale-125 translate-y-5 h-22 mx-auto rounded-full"
               />
               <p class="flex items-center justify-between text-sm">
                 <span>وضعیت</span>
@@ -82,7 +87,7 @@ onMounted(async () => {
                   variant="subtle"
                   block
                   color="x-secondary"
-                  :to="`/test?s=${item.id}`"
+                  :to="`/test?s=${item.test[0]?.testId}`"
                   label="مشاهده"
                   class="mt-3"
                   :ui="{ base: 'h-11 rounded-full' }"

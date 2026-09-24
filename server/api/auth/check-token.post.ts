@@ -3,6 +3,7 @@ export default defineEventHandler(async event => {
         cookie = getCookie(event, body?.key)
         
     return {
-        has: !!cookie
+        has: !!cookie,
+        value: cookie
     }
 })

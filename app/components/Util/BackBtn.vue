@@ -1,5 +1,5 @@
 <script setup lang="ts">
-const props = withDefaults(defineProps<{ arrow?: 'left' | 'right' }>(), {
+const props = withDefaults(defineProps<{ arrow?: 'left' | 'right', to?: string }>(), {
     arrow: 'left'
 }),
     router = useRouter(),
@@ -16,7 +16,7 @@ const props = withDefaults(defineProps<{ arrow?: 'left' | 'right' }>(), {
 </script>
 
 <template>
-    <UButton variant="link" @click="goToBack">
-        <UIcon :name="`solar:arrow-${props.arrow}-linear`" size="35" class="text-x-text-subtitle" />
+    <UButton variant="link" :to="to" @click="!to ? goToBack : undefined">
+        <UIcon :name="`solar:arrow-${props.arrow}-linear`" size="28" class="text-x-text-subtitle" />
     </UButton>
 </template>

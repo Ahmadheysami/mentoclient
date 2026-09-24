@@ -24,10 +24,22 @@ const acceptTerms = ref<boolean>(false),
   acceptTermsHandler = () => {
     acceptTerms.value = true;
   },
+  
+  // نگهداری پاسخ آزمون‌های عادی
   selectedItem = reactive<{ qId: string; oId: string; subOptionId?: string }>({
     qId: "",
     oId: "",
   }),
+
+  // نگهداری اختصاصی پاسخ‌های Most و Least برای آزمون DISC در سوال جاری
+  discSelections = reactive<{
+    most: { qId: string; oId: string; subOptionId: string } | null;
+    least: { qId: string; oId: string; subOptionId: string } | null;
+  }>({
+    most: null,
+    least: null,
+  }),
+
   questions = ref<QuestionsData["questions"]>(),
   questionCount = ref<number>(),
   currentQuestion = ref<number>(0),
@@ -38,47 +50,85 @@ const acceptTerms = ref<boolean>(false),
     title: "",
     body: "",
   }),
-  selectAnswer = (
-    questionId: string,
-    optionId: string,
-    subOptionsId?: string,
-  ) => {
-    // set ids
+
+  // انتخاب پاسخ برای آزمون‌های غیر DISC
+  selectAnswer = (questionId: string, optionId: string) => {
     selectedItem.qId = questionId;
     selectedItem.oId = optionId;
-    console.log(subOptionsId);
-    if (subOptionsId) {
-      selectedItem.subOptionId = subOptionsId;
+  },
+
+  // انتخاب پاسخ برای آزمون DISC با جلوگیری از انتخاب یکسان برای Most و Least
+  selectDiscAnswer = (
+    questionId: string,
+    optionId: string,
+    subOptionId: string,
+    type: 'most' | 'least'
+  ) => {
+    if (type === 'most') {
+      // اگر همین optionId قبلا به عنوان least انتخاب شده بود، انتخاب least را پاک کن
+      if (discSelections.least?.oId === optionId) {
+        discSelections.least = null;
+      }
+      discSelections.most = { qId: questionId, oId: optionId, subOptionId };
+    } else {
+      // اگر همین optionId قبلا به عنوان most انتخاب شده بود، انتخاب most را پاک کن
+      if (discSelections.most?.oId === optionId) {
+        discSelections.most = null;
+      }
+      discSelections.least = { qId: questionId, oId: optionId, subOptionId };
     }
   },
+
+  // اعتبارسنجی پاسخ سوال جاری و اضافه کردن به لیست کلی پاسخ‌ها
+  validateAndSaveCurrentQuestion = (): boolean => {
+    const isDisc = testStore.state.questions?.type === 'DISC';
+
+    if (isDisc) {
+      if (!discSelections.most || !discSelections.least) {
+        $toast.info("لطفاً برای این سوال هم «بیشترین» (Most) و هم «کمترین» (Least) را انتخاب کنید");
+        return false;
+      }
+
+      // چک نهایی برای جلوگیری از یکسان بودن گزینه انتخاب شده
+      if (discSelections.most.oId === discSelections.least.oId) {
+        $toast.error("یک گزینه نمی‌تواند همزمان هم «بیشترین» و هم «کمترین» باشد");
+        return false;
+      }
+
+      // افزودن هر دو پاسخ DISC به لیست final
+      answerKeys.value.push({ ...discSelections.most });
+      answerKeys.value.push({ ...discSelections.least });
+
+      // ریست کردن انتخاب‌های DISC برای سوال بعدی
+      discSelections.most = null;
+      discSelections.least = null;
+    } else {
+      if (!selectedItem.qId || !selectedItem.oId) {
+        $toast.info("لطفا به سوال آزمون پاسخ مناسب دهید");
+        return false;
+      }
+      answerKeys.value.push({
+        qId: selectedItem.qId,
+        oId: selectedItem.oId,
+        ...(selectedItem.subOptionId && { subOptionId: selectedItem.subOptionId }),
+      });
+
+      // ریست کردن انتخاب عادی
+      selectedItem.qId = "";
+      selectedItem.oId = "";
+    }
+
+    return true;
+  },
+
   nextQuestion = () => {
-    if (
-      currentQuestion.value >=
-      Number(testStore.state.questions?.questionCount) - 1
-    )
-      return;
+    if (currentQuestion.value >= Number(questionCount.value) - 1) return;
 
-    // validation inputs
-    if (!selectedItem.qId || !selectedItem.oId) {
-      $toast.info("لطفا به سوال آزمون پاسخ مناسب دهید");
-      return;
-    }
-    answerKeys.value.push({
-      qId: selectedItem.qId,
-      oId: selectedItem.oId,
-      ...(selectedItem.subOptionId && {
-        subOptionId: selectedItem.subOptionId,
-      }),
-    });
+    if (!validateAndSaveCurrentQuestion()) return;
 
-    // reset selected item
-    selectedItem.qId = "";
-    selectedItem.oId = "";
-    if (selectedItem.subOptionId) {
-      selectedItem.subOptionId = "";
-    }
     currentQuestion.value++;
   },
+
   sendAnswers = async () => {
     const res = await testStore.sendAnswer(
       answerKeys.value,
@@ -97,30 +147,21 @@ const acceptTerms = ref<boolean>(false),
 
     resultModal.value = true;
     resultData.code = res?.response?.code;
-    resultData.title = res?.response.title;
-    resultData.body = res?.response.body;
+    resultData.title = res?.response?.title;
+    resultData.body = res?.response?.body;
     return true;
   },
-  sendResultAndScoring = async () => {
-    // validation inputs
-    if (!selectedItem.qId || !selectedItem.oId) {
-      $toast.info("لطفا به سوال آزمون پاسخ مناسب دهید");
-      return;
-    }
 
-    if (answerKeys.value.length >= (questionCount.value as number)) {
-      await sendAnswers();
-    } else {
-      answerKeys.value.push(selectedItem);
-      await sendAnswers();
-    }
+  sendResultAndScoring = async () => {
+    if (!validateAndSaveCurrentQuestion()) return;
+
+    await sendAnswers();
   };
 
 onBeforeMount(async () => {
   const getQuestions = await testStore.getTestQuestions(
     route.query?.examId as string,
   );
-  // if invalid test asset
   if (!getQuestions?.success) {
     testStore.state.loading.getQuestions = true;
     $toast.error("خطای اعتبار سنجی", {
@@ -128,8 +169,7 @@ onBeforeMount(async () => {
     });
     await navigateTo("/test/active");
   }
-  // set questions from api
-  questions.value = testStore.state.questions?.questions;
+  questions.value = testStore.state.questions?.questions;  
   questionCount.value = testStore.state.questions?.questionCount as any;
 });
 </script>
@@ -165,7 +205,7 @@ onBeforeMount(async () => {
         <strong class="text-sm">قوانین و مقررات</strong>
         <br />
         <br />
-        <p v-for="p of terms" class="text-sm font-bold not-last:mb-3">
+        <p v-for="p of terms" :key="p" class="text-sm font-bold not-last:mb-3">
           {{ p }}
         </p>
       </div>
@@ -221,9 +261,9 @@ onBeforeMount(async () => {
             'mt-18':
               (questions?.at(currentQuestion)?.options.length as number) <= 2,
           }"
-          class="grid mt-9 rounded-3xl overflow-hidden"
+          class="grid mt-9 rounded-3xl overflow-hidden gap-y-2"
         >
-          <button
+          <div
             :key="index"
             v-for="(op, index) of questions?.at(currentQuestion)?.options"
             @click="
@@ -235,59 +275,89 @@ onBeforeMount(async () => {
                 : undefined
             "
             :class="{
-              'bg-x-primary-500/50 hover:bg-x-primary-500/70  text-white font-bold scale-90 rounded-3xl hover':
-                selectedItem.oId === op.optionId,
+              'bg-x-primary-500/50 hover:bg-x-primary-500/70 text-white font-bold rounded-3xl':
+                testStore.state.questions.type !== 'DISC' && selectedItem.oId === op.optionId,
             }"
-            class="px-3 py-3.5 text-right hover:border cursor-pointer border-b-slate-300 transition-all min-h-18 hover:bg-slate-200/70 bg-white/60 backdrop-blur-md border-x-primary-100"
+            class="px-3 py-3.5 text-right cursor-pointer border-b-slate-300 transition-all min-h-18 hover:bg-slate-200/70 bg-white/60 backdrop-blur-md border-x-primary-100 rounded-2xl"
           >
             <div class="flex items-center gap-x-2">
               <span
-                class="w-5 h-5 text-white grid place-items-center rounded-2xl bg-x-primary-300 outline-2 outline-x-primary-100"
+                class="w-5 h-5 text-white grid place-items-center rounded-2xl bg-x-primary-300 outline-2 outline-x-primary-100 shrink-0"
                 >{{ index + 1 }}</span
               >
               <p class="text-sm">
                 {{ op.text }}
               </p>
             </div>
-            <!-- For disc test -->
+
+            <!-- For DISC Test Options -->
             <div
               class="text-xs grid grid-cols-2 gap-2 mt-3"
               v-if="testStore.state.questions?.type === 'DISC'"
             >
-              <buttom
+              <!-- دکمه کمترین (Least) -->
+              <button
+                type="button"
                 :class="{
-                  'hover:text-x-text-title! bg-white/90! border-2! border-white text-white': selectedItem.subOptionId === item?.id,
+                  'bg-red-500! text-white! font-bold shadow-md':
+                    discSelections.least?.oId === op.optionId,
+                  'bg-white/60 hover:bg-white text-x-text-title':
+                    discSelections.least?.oId !== op.optionId,
+                  'opacity-40 pointer-events-none':
+                    discSelections.most?.oId === op.optionId
                 }"
-                class="relative flex items-center text-x-text-title hover:bg-white transition bg-white/60 justify-center h-13 border border-neutral-500/10 rounded-2xl "
-                v-for="item of [op?.score.least, op?.score?.most]"
-                @click="
-                  testStore.state.questions.type === 'DISC'
-                    ? selectAnswer(
-                        questions?.at(currentQuestion)?.questionId as string,
-                        op.optionId,
-                        item?.id,
-                      )
-                    : undefined
+                class="relative flex items-center transition justify-center h-11 border border-neutral-500/10 rounded-2xl cursor-pointer"
+                @click.stop="
+                  selectDiscAnswer(
+                    questions?.at(currentQuestion)?.questionId as string,
+                    op.optionId,
+                    op?.score?.least?.id,
+                    'least'
+                  )
                 "
               >
-                {{ item?.label }}
-              </buttom>
+                {{ op?.score?.least?.label || 'کمترین' }}
+              </button>
+
+              <!-- دکمه بیشترین (Most) -->
+              <button
+                type="button"
+                :class="{
+                  'bg-emerald-600! text-white! font-bold shadow-md':
+                    discSelections.most?.oId === op.optionId,
+                  'bg-white/60 hover:bg-white text-x-text-title':
+                    discSelections.most?.oId !== op.optionId,
+                  'opacity-40 pointer-events-none':
+                    discSelections.least?.oId === op.optionId
+                }"
+                class="relative flex items-center transition justify-center h-11 border border-neutral-500/10 rounded-2xl cursor-pointer"
+                @click.stop="
+                  selectDiscAnswer(
+                    questions?.at(currentQuestion)?.questionId as string,
+                    op.optionId,
+                    op?.score?.most?.id,
+                    'most'
+                  )
+                "
+              >
+                {{ op?.score?.most?.label || 'بیشترین' }}
+              </button>
             </div>
-          </button>
+          </div>
         </div>
 
-        <div class="flex justify-center fixed bottom-10">
+        <div class="flex justify-center fixed bottom-10 left-0 right-0 px-5 z-20">
           <UButton
             color="x-primary"
             label="سوال بعدی"
             @click="nextQuestion"
-            :ui="{ base: 'rounded-full px-5 h-13' }"
+            :ui="{ base: 'rounded-full px-8 h-13' }"
             v-if="currentQuestion < Number(questionCount) - 1"
           />
           <UButton
             color="x-secondary"
             block
-            @click="sendResultAndScoring as any"
+            @click="sendResultAndScoring"
             label="دریافت نتیجه آزمون"
             :disabled="testStore.state.loading.sendAnswer"
             :loading="testStore.state.loading.sendAnswer"
@@ -362,7 +432,7 @@ onBeforeMount(async () => {
 
 <style scoped lang="scss">
 .flower-shape {
-  width: 100px; /* adjust to control the size */
+  width: 100px;
   aspect-ratio: 1;
   --g: /20.56% 20.56% radial-gradient(#000 calc(71% - 1px), #0000 71%) no-repeat;
   mask:
