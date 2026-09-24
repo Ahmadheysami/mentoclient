@@ -21,5 +21,9 @@
       "**/node_modules": true
     },
 
-    "typescript.tsserver.maxTsServerMemory": 4096
+    "typescript.tsserver.maxTsServerMemory": 4096,
+    "tree-generator.readmePath": "A.md",
+    "tree-generator.outputStyle": "unicode",
+    "tree-generator.maxDepth": -1,
+    "tree-generator.autoUpdateReadme": false
 }
