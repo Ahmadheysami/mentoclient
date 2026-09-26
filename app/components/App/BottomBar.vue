@@ -9,13 +9,13 @@ const items = [
 </script>
 
 <template>
-    <div class="absolute bottom-0 left-0 right-0 bg-linear-180 to-x-primary-content-100 from-transparent z-1060">
-        <div class="flex items-center justify-center py-4 gap-4">
-            <NuxtLink :to="item.to" v-for="item of items" class="grid place-items-center gap-2 first:scale-75 last:scale-75 transition-transform hover:-translate-y-4" >
-                <div class="bg-white w-18 h-18 rounded-full grid place-items-center shadow-inner outline-6 outline-x-primary-content-200">
-                    <UIcon :name="item.icon" size="38" class="text-x-primary-800" />
+    <div class="absolute bottom-3.5 cont bg-linear-90 border border-slate-200 to-slate-200 from-white/70 backdrop-blur-sm  px-5 rounded-full left-1/2 -translate-x-1/2 z-1060">
+        <div class="flex items-center justify-center py-4 gap-5">
+            <NuxtLink :to="item.to" v-for="item of items" class="grid place-items-center gap-2  transition-transform " >
+                <div class="bg-white w-16.5 h-16.5 hover:-translate-y-2 transition rounded-full grid place-items-center shadow-inner outline-6 outline-x-primary-content-200">
+                    <UIcon :name="item.icon" size="32" class="text-x-primary-800" />
                 </div>
-                <p class="font-bold text-[16px]" :class="{'text-[13px]! text-center': item.label.length > 8}">{{ item.label }}</p>
+                <!-- <p class="font-bold text-[16px]" :class="{'text-[13px]! text-center': item.label.length > 8}">{{ item.label }}</p> -->
             </NuxtLink>
         </div>
     </div>
@@ -29,5 +29,11 @@ const items = [
     .router-link-active.router-link-exact-active span {
         color: var(--color-x-primary-content-50);
         font-weight: bold;
+    }
+    .cont {
+        -webkit-backdrop-filter: 8px;
+        -moz-backdrop-filter: 8px;
+        -o-backdrop-filter: 8px;
+        -ms-backdrop-filter: 8px;
     }
 </style>
