@@ -146,26 +146,16 @@ const services: {
 </script>
 
 <template>
-    <div class="relative bg-linear-60 from-x-secondary-500 to-x-secondary-800 w-11/12 mx-auto my-2 overflow-hidden rounded-3xl">
-        <!-- <div class="w-25 h-full absolute bg-linear-150 rounded-full to-blue-400/20 from-transparent blur-sm -top-2 -right-2"></div>
-        <div class="w-50 h-50 absolute bg-linear-150 rounded-full from-yellow-500/70 to-transparent blur-sm top-2 -left-2"></div> -->
+    <div class="relative bg-linear-60 from-x-secondary-500 to-x-secondary-800 group hover:scale-95 transition w-11/12 mx-auto my-2 overflow-hidden rounded-3xl">
 
         <NuxtLink to="/plan" class="relative z-30">
             
-            <div class="text-center p-3.5">
-                <div >
+            <div class=" p-3.5">
+                <div class="w-full flex items-center justify-between">
                     <strong class="text-xl font-liana! text-white" >فعال سازی منتویا پرو</strong>
+                    <UIcon name="solar:arrow-left-linear" size="30" class="text-white group-hover:rotate-45 transition" />
                 </div>
-                <!-- <UButton size="xl" to="/plans" variant="soft" class="rounded-full text-xs"  color="x-secondary" label="فعال سازی پنل پرو" /> -->
             </div>
-            <!-- <div class="flex justify-center gap-3 mt-4">
-                <div v-for="item of panels" :key="item.id" class="grid place-items-center">
-                    <div class=" rounded-xl bg-white/30 drop-shadow-2xl hover:-translate-y-2 transition-all shadow-black w-17 h-17 p-1">
-                        <img :src="item.img" alt="" class="w-full h-full object-contain">
-                    </div>
-                    <p class="text-xs font-bold mt-2"> {{ item.title }}</p>
-                </div>
-            </div> -->
         </NuxtLink>
     </div>
     <div class="bg-white w-11/12 mx-auto mb-5 mt-2 pb-7 pt-9 rounded-3xl a ">
