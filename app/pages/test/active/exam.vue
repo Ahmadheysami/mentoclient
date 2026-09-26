@@ -380,17 +380,17 @@ onBeforeMount(async () => {
     :dismissible="false"
   >
     <template #content>
-      <div class="grid place-items-center px-3 w-full">
+      <div class="grid place-items-center px-3 w-full overflow-y-auto">
         <div class="grid place-items-center w-full pb-7">
           <NuxtImg
             src="/images/icons/check-icon.png"
-            class="drop-shadow-2xl drop-shadow-green-400"
+            class="drop-shadow-2xl relative z-50 drop-shadow-green-400"
             width="160px"
             height="160px"
             quality="60"
           />
           <p
-            class="text-center font-bold mb-4 inline-block rounded-2xl text-x-text-subtitle"
+            class="text-center font-bold sticky top-0 w-full left-0 py-3 px-2 bg-white text-x-text-subtitle"
           >
             نتیجه آزمون {{ testStore.state.questions?.title }}
           </p>
@@ -398,10 +398,8 @@ onBeforeMount(async () => {
           <strong class="block">
             {{ resultData.title }}
           </strong>
-          <p class="text-sm mt-4">
-            {{ resultData.body }}
-          </p>
-          <div class="flex gap-3 mt-3">
+          <p class="text-sm p-1 pb-10" v-html="resultData.body"></p>
+          <div class="flex gap-3 mt-3 absolute bottom-0 bg-white p-2 w-full">
             <UButton
               variant="solid"
               color="x-primary"
