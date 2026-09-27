@@ -1,56 +1,74 @@
 <script setup lang="ts">
-const testStore = useTest(),
-  limit = ref<number>(30),
-  pagination = testStore.state.storePagination,
-  paginationHandler = async (action: "next" | "prev") => {
-    if (action === "next" && !testStore.state.storePagination?.hasNext) return;
-    // if (action === "prev" && !pagination?.hasPrev) return;
-    
-    
-    await testStore.getStore({
-      limit: limit.value,
-      page:
-        action === "next"
-          ? Number(testStore.state.storePagination?.currentPage) + 1
-          : Number(testStore.state.storePagination?.currentPage) - 1,
-    });
-  };
+import { faNumber } from "~/utils/fa";
 
-onMounted(async () => {
-  await testStore.getStore({ limit: limit.value });
-});
+const testStore = useTest();
+
+const LIMIT = 30;
+
+const isLoading = computed(() => testStore.state.loading.getStore);
+
+const hasError = computed(() => !isLoading.value && Boolean(testStore.state.error));
+
+const hasTests = computed(() => testStore.state.store.length > 0);
+
+const pagination = computed(() => testStore.state.storePagination);
+const currentPage = computed(() => Number(pagination.value.currentPage ?? 1));
+const totalPages = computed(() => Number(pagination.value.totalPages ?? 1));
+const canPaginate = computed(() => totalPages.value > 1);
+
+const loadTests = async () => {
+  await testStore.getStore({ limit: LIMIT });
+};
+
+const goToPage = async (action: "next" | "prev") => {
+  if (action === "next" && !pagination.value.hasNext) return;
+  if (action === "prev" && !pagination.value.hasPrev) return;
+
+  await testStore.getStore({
+    limit: LIMIT,
+    page: action === "next" ? currentPage.value + 1 : currentPage.value - 1,
+  });
+};
+
+onMounted(loadTests);
 </script>
 
 <template>
   <TestTabItems />
   <div class="grid gap-y-4 mt-2 w-11/12 mx-auto">
-    <p class="text-sm my-1 inline-block font-bold">آزمون ها</p>
-    <div>
-      <div
-        class="h-[50dvh] grid place-items-center"
-        v-if="testStore.state.loading?.getStore"
+    <h1 class="my-1 text-sm inline-block font-bold text-x-text-title">آزمون‌ها</h1>
+
+    <!-- Loading -->
+    <div v-if="isLoading" aria-busy="true">
+      <TestListSkeleton shape="tile" label="در حال دریافت آزمون‌ها" />
+    </div>
+
+    <!-- Error -->
+    <TestStateMessage
+      v-else-if="hasError"
+      icon="solar:link-broken-linear"
+      :title="testStore.state.error ?? ''"
+      action-label="تلاش دوباره"
+      @action="loadTests"
+    />
+
+    <!-- Empty -->
+    <TestStateMessage
+      v-else-if="!hasTests"
+      icon="solar:document-outline"
+      title="تا کنون آزمونی منتشر نشده"
+      description="به‌زودی اولین آزمون‌ها در این‌جا در دسترس شما قرار می‌گیرند."
+    />
+
+    <!-- Success -->
+    <ul v-else class="grid gap-3">
+      <li
+        class="reveal"
+        v-for="(test, index) in testStore.state.store"
+        :key="test.testId"
+        :style="{ animationDelay: `${Math.min(index, 5) * 60}ms` }"
       >
-        <div>
-          <UIcon name="line-md:loading-twotone-loop" size="40" />
-        </div>
-      </div>
-      <div
-        class="h-[50dvh] grid place-items-center"
-        v-if="
-          !testStore.state.loading?.getStore &&
-          (testStore.state.store?.length as number) <= 0
-        "
-      >
-        <div class="">
-          <AppLogo size="lg" type="medium" to="/" />
-          <p class="mt-4">تا کنون آزمونی منتشر نشده</p>
-        </div>
-      </div>
-      <div class="grid gap-3">
         <TestCard
-          v-if="!testStore.state.loading?.getStore"
-          v-for="test of testStore.state.store"
-          :key="test.testId"
           :title="test.title"
           :thumbnail="test.image"
           :to="test.testId"
@@ -63,40 +81,38 @@ onMounted(async () => {
             questionCount: test.questionCount,
           }"
         />
-      </div>
-    </div>
+      </li>
+    </ul>
   </div>
 
-  <div
-    class="flex items-center justify-center mt-5"
-    v-if="testStore.state.loading"
+  <!-- Pagination. In RTL, "previous" points right, so it comes first. -->
+  <nav
+    v-if="canPaginate && hasTests"
+    class="mt-5 flex items-center justify-center gap-4"
+    aria-label="صفحه‌بندی آزمون‌ها"
   >
-    <!-- Pagination -->
     <UButton
-      variant="link"
-      color="x-secondary"
-      v-if="testStore.state.storePagination.hasNext"
-      :class="{ invisible: !testStore.state.storePagination.hasNext }"
-      @click="paginationHandler('next')"
-      >
-      <UIcon name="solar:arrow-right-linear" size="30" />
-    </UButton>
-    <span class="text-sm ltr" v-show="testStore.state.storePagination.hasNext || testStore.state.storePagination.hasPrev">
-      {{ testStore.state.storePagination.currentPage }} /
-      {{ testStore.state.storePagination.totalPages }}
+      icon="solar:arrow-right-linear"
+      variant="outline"
+      color="neutral"
+      aria-label="صفحه قبل"
+      :disabled="!pagination.hasPrev || isLoading"
+      :ui="{ base: 'size-11 rounded-full' }"
+      @click="goToPage('prev')"
+    />
+    <span class="text-sm ltr text-x-text-subtitle">
+      {{ faNumber(currentPage) }} / {{ faNumber(totalPages) }}
     </span>
-    <!-- Pagination -->
     <UButton
-    variant="link"
-    color="x-secondary"
-      :disabled="!testStore.state.storePagination.hasPrev"
-      :class="{ invisible: !testStore.state.storePagination.hasPrev }"
-      @click="paginationHandler('prev')"
-    >
-      <UIcon name="solar:arrow-left-linear" size="30" />
-    </UButton>
-  </div>
+      icon="solar:arrow-left-linear"
+      variant="outline"
+      color="neutral"
+      aria-label="صفحه بعد"
+      :disabled="!pagination.hasNext || isLoading"
+      :ui="{ base: 'size-11 rounded-full' }"
+      @click="goToPage('next')"
+    />
+  </nav>
+
   <TestSingle test-id="" />
 </template>
-
-<style lang="scss"></style>

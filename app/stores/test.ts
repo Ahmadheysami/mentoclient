@@ -1,3 +1,5 @@
+import type { TestResult } from "~/types/test";
+
 interface TestItem {
   targetAudience: {
     targetGender: string;
@@ -72,35 +74,6 @@ export interface QuestionsData {
   }[];
 }
 
-interface TestResult {
-  assetId: string;
-  id: string;
-  version: number;
-  result: {
-    code: string;
-    title: string;
-    body: string;
-    status: string;
-  };
-  testId: string;
-  userId: string;
-  createdAt: string;
-  updatedAt: string;
-  user: {
-    isOnline: boolean;
-    age: number;
-    fullName: {
-      first: string;
-      last: string;
-    };
-    position: string;
-  };
-  test: {
-    title: string;
-    description: string;
-  };
-}
-
 interface TestState {
   loading: Record<
     | "getStore"
@@ -119,6 +92,7 @@ interface TestState {
   myTests: TestAssets[] | null;
   questions: QuestionsData | null;
   testResults: TestResult[]
+  error: string | null;
 }
 
 export const useTest = defineStore("test", () => {
@@ -138,7 +112,8 @@ export const useTest = defineStore("test", () => {
     tokenBase: 0,
     myTests: [],
     questions: {},
-    testResults: []
+    testResults: [],
+    error: null
   });
 
   // Get tests store
@@ -149,6 +124,7 @@ export const useTest = defineStore("test", () => {
   }) {
     try {
       state.loading.getStore = true;
+      state.error = null;
       const response: any = await $fetch("/api/test/store", {
         query: {
           ...(pagination?.limit && { limit: pagination.limit }),
@@ -156,10 +132,18 @@ export const useTest = defineStore("test", () => {
           ...(pagination?.tag && { tag: pagination.tag }),
         },
       });
-      if (!response?.success) state.store = [];
 
-      state.store = response?.tests;
-      state.storePagination = response?.stats;
+      if (!response?.success) {
+        state.error =
+          "در حال حال‌ر نتواست آزمون‌ها را ندادیم. لطفاً کمی بعد دوباره تلاش کنید.";
+        return;
+      }
+
+      state.store = response?.tests ?? [];
+      state.storePagination = response?.stats ?? {};
+    } catch {
+      state.error =
+        "در حال حال‌ر نتواست آزمون‌ها را ندادیم. اتصال اینترنت را بررسی کنید.";
     } finally {
       state.loading.getStore = false;
     }
@@ -184,15 +168,24 @@ export const useTest = defineStore("test", () => {
   async function getMyTests(status?: "available" | "consumed") {
     try {
       state.loading.getMyTests = true;
+      state.error = null;
       const response: any = await $fetch("/api/test/my-tests", {
         query: {
           ...(status && { status }),
         },
       });
 
-      if (!response.success) return null;
+      if (!response?.success) {
+        state.error =
+          "در حال حاضر نشد آزمون‌های فعال شما را دریافت کنیم. لطفاً کمی بعد دوباره تلاش کنید.";
+        return null;
+      }
 
       state.myTests = response?.tests;
+    } catch {
+      state.myTests = null;
+      state.error =
+        "در حال حاضر نشد آزمون‌های فعال شما را دریافت کنیم. لطفاً کمی بعد دوباره تلاش کنید.";
     } finally {
       state.loading.getMyTests = false;
     }
@@ -270,14 +263,25 @@ export const useTest = defineStore("test", () => {
   async function getTestResults (sub?: string) {
     try {
       state.loading.getTestsDone = true
+      state.error = null
       const response: any = await $fetch("/api/test/results", {
         query: {
           ...(sub && {sub})
         }
       })
 
-      if (!response?.success) return state.testResults = [];
-      state.testResults = response?.results
+      if (!response?.success) {
+        state.testResults = [];
+        state.error =
+          "در حال حاضر نشد نتایج شما را دریافت کنیم. لطفاً کمی بعد دوباره تلاش کنید.";
+        return;
+      }
+
+      state.testResults = response?.results;
+    } catch {
+      state.testResults = []
+      state.error =
+        "در حال حاضر نشد نتایج شما را دریافت کنیم. لطفاً کمی بعد دوباره تلاش کنید.";
     } finally {
       state.loading.getTestsDone = false
     }

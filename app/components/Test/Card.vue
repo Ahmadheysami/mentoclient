@@ -1,72 +1,85 @@
 <script setup lang="ts">
-const props = defineProps<{
-    title: string;
-    options: {
-      isFeature: boolean;
-      audience: { from: number; to: number };
-      questionCount: number;
-    };
-    to: string;
-    thumbnail?: string;
-  }>(),
-  imageLoaded = ref<boolean>(true);
+import { faNumber } from "~/utils/fa";
+
+defineProps<{
+  title: string;
+  options: {
+    isFeature: boolean;
+    audience: { from: number; to: number };
+    questionCount: number;
+  };
+  to: string;
+  thumbnail?: string;
+}>();
 </script>
 
 <template>
-  <ULink
-    :to="`/test?s=${props.to}`"
-    class="text-right bg-white flex gap-2 hover:shadow-2xl hover:shadow-black/10 transition-all items-center rounded-3xl"
+  <NuxtLink
+    :to="`/test?s=${to}`"
+    class="flex gap-3 rounded-3xl bg-white p-4 transition duration-200 ease-out hover:scale-95 hover:opacity-90 active:scale-95 active:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-x-primary-600"
   >
     <NuxtImg
-      :src="props.thumbnail || '/logo.png'"
-      :class="{ 'opacity-60 object-cover! p-7!': !props.thumbnail }"
-      class="h-36 min-w-31 max-w-31 object-cover rounded-r-3xl"
-      :alt="props.title"
-      @error="imageLoaded = false"
-      v-if="imageLoaded"
+      v-if="thumbnail"
+      :src="thumbnail"
+      :alt="title"
+      loading="lazy"
+      class="size-24 shrink-0 rounded-2xl object-cover"
     />
-    <!-- <UIcon v-else name="mdi-light:picture" :size="136" /> -->
-    <img
-      src="/logo.png"
-      class="w-30 h-34 object-cover opacity-80 bg-blue-500/10 rounded-2xl p-5"
+    <span
       v-else
-      :alt="props.title"
-    />
-    <div class="w-full p-3">
-      <strong class="line-clamp-2 text-x-text-title">
-        {{ props.title }}
-      </strong>
-      <div class="tags flex gap-2 my-2">
-        <span
-          v-if="props.options.isFeature"
-          class="flex items-center text-xs bg-x-secondary-50 text-x-secondary-500 p-1.5 rounded-full text-center"
-          >پیشنهادی</span
-        >
-        <span
-          class="flex items-center text-xs bg-yellow-50 text-yellow-600 p-1.5 rounded-full text-center"
-        >
-          از
-          {{ props.options.audience.from }}
-          تا
-          {{ props.options.audience.to }}
-          سال
-        </span>
-        <span
-          v-if="true"
-          class="flex items-center text-xs bg-emerald-50 text-emerald-600 p-1.5 rounded-full text-center"
-          >{{ props.options.questionCount }} سوال</span
-        >
-      </div>
-      <div class="flex justify-end">
-        <UButton
-          type="button"
-          variant="solid"
-          class="mt-3"
-          :ui="{ base: 'rounded-3xl px-6 py-2' }"
-          color="x-primary"
-          label="مشاهده و فعال سازی"
+      class="grid size-24 shrink-0 place-items-center rounded-2xl bg-x-primary-100 text-x-primary-800"
+      aria-hidden="true"
+    >
+      <UIcon name="solar:document-medicine-linear" size="32" />
+    </span>
+
+    <span class="flex min-w-0 flex-1 flex-col">
+      <strong class="line-clamp-2 text-x-text-title">{{ title }}</strong>
+
+      <!--
+        Badges use UBadge (Nuxt UI) tinted from the design tokens: a soft
+        gradient + hairline ring reads as "alive" where a flat tint vanished
+        against the white card. Only token colours, so nothing new is invented.
+      -->
+      <span class="mt-2 flex flex-wrap items-center gap-2">
+        <UBadge
+          v-if="options.isFeature"
+          variant="soft"
+          icon="solar:star-bold"
+          label="پیشنهادی"
+          :ui="{
+            base:
+              'gap-1 rounded-full px-2.5 py-1 text-xs font-medium ring-1 bg-linear-to-l from-x-secondary-500 to-x-secondary-100 text-x-secondary-900 ring-x-secondary-300/60',
+          }"
         />
-      </div>
-    </div>
-  </ULink>
+
+        <UBadge
+          variant="soft"
+          icon="solar:user-rounded-linear"
+          :label="`${faNumber(options.audience.from)} تا ${faNumber(options.audience.to)} سال`"
+          :ui="{
+            base:
+              'gap-1 rounded-full px-2.5 py-1 text-xs font-medium ring-1 bg-linear-to-l from-x-primary-500 to-x-primary-200 text-x-primary-900 ring-x-primary-300/60',
+          }"
+        />
+
+        <UBadge
+          variant="soft"
+          icon="solar:list-check-linear"
+          :label="`${faNumber(options.questionCount)} سوال`"
+          :ui="{
+            base:
+              'gap-1 rounded-full px-2.5 py-1 text-xs font-medium ring-1 bg-linear-to-l from-x-primary-content-600 to-x-primary-content-400 text-x-primary-content-900 ring-x-primary-content-400/60',
+          }"
+        />
+      </span>
+
+      <span
+        class="mt-auto text-center gap-1 pt-3 text-sm font-medium text-x-primary-500!"
+      >
+        مشاهده و فعال‌سازی
+        <UIcon name="solar:alt-arrow-left-linear" size="18" aria-hidden="true" />
+      </span>
+    </span>
+  </NuxtLink>
 </template>

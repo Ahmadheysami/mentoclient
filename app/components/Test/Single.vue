@@ -235,8 +235,7 @@ watch(
               {{ testStore.state.singleTest?.title }}
             </p>
             <strong>توضیحات</strong>
-            <p class="mt-4">
-              {{ testStore.state.singleTest?.description }}
+            <p class="mt-4 content" v-html="testStore.state.singleTest?.description">
             </p>
           </div>
         </div>
