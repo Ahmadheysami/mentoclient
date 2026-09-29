@@ -148,11 +148,11 @@ const services: {
 <template>
     <div class="relative bg-linear-60 from-x-secondary-500 to-x-secondary-800 group hover:scale-95 transition w-11/12 mx-auto my-2 overflow-hidden rounded-3xl">
 
-        <NuxtLink to="/plan" class="relative z-30">
-            
+        <NuxtLink to="/plans" class="relative z-30">
+
             <div class=" p-3.5">
                 <div class="w-full flex items-center justify-between">
-                    <strong class="text-xl font-liana! text-white" >فعال سازی منتویا پرو</strong>
+                    <strong class="text-3xl font-liana! text-white" >پنل های منتویا پرو</strong>
                     <UIcon name="solar:arrow-left-linear" size="30" class="text-white group-hover:rotate-45 transition" />
                 </div>
             </div>

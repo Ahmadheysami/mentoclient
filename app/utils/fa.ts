@@ -29,3 +29,67 @@ export function faDate(value: string | number | Date | undefined | null): string
 export function faNumber(value: number): string {
   return faNumberFormatter.format(value);
 }
+
+/** A plan price, split so the figure can be huge and the unit can stay small. */
+export interface TomanPrice {
+  /** The figure, in Persian digits — «۵۰ هزار». */
+  value: string;
+  /** The spoken unit, ready to sit beside the figure — «تومان». */
+  unit: string;
+}
+
+/**
+ * The API quotes every plan price in **ریال**; customers are quoted in **تومان**,
+ * which is what they actually say and pay: 1 تومان = 10 ریال.
+ *
+ * The two parts come back separately because the price is set with the figure
+ * huge and the unit small.
+ *
+ * Trimming happens **only on clean multiples**, so the spoken price reads the
+ * way a person says it: «۵۰ هزار تومان», not «۵۰٬۰۰۰ تومان». Anything that is not
+ * a clean multiple keeps its full figure, which is also what a speaker does —
+ * «۱٬۲۳۴ تومان» is said, «۱٬۲۳۴ هزار تومان» is not.
+ *
+ * Magnitude first: the millions tier is tested before the thousands tier, and
+ * it accepts divisibility by 100 000 rather than by a full million, so the
+ * quotient carries at most one decimal — «۱٫۲ میلیون تومان» — and never a long
+ * tail. The thousands tier is the fallback for clean thousands that are not
+ * clean millions. Without that cap a price like 1 234 567 تومان would print as
+ * «۱٫۲۳۴۵۶۷ میلیون تومان».
+ *
+ * A free plan is `۰ تومان`, not an error: a non-finite or negative amount is
+ * clamped to zero rather than throwing, and `Infinity` in particular would
+ * otherwise sail through both tiers and render as «∞ تومان».
+ */
+export function faToman(rial: number): TomanPrice {
+  const toman = Number.isFinite(rial) ? Math.max(0, Math.round(rial / 10)) : 0;
+
+  if (toman >= 1_000_000 && toman % 100_000 === 0) {
+    return { value: faNumber(toman / 1_000_000), unit: "میلیون تومان" };
+  }
+
+  if (toman >= 1_000 && toman % 1_000 === 0) {
+    return { value: faNumber(toman / 1_000), unit: "هزار تومان" };
+  }
+
+  return { value: faNumber(toman), unit: "تومان" };
+}
+
+/** `faToman` joined for the places that quote the whole price in one string. */
+export function faTomanText(rial: number): string {
+  const price = faToman(rial);
+
+  return `${price.value} ${price.unit}`;
+}
+
+/**
+ * «۱ ماه» / «۳ ماه» / «۱ سال» — the biggest whole unit that fits, so a 30-day
+ * plan never reads as «۳۰ ماه». Falls back to days for any other length.
+ */
+export function faDuration(days: number): string {
+  if (days < 30) return `${faNumber(days)} روز`;
+  if (days % 365 === 0) return `${faNumber(days / 365)} سال`;
+  if (days % 30 === 0) return `${faNumber(days / 30)} ماه`;
+
+  return `${faNumber(days)} روز`;
+}

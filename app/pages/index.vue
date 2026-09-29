@@ -14,8 +14,12 @@
             <AppTopBar />
             <!-- Story Component -->
             <FeaturesStory />
+            <!-- Active plan status -->
+            <div class="grid place-items-center mb-3">
+                <PlanActivePanelCard />
+            </div>
             <!-- Home Services Component -->
-             <HomeServices />
+            <HomeServices />
              
              <!-- Ads Carousel -->
               <FeaturesCarousel :size="'xl'" key="fd" />
