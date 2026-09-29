@@ -1,3 +1,8 @@
+---
+name: ui-design-system
+description: Build interfaces that follow a consistent visual system, making the decisions that keep a product coherent — inspecting existing design tokens (colors, typography, spacing, radius, shadows) and existing components (buttons, inputs, cards, dialogs, navigation, layouts) before creating anything new, reusing components before adding them. Enforces clear visual hierarchy (primary action, heading levels, grouping, spacing, predictable interaction), avoids random colors, excessive gradients/shadows, inconsistent radius, unnecessary animation, and arbitrary spacing, and prefers reusable components without over-abstracting one-off elements. Use when building or refining UI, styling a component, or establishing visual consistency. For layout across screen sizes use responsive-design; for accessibility use accessibility.
+---
+
 # UI Design System
 
 Build interfaces using a consistent visual system.
