@@ -75,7 +75,7 @@ onMounted(loadResults);
     </div>
 
     <!-- Error -->
-    <TestStateMessage
+    <UiStateMessage
       v-else-if="hasError"
       icon="solar:link-broken-linear"
       :title="testStore.state.error ?? ''"
@@ -84,7 +84,7 @@ onMounted(loadResults);
     />
 
     <!-- Empty -->
-    <TestStateMessage
+    <UiStateMessage
       v-else-if="groups.length === 0"
       icon="solar:document-outline"
       title="هنوز نتیجه‌ای ثبت شده نیست"
@@ -118,11 +118,6 @@ onMounted(loadResults);
               <time :datetime="group.latest.createdAt">
                 {{ faDate(group.latest.createdAt) }}
               </time>
-              <span aria-hidden="true"> · </span>
-              <span v-if="group.attempts > 1">
-                {{ faNumber(group.attempts) }} تلاش
-              </span>
-              <span v-else>آخرین تلاش</span>
             </span>
           </span>
 

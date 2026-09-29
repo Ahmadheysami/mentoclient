@@ -3,6 +3,8 @@ export default defineAppConfig({
     colors: {
       "x-primary": "x-primary",
       "x-secondary": "indigo",
+      "x-quiz-primary": "x-quiz-primary",
+      "x-quiz-primary-soft": "x-quiz-primary-soft",
       error: "red",
       warning: "orange",
       primary: "x-primary",

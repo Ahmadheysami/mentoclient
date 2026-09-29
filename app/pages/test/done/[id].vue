@@ -89,7 +89,7 @@ onMounted(async () => {
     </div>
 
     <!-- Error -->
-    <TestStateMessage
+    <UiStateMessage
       v-else-if="hasError"
       icon="solar:link-broken-linear"
       :title="testStore.state.error ?? ''"
@@ -98,7 +98,7 @@ onMounted(async () => {
     />
 
     <!-- Not found -->
-    <TestStateMessage
+    <UiStateMessage
       v-else-if="!result"
       icon="solar:compass-linear"
       title="این نتیجه پیدا نشد"

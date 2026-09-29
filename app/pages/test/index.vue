@@ -44,7 +44,7 @@ onMounted(loadTests);
     </div>
 
     <!-- Error -->
-    <TestStateMessage
+    <UiStateMessage
       v-else-if="hasError"
       icon="solar:link-broken-linear"
       :title="testStore.state.error ?? ''"
@@ -53,7 +53,7 @@ onMounted(loadTests);
     />
 
     <!-- Empty -->
-    <TestStateMessage
+    <UiStateMessage
       v-else-if="!hasTests"
       icon="solar:document-outline"
       title="تا کنون آزمونی منتشر نشده"

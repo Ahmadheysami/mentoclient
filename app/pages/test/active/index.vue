@@ -33,7 +33,7 @@ onMounted(loadActiveTests);
       </div>
 
       <!-- Error -->
-      <TestStateMessage
+      <UiStateMessage
         v-else-if="hasError"
         icon="solar:link-broken-linear"
         :title="testStore.state.error ?? ''"
@@ -42,7 +42,7 @@ onMounted(loadActiveTests);
       />
 
       <!-- Empty -->
-      <TestStateMessage
+      <UiStateMessage
         v-else-if="activeTests.length === 0"
         icon="solar:document-outline"
         title="هنوز آزمون فعالی ندارید"
@@ -89,7 +89,7 @@ onMounted(loadActiveTests);
               </div>
 
               <span
-                class="inline-flex shrink-0 items-center gap-1 rounded-full px-3 py-1.5 text-xs font-medium bg-linear-to-l from-x-primary-200 to-x-primary-100 text-x-primary-900 ring-1 ring-x-primary-300/60"
+                class="inline-flex shrink-0 items-center gap-1 rounded-full px-3 py-1.5 text-xs font-bold text-shadow-lg bg-linear-to-l from-x-primary-200 to-x-primary-100 text-white ring-1 ring-x-primary-300/60"
               >
                 <UIcon name="solar:check-circle-linear" size="14" aria-hidden="true" />
                 {{ item.status === "available" ? "فعال" : "غیرفعال" }}

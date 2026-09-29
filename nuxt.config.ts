@@ -41,6 +41,7 @@ export default defineNuxtConfig({
         'x-primary',
         'x-secondary',
         'x-primary-content',
+        'x-accent',
         'primary',
         'secondary',
         'success',

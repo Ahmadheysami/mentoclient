@@ -44,12 +44,29 @@
   --color-x-text-placeholder: #c4c4c4;
   --color-x-text-disabled: #e0e0e0;
   --color-x-text-link: #51a2ff;
+  /* Quiz / gamified exam design tokens (approved design) */
+  --color-x-quiz-primary: #2b0b9b;
+  --color-x-quiz-primary-soft: #4a1fd6;
+  --color-x-quiz-accent: #e11d74;
+  --color-x-quiz-accent-strong: #c2185b;
+  --color-x-quiz-surface: #f4f4f9;
+  --color-x-quiz-option: #f5f5f7;
+  --color-x-quiz-selected: #eae7fb;
+  --color-x-quiz-question: #fde7f3;
+  --color-x-quiz-question-border: #fbcfe8;
   --font-yekan-light: "Yekan-Light";
   --font-yekan-reqular: "Yekan-Regular";
   --font-yekan-bold: "Yekan-Bold";
   --font-yekan-extra: "Yekan-Extra";
   --font-liana: "Liana";
   --animate-move-bg: moveBg 360s ease infinite;
+  /* Motion. One curve set for the whole app: `--ease-out` is the decelerate
+     every entrance and press uses, `--ease-in-out` the symmetric one. They
+     replace Tailwind's defaults on purpose, so the existing `ease-out`/
+     `ease-in-out` utilities adopt the house curve instead of forking a
+     parallel scale next to it. */
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
 
   /* keyframes */
 
@@ -70,6 +87,22 @@
 
 body, html {
   background: var(--color-x-primary-content-50);
+}
+
+/* ---------------- Touch ---------------- */
+/* No grey flash on tap, no 300ms tap delay, and no stray text selection when a
+   button or link is pressed. Both are what make a tap feel like a tap. */
+
+html {
+  -webkit-tap-highlight-color: transparent;
+}
+
+button,
+a,
+[role="button"] {
+  touch-action: manipulation;
+  user-select: none;
+  -webkit-user-select: none;
 }
 
 
@@ -341,11 +374,88 @@ body, html {
   }
 }
 
+/* ---------------- Staggered entrance ---------------- */
+/* Same idea as `.reveal`, for a list: 8px of travel, the house curve, and an
+   `animation-delay` stepped by the caller. `both` keeps the card invisible
+   until its turn, so a staggered list never flashes out of order. */
+
+.reveal-stagger {
+  animation: reveal-stagger 300ms var(--ease-out) both;
+}
+
+@keyframes reveal-stagger {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .reveal {
+  .reveal,
+  .reveal-stagger {
     animation: none;
   }
 }
+
+/* ---------------- Pricing card notch ---------------- */
+/* The dip in the top edge of the approved pricing mockup
+   (docs/design/pricing-plans.webp), shared by the list card, the detail hero and
+   the skeleton. It lives here rather than in a scoped block because all three
+   need identical geometry, and a mask is the only way to get a wide, smooth,
+   scalable dip: `clip-path` can only do straight edges, and a polygon corner
+   never reads as an arc. */
+
+.plan-notch-host {
+  /* One radius for the whole card family, so the stroke and the fill inside it
+     cannot drift apart. Mirrors `rounded-4xl`. */
+  --plan-radius: 2rem;
+  --plan-hairline: 1px;
+  /* Geometry read off the mockup: the dip covers ~⅓ of the card's width and is
+     shallow enough that the plan title can sit on the same line at the other
+     end, the way the reference does. `--notch-length` is the horizontal
+     SEMI-axis, so the dip is twice as wide and is centred `--notch-length` in
+     from the end corner — which is what leaves the corner itself intact. */
+  --notch-length: 4.5rem;
+  --notch-depth: 2.5rem;
+  /* How much of the first line the dip steals. 1.85 × the semi-axis is the
+     distance at which the arc has climbed back above that line's ink, so the
+     badge row — the one line that shares the dip's corner — reserves it. The
+     eyebrow below it runs full width and needs nothing. */
+  --notch-pad: calc(var(--notch-length) * 1.85);
+  /* Defined once and used by both layers of the surface, so the stroke and the
+     fill are always carved by the same curve. `transparent`/`#000` below are
+     mask ALPHA, not paint: the stop removes the dip and the surface's own edge
+     is what draws the arc. */
+  --notch-mask: radial-gradient(
+    ellipse var(--notch-length) var(--notch-depth) at top var(--notch-length) left,
+    transparent 99%,
+    #000 100%
+  );
+}
+
+/* RTL: this app is hard-coded `dir="rtl"`, so the inline-end corner is the
+   physically-LEFT one — hence `left` in the mask above and `end-*` for the
+   pill. The mask must never sit on the clickable element, or the focus ring
+   would be clipped along with the paint. */
+.plan-surface {
+  border-radius: var(--plan-radius);
+  -webkit-mask-image: var(--notch-mask);
+  mask-image: var(--notch-mask);
+}
+
+/* The fill is inset by the hairline, so the layer beneath it shows through as a
+   1px line that follows the arc — including around the dip. A `ring` or a
+   `border` cannot do this: both trace the box, so they would stop dead where
+   the mask cuts. */
+.plan-surface--fill {
+  inset: var(--plan-hairline);
+  border-radius: calc(var(--plan-radius) - var(--plan-hairline));
+}
+
 /* ==========================================================================
    RICH CONTENT — Rich Text Editor Output Styles
    Version 3.0 · Mobile-first · RTL · Accessible

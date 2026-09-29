@@ -38,13 +38,13 @@ withDefaults(
         :key="`skeleton-tile-${row}`"
         aria-hidden="true"
       >
-        <USkeleton class="size-24 shrink-0 rounded-2xl bg-x-primary-100" />
+        <USkeleton class="size-24 shrink-0 rounded-2xl bg-x-primary-50" />
         <div class="flex-1 space-y-3 py-1">
-          <USkeleton class="h-4 w-4/5 rounded-lg bg-x-primary-100" />
-          <USkeleton class="h-4 w-1/2 rounded-lg bg-x-primary-100" />
+          <USkeleton class="h-4 w-4/5 rounded-lg bg-x-primary-50" />
+          <USkeleton class="h-4 w-1/2 rounded-lg bg-x-primary-50" />
           <div class="flex gap-2 pt-1">
-            <USkeleton class="h-6 w-16 rounded-full bg-x-primary-100" />
-            <USkeleton class="h-6 w-20 rounded-full bg-x-primary-100" />
+            <USkeleton class="h-6 w-16 rounded-full bg-x-primary-50" />
+            <USkeleton class="h-6 w-20 rounded-full bg-x-primary-50" />
           </div>
         </div>
       </div>
