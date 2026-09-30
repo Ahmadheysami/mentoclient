@@ -1,5 +1,5 @@
 <template>
-    <div class="h-dvh fixed w-md left-1/2 -translate-x-1/2 bg-x-primary-content-200 z-1090">
+    <div class="h-dvh fixed w-lg left-1/2 -translate-x-1/2 bg-x-primary-content-200 z-3060!">
         <div class="loader scale-125"></div>
         <div class="absolute bottom-11 w-full grid place-items-center">
             <AppLogo size="md" :type="'typo-colorize'"/>

@@ -9,11 +9,11 @@ const items = [
 </script>
 
 <template>
-    <div class="absolute bottom-3.5 cont bg-linear-90 border border-slate-200 to-slate-200 from-white/70 backdrop-blur-sm  px-5 rounded-full left-1/2 -translate-x-1/2 z-1060">
+    <div class="absolute bottom-3.5 cont bg-linear-90 border border-slate-200 to-slate-200 from-white/70 backdrop-blur-sm  px-5 rounded-full left-1/2 -translate-x-1/2 z-10">
         <div class="flex items-center justify-center py-4 gap-5">
             <NuxtLink :to="item.to" v-for="item of items" class="grid place-items-center gap-2  transition-transform " >
-                <div class="bg-white w-16.5 h-16.5 hover:-translate-y-2 transition rounded-full grid place-items-center shadow-inner outline-6 outline-x-primary-content-200">
-                    <UIcon :name="item.icon" size="32" class="text-x-primary-800" />
+                <div class="bg-white w-11.5 h-11.5 hover:-translate-y-2 transition rounded-full grid place-items-center shadow-inner outline-3 outline-x-primary-content-200">
+                    <UIcon :name="item.icon" size="25" class="text-x-primary-800" />
                 </div>
                 <!-- <p class="font-bold text-[16px]" :class="{'text-[13px]! text-center': item.label.length > 8}">{{ item.label }}</p> -->
             </NuxtLink>
