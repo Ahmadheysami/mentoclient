@@ -7,6 +7,10 @@
 
 const TIME_ZONE = "Asia/Tehran";
 
+const MINUTE = 60_000;
+const HOUR = 60 * MINUTE;
+const DAY = 24 * HOUR;
+
 const faDateFormatter = new Intl.DateTimeFormat("fa-IR", {
   year: "numeric",
   month: "long",
@@ -92,4 +96,41 @@ export function faDuration(days: number): string {
   if (days % 30 === 0) return `${faNumber(days / 30)} ماه`;
 
   return `${faNumber(days)} روز`;
+}
+
+/**
+ * «همین الان» / «۳ دقیقه پیش» / «دیروز», falling back to `faDate`.
+ *
+ * `now` is a parameter so a caller can decide what "now" is. Relative time is
+ * the one string in this app that cannot be rendered on the server — it depends
+ * on the clock, so producing it during SSR guarantees a hydration mismatch the
+ * moment the server and the client disagree about which bucket they are in.
+ * Passing `undefined` yields `faDate(value)`, which is deterministic, and lets
+ * the caller render that during SSR and this after mount.
+ *
+ * A future `value` (clock skew between the server and the phone) reads as
+ * «همین الان» rather than a negative duration.
+ */
+export function faRelative(
+  value: string | number | Date | undefined | null,
+  now?: number,
+): string {
+  if (!value) return "";
+
+  const date = value instanceof Date ? value : new Date(value);
+  const time = date.getTime();
+
+  if (Number.isNaN(time)) return "";
+  // Without a `now` the caller is on the server (or wants determinism), so
+  // fall back to the deterministic absolute date rather than guess.
+  if (now === undefined) return faDate(date);
+
+  const diff = now - time;
+  if (diff < MINUTE) return "همین الان";
+  if (diff < HOUR) return `${faNumber(Math.floor(diff / MINUTE))} دقیقه پیش`;
+  if (diff < DAY) return `${faNumber(Math.floor(diff / HOUR))} ساعت پیش`;
+  if (diff < 2 * DAY) return "دیروز";
+  if (diff < 7 * DAY) return `${faNumber(Math.floor(diff / DAY))} روز پیش`;
+
+  return faDate(date);
 }
