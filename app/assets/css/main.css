@@ -1447,3 +1447,69 @@ a,
 
   .rtx-callout { border: 1px solid #ccc; }
 }
+
+/* ==========================================================================
+   ACCESSIBILITY — root text size and motion
+   Set by the settings store through `app.vue` (`useHead` → `<html>`), and
+   deliberately UNLAYERED: Tailwind v4 emits its utilities inside
+   `@layer utilities`, and an unlayered rule outranks every layered one
+   regardless of specificity. Layering these would let the very utilities that
+   follow the root — `text-sm`, `p-4` — win on the elements that set the scale,
+   which is exactly what this block exists to override.
+   ========================================================================== */
+
+/* A `100%` base, not `16px`: the root inherits the reader's own browser font
+   setting, and `100%` multiplies it. A hard-coded pixel root would throw that
+   accessibility setting away and replace it with ours. The `1` on
+   `html[data-font-scale]` is the neutral value, so an unrecognised scale reads
+   as "normal" instead of falling back to a missing custom property. */
+html[data-font-scale] {
+  --app-font-scale: 1;
+  font-size: calc(100% * var(--app-font-scale));
+}
+
+html[data-font-scale="sm"] { --app-font-scale: 0.9; }
+html[data-font-scale="lg"] { --app-font-scale: 1.125; }
+
+/* Every Tailwind `rem` unit follows the root, so `max-w-md` on the app column
+   is 28rem of the NEW root — a larger text size would silently widen the phone
+   layout past the screen it was drawn for. Dividing the width back by the same
+   factor pins the column at its designed 448px however the text is scaled,
+   which is the behaviour `max-w-md` already had before this setting existed.
+   `.default__layout` is the one and only class on the root element of
+   `app/layouts/default.vue`; verify it there before trusting it here. */
+html[data-font-scale] .default__layout {
+  max-width: calc(28rem / var(--app-font-scale));
+}
+
+/* "کم‌حرکت". Every duration, every count and smooth scrolling are flattened to
+   nothing rather than merely shortened: an animation still runs, still animates
+   a property the reader asked not to see animated, and a 1ms transition still
+   costs a style recalculation. `!important` is the only thing that reaches an
+   element already carrying a Tailwind `transition-*` or `animate-*` class, and
+   this is the one place in the app where overriding those is correct — the
+   reader asked for it. The `::before`/`::after` arms are here because
+   pseudo-elements are otherwise a way straight past the rule. `scroll-behavior`
+   counts as motion too, and it is the one a reader is most likely to be
+   surprised by, mid-scroll and without warning.
+   The other two values need no rules of their own: `system` and `full` both
+   leave the app as it was, deferring to the `prefers-reduced-motion` blocks
+   already scattered through this file.
+
+   KNOWN LIMIT, and the reason it is written down here rather than papered
+   over: that leaves `full` and `system` indistinguishable for a reader whose OS
+   asks for reduced motion. The hand-written blocks cannot be told apart from
+   Tailwind's own `motion-reduce:*` output by any selector scoped to `<html>`,
+   and Tailwind's reduced-motion rules are not ours to un-apply. Making the two
+   differ means moving every one of those blocks behind a
+   `html:not([data-motion="full"])` guard — a change to code this feature does
+   not own. Until that is done, `reduced` is the option that visibly does
+   something. */
+html[data-motion="reduced"] *,
+html[data-motion="reduced"] *::before,
+html[data-motion="reduced"] *::after {
+  animation-duration: 1ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 1ms !important;
+  scroll-behavior: auto !important;
+}
