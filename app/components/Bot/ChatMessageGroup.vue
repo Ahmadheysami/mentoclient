@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed } from "vue";
-import { marked } from "marked";
+import { renderAiMarkdown } from "~/utils/markdown";
 
 const props = withDefaults(
   defineProps<{
@@ -34,7 +34,7 @@ const assistant = computed(() => {
 const assistantHtml = computed(() => {
   if (!assistant.value) return "";
 
-  return marked.parse(assistant.value) as string;
+  return renderAiMarkdown(assistant.value);
 });
 
 async function copyText(text: string) {

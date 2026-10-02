@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import comma from "comma-number"
 import { DrawerContent, DrawerOverlay, DrawerPortal, DrawerRoot, DrawerTrigger } from 'vaul-vue'
+import { formatCoins } from "~/utils/coin"
 const walletOptions = [
     {
         label: 'شارژ',
@@ -92,7 +93,7 @@ onMounted(async () => {
             </button>
 
             <div class="absolute right-4 top-4 flex items-center gap-2">
-                <span class="text-white font-bold mt-1">{{ wallet.state.coinsBalance?.toFixed() || 0 }}</span>
+                <span class="text-white font-bold mt-1">{{ formatCoins(wallet.state.coinsBalance) }}</span>
                 <UIcon name="duo-icons:coin-stack" size="29" class="text-yellow-400" />
             </div>
 

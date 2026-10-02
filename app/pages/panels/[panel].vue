@@ -7,6 +7,14 @@ import { faNumber } from "~/utils/fa";
  * indicator already points here, so a purchased plan must not land on the
  * framework error page.
  */
+/*
+ * NOT `panel-plan`: `panel` here is the route PARAM, so the `panel` page meta
+ * the gate needs would have to be static — and this page is reached from
+ * `Home/Services.vue` as `/panels/child`, `/panels/emp`, `/panels/org`, which
+ * cannot supply one. `auth` only, until a real panel page replaces this.
+ */
+definePageMeta({ middleware: ["auth"] });
+
 const route = useRoute(),
   planStore = usePlan();
 

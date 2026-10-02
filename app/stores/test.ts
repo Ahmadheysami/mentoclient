@@ -1,56 +1,4 @@
-import type { TestResult } from "~/types/test";
-
-interface TestItem {
-  targetAudience: {
-    targetGender: string;
-    minAge: number;
-    maxAge: number;
-  };
-  testId: string;
-  title: string;
-  usageLimit: number;
-  tags: string[];
-  description: string;
-  discount: number;
-  duration: number;
-  price: number;
-  starPrice: number;
-  image: string;
-  isActive: boolean;
-  isFeatured: boolean;
-  questionCount: number;
-  testType: string;
-  metadata: any;
-  lang: string;
-  version: number;
-  createdAt: string;
-  updatedAt: string;
-}
-interface TestPagination {
-  totalTests?: number;
-  currentPage?: number;
-  totalPages?: number;
-  hasNext?: boolean;
-  hasPrev?: boolean;
-  limit?: number;
-  skip?: number;
-}
-
-interface TestAssets {
-  id: string;
-  userId: string;
-  itemType: string;
-  itemId: string;
-  status: "available" | "consumed";
-  transactionId: string;
-  usageLimit: number;
-  usedCount: number;
-  expireDate: string | null;
-  sub: string[];
-  panel: string | null;
-  subUserIds: string[];
-  test: TestItem[];
-}
+import type { TestAssets, TestItem, TestPagination, TestResult } from "~/types/test";
 
 export interface QuestionsData {
   title?: string;
@@ -165,7 +113,18 @@ export const useTest = defineStore("test", () => {
     }
   }
 
-  async function getMyTests(status?: "available" | "consumed") {
+  /**
+   * The reader's purchased tests, `status` narrowing to what they asked for.
+   *
+   * @returns `true` when the list was read, `false` when it was not — the ONE
+   * fact `state.error` cannot report, because that field is shared with
+   * `getStore` and `getTestResults`. A screen rendering two of these lists at
+   * once reads this flag for its OWN section and leaves the shared message to
+   * the pages that already render `state.error` full-screen.
+   */
+  async function getMyTests(
+    status?: "available" | "consumed",
+  ): Promise<boolean> {
     try {
       state.loading.getMyTests = true;
       state.error = null;
@@ -178,14 +137,18 @@ export const useTest = defineStore("test", () => {
       if (!response?.success) {
         state.error =
           "در حال حاضر نشد آزمون‌های فعال شما را دریافت کنیم. لطفاً کمی بعد دوباره تلاش کنید.";
-        return null;
+        return false;
       }
 
       state.myTests = response?.tests;
+
+      return true;
     } catch {
       state.myTests = null;
       state.error =
         "در حال حاضر نشد آزمون‌های فعال شما را دریافت کنیم. لطفاً کمی بعد دوباره تلاش کنید.";
+
+      return false;
     } finally {
       state.loading.getMyTests = false;
     }
@@ -260,7 +223,15 @@ export const useTest = defineStore("test", () => {
     }
   }
 
-  async function getTestResults (sub?: string) {
+  /**
+   * Every finished attempt, newest order left to the caller.
+   *
+   * @returns `true` when the results were read, `false` when they were not —
+   * the same per-list fact `getMyTests` returns, for the same reason: one screen
+   * can hold this list and the purchased one, and one shared `state.error` can
+   * only name one of them.
+   */
+  async function getTestResults (sub?: string): Promise<boolean> {
     try {
       state.loading.getTestsDone = true
       state.error = null
@@ -274,14 +245,23 @@ export const useTest = defineStore("test", () => {
         state.testResults = [];
         state.error =
           "در حال حاضر نشد نتایج شما را دریافت کنیم. لطفاً کمی بعد دوباره تلاش کنید.";
-        return;
+        return false;
       }
 
-      state.testResults = response?.results;
+      // `?? []` and not the bare field: `results` is OPTIONAL on a successful
+      // response, so `undefined` would be stored into a `TestResult[]` the type
+      // then claims is an array — and every reader of it spreads the value during
+      // render, so `[...undefined]` throws and takes the screen to a white page.
+      // "No results" and "the server sent none" are the same empty list here.
+      state.testResults = response?.results ?? [];
+
+      return true;
     } catch {
       state.testResults = []
       state.error =
         "در حال حاضر نشد نتایج شما را دریافت کنیم. لطفاً کمی بعد دوباره تلاش کنید.";
+
+      return false;
     } finally {
       state.loading.getTestsDone = false
     }

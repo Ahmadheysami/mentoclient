@@ -54,6 +54,31 @@
   --color-x-quiz-selected: #eae7fb;
   --color-x-quiz-question: #fde7f3;
   --color-x-quiz-question-border: #fbcfe8;
+  /* ---- Big Panel home palette, measured from docs/design/big-panel-reference.jpg ---- */
+  /* Hue mix of that image: 78% sky blue, 15.7% lime, 1.9% amber, 0% violet. The lavender
+     this page used before was a memory-read of the reference and read as grey; these are
+     the measured fills. */
+  --color-x-sky-100: #d4edfc;
+  --color-x-sky-200: #cbeafc;
+  --color-x-sky-300: #b3def4;
+  --color-x-sky-400: #acdaf6;
+  --color-x-sky-500: #98d4f6;
+  --color-x-sky-600: #78c8f7;
+  --color-x-sky-700: #6dc6f8;
+
+  --color-x-lime-100: #eef2dc;
+  --color-x-lime-200: #dde5c0;
+  --color-x-lime-300: #cbd9b4;
+  --color-x-lime-500: #a9bd7e;
+
+  --color-x-mist-50: #f7f7f6;
+  --color-x-mist-100: #f2f2f1;
+  --color-x-mist-200: #ecf1f3;
+  --color-x-mist-300: #e4eef3;
+
+  --color-x-gold-200: #fdf0b8;
+  --color-x-gold-500: #f5d847;
+  --color-x-gold-700: #7a5c0b;
   --font-yekan-light: "Yekan-Light";
   --font-yekan-reqular: "Yekan-Regular";
   --font-yekan-bold: "Yekan-Bold";
