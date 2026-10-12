@@ -4,8 +4,10 @@ import {
   SESSIONS_COOKIE,
   SESSION_PLATFORM_LABELS,
   defaultSettings,
+  isAppearanceTheme,
   isFontScale,
   isMotionPreference,
+  isUiSize,
   type CurrentSession,
   type SessionEntry,
   type SessionPlatform,
@@ -343,5 +345,7 @@ export function narrowPrefs(input: unknown, base: SettingsPrefs): SettingsPrefs 
       typeof record.realtimeNotifications === "boolean"
         ? record.realtimeNotifications
         : base.realtimeNotifications,
+    theme: isAppearanceTheme(record.theme) ? record.theme : base.theme,
+    uiSize: isUiSize(record.uiSize) ? record.uiSize : base.uiSize,
   };
 }

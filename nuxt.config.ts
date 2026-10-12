@@ -42,6 +42,8 @@ export default defineNuxtConfig({
         'x-secondary',
         'x-primary-content',
         'x-accent',
+        'x-quiz-primary',
+        'x-quiz-primary-soft',
         'primary',
         'secondary',
         'success',

@@ -84,6 +84,80 @@
   --font-yekan-bold: "Yekan-Bold";
   --font-yekan-extra: "Yekan-Extra";
   --font-liana: "Liana";
+  /* Employer panel — shadcn/ui-inspired palette */
+  --color-x-employer-bg: var(--color-x-primary-content-100);
+  --color-x-employer-surface-elevated: #ffffff;
+  --color-x-employer-surface-overlay: #f8fafc;
+  --color-x-employer-border: #e2e8f0;
+  --color-x-employer-border-elevated: #cbd5e1;
+  --color-x-employer-accent: #4f46e5;
+  --color-x-employer-accent-hover: #4338ca;
+  --color-x-employer-text: #1e293b;
+  --color-x-employer-text-secondary: #64748b;
+  --color-x-employer-text-muted: #94a3b8;
+  /* ---- Child panel palette ------------------------------------------------
+     The kid ground is a warm apricot rather than the app's blue, so a child
+     account never reads as "the grown-up app, smaller". Three accent ramps
+     (sun / mint / berry) sit on top of it. `data-child-theme` on `<html>`
+     re-points these same tokens for the other two themes — see the child
+     theme block at the end of this file. */
+  --color-x-kid-50: #fff4ec;
+  --color-x-kid-100: #ffe3d0;
+  --color-x-kid-300: #ffb98a;
+  --color-x-kid-500: #ff8a4c;
+  --color-x-kid-700: #d95f1e;
+  --color-x-kid-900: #8a3d10;
+  --color-x-kid-sun-100: #fff3c4;
+  --color-x-kid-sun-500: #ffc93c;
+  --color-x-kid-sun-700: #a8631a;
+  --color-x-kid-mint-100: #d9f5e8;
+  --color-x-kid-mint-500: #3ecf94;
+  --color-x-kid-mint-700: #21835b;
+  --color-x-kid-berry-100: #ffe1f0;
+  --color-x-kid-berry-500: #f25c9e;
+  --color-x-kid-berry-700: #c61060;
+
+  /* ---- Teen panel palette -------------------------------------------------
+     Cooler and lower-chroma than the kid ramp, with violet as the lead accent:
+     the same structure read by an older reader, without the apricot. */
+  --color-x-teen-50: #f5f6fb;
+  --color-x-teen-100: #eceef8;
+  --color-x-teen-200: #e0e3f2;
+  --color-x-teen-300: #cbd0e6;
+  --color-x-teen-700: #4f5480;
+  --color-x-teen-800: #3b3f63;
+  --color-x-teen-900: #2a2d4a;
+  --color-x-teen-violet-300: #c7bcf7;
+  --color-x-teen-violet-500: #8b7cf0;
+  --color-x-teen-violet-600: #6c5cd8;
+  --color-x-teen-teal-300: #a9e6de;
+  --color-x-teen-teal-500: #45c6b8;
+  --color-x-teen-coral-300: #ffc4b2;
+  --color-x-teen-coral-500: #ff8f6b;
+  --color-x-teen-mint-300: #d0efdc;
+  --color-x-teen-mint-700: #21835b;
+
+  /* ---- Parent panel palette ----------------------------------------------
+     Two neutrals on purpose: `parent-warm-*` is the ivory ground the panel is
+     drawn on, `parent-*` is the indigo hairline and accent family drawn over
+     it. The parent panel is the one place a cool ground would fight its own
+     chrome, so it keeps the warm one. */
+  --color-x-parent-50: #f2f3ff;
+  --color-x-parent-100: #dfe3fb;
+  --color-x-parent-200: #c3caf5;
+  --color-x-parent-300: #a3aeef;
+  --color-x-parent-500: #6366e0;
+  --color-x-parent-600: #4f52c4;
+  --color-x-parent-700: #3e4199;
+  --color-x-parent-warm-50: #faf7f2;
+  --color-x-parent-warm-100: #f3ece1;
+
+  /* Soft-UI easing. Slower to settle than `--ease-out` on purpose: a raised
+     surface that stops too fast reads as a flat rectangle rather than as
+     something you could press. Carries a literal fallback so the `.neu-*`
+     recipes below still ease correctly if this token is ever dropped. */
+  --ease-soft: cubic-bezier(0.32, 0.72, 0, 1);
+
   --animate-move-bg: moveBg 360s ease infinite;
   /* Motion. One curve set for the whole app: `--ease-out` is the decelerate
      every entrance and press uses, `--ease-in-out` the symmetric one. They
@@ -1490,8 +1564,13 @@ a,
    as "normal" instead of falling back to a missing custom property. */
 html[data-font-scale] {
   --app-font-scale: 1;
-  font-size: calc(100% * var(--app-font-scale));
+  font-size: calc(100% * var(--app-font-scale) * var(--app-ui-size, 1));
 }
+/* The second factor is the child panel's UI size, set on `<html>` by
+   `layouts/child.vue`. It is a separate multiplier rather than a wider value
+   in `data-font-scale` because it scales the panel's furniture — target sizes,
+   gaps, icon boxes — and not only its type. Adult panels never set it, so the
+   `1` fallback leaves their root exactly where the reader put it. */
 
 html[data-font-scale="sm"] { --app-font-scale: 0.9; }
 html[data-font-scale="lg"] { --app-font-scale: 1.125; }
@@ -1504,7 +1583,7 @@ html[data-font-scale="lg"] { --app-font-scale: 1.125; }
    `.default__layout` is the one and only class on the root element of
    `app/layouts/default.vue`; verify it there before trusting it here. */
 html[data-font-scale] .default__layout {
-  max-width: calc(28rem / var(--app-font-scale));
+  max-width: calc(28rem / (var(--app-font-scale) * var(--app-ui-size, 1)));
 }
 
 /* "کم‌حرکت". Every duration, every count and smooth scrolling are flattened to
@@ -1537,4 +1616,461 @@ html[data-motion="reduced"] *::after {
   animation-iteration-count: 1 !important;
   transition-duration: 1ms !important;
   scroll-behavior: auto !important;
+}
+
+/* ---------------- Employer Pro Console scope ---------------- */
+/* Re-points shared component tokens so the employer panel uses its own
+   professional light theme (indigo accent, slate surfaces) instead of the
+   big panel's sky/lime palette. */
+.employer-panel {
+  --color-x-primary-600: var(--color-x-employer-accent);
+  --color-x-primary-700: var(--color-x-employer-accent-hover);
+  --color-x-primary-50: #eef2ff;
+  --color-x-primary-100: #e0e7ff;
+  --color-x-primary-200: #c7d2fe;
+  --color-x-primary-800: #3730a3;
+  --color-x-secondary-100: #e0e7ff;
+  --color-x-secondary-200: #c7d2fe;
+  --color-x-secondary-300: #a5b4fc;
+  --color-x-secondary-900: #312e81;
+  --color-white: var(--color-x-employer-surface-elevated);
+  --color-x-mist-50: var(--color-x-employer-surface-overlay);
+  --color-x-mist-100: var(--color-x-employer-surface-overlay);
+  --color-x-mist-200: var(--color-x-employer-border);
+  --color-x-sky-100: #eef2ff;
+  --color-x-sky-200: #e0e7ff;
+  --color-x-sky-300: #c7d2fe;
+  --color-x-text-title: var(--color-x-employer-text);
+  --color-x-text-subtitle: var(--color-x-employer-text-secondary);
+  --color-x-text-muted: var(--color-x-employer-text-muted);
+}
+
+/* ---------------- Employee radar motion ---------------- */
+/* Decoration only: the radar already states its reading through the labels and
+   the numeric read-out, so nothing below carries meaning. Each animation is
+   therefore dropped entirely under reduced motion rather than merely slowed. */
+
+.radar-scan {
+  animation: 5s linear infinite radar-scan;
+}
+
+@keyframes radar-scan {
+  from { transform: rotate(0); }
+  to   { transform: rotate(1turn); }
+}
+
+.radar-pulse {
+  animation: 2s ease-in-out infinite radar-pulse;
+}
+
+@keyframes radar-pulse {
+  0%, 100% { opacity: .55; transform: scale(.85); }
+  50%      { opacity: 1;   transform: scale(1.15); }
+}
+
+/* `--avatar-float-delay` is set inline per avatar (ms) so a row of badges bobs
+   out of phase instead of rising in lockstep. */
+.radar-avatar-float {
+  animation: 4s ease-in-out infinite radar-avatar-float;
+  animation-delay: calc(var(--avatar-float-delay, 0) * -1ms);
+}
+
+@keyframes radar-avatar-float {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-2px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .radar-avatar-float,
+  .radar-pulse,
+  .radar-scan { animation: none; }
+}
+
+html[data-motion="reduced"] .radar-avatar-float,
+html[data-motion="reduced"] .radar-pulse,
+html[data-motion="reduced"] .radar-scan { animation: none; }
+
+/* ========================================================================== */
+/*                    CHILD + PARENT PANEL — SOFT UI                         */
+/* ========================================================================== */
+/* The child and parent panels are drawn on a neumorphic recipe rather than on
+   the app's flat surfaces. Three parts, and the order matters:
+
+   1. The scope classes. `.neu-kid` / `.neu-teen` / `.neu-parent` set four tint
+      variables and nothing else — no colour, no shadow. Every recipe below
+      reads those four through `var(--neu-*, transparent)`. So the panel's
+      identity lives on ONE element, the layout root, and a card twenty levels
+      deep in `<main>` shares it without knowing which panel it is in.
+      The flip side is the point: an adult panel never carries a scope class,
+      so it can never inherit a child's palette.
+
+   2. The recipes. Each is only a shadow, because colour always belongs to the
+      scope. A new panel therefore gets its identity from four hex values, not
+      from a new set of box-shadows.
+
+   3. The theme variants, further down. `data-child-theme` re-points the
+      `x-kid-*` / `x-teen-*` tokens on the scope class itself, so one setting
+      repaints the whole panel — ground, text and accents together.
+
+   The recipes sit in `@layer components` so a Tailwind `shadow-*` utility can
+   still override one of them; the variant blocks below stay unlayered, because
+   they must outrank the `@layer theme` defaults those tokens resolve against. */
+
+@layer components {
+  /* ---- Soft-UI scope: four tints, no paint of their own ---- */
+
+  /* Kid: warm light source from the top-left, so the shadow it casts is the
+     panel's own apricot rather than neutral grey. */
+  .neu-kid {
+    --neu-light: #fffffff2;
+    --neu-dark: #c4683a29;
+    --neu-edge: #ffffffe6;
+    --neu-hairline: #d95f1e38;
+  }
+
+  /* Teen: same light direction, cool shadow — the hue difference alone is what
+     keeps the two child variants from looking like one panel at a glance. */
+  .neu-teen {
+    --neu-light: #fffffff2;
+    --neu-dark: #565a9624;
+    --neu-edge: #ffffffe6;
+    --neu-hairline: #4f548033;
+  }
+
+  /* Parent: the calmest of the three. Lower hairline alpha because this panel
+     is read for long stretches and a strong outline is tiring on ivory. */
+  .neu-parent {
+    --neu-light: #ffffffeb;
+    --neu-dark: #4a428c21;
+    --neu-edge: #ffffffd9;
+    --neu-hairline: #3f419929;
+  }
+
+  /* ---- Recipes: shadow only ---- */
+
+  .neu-raised {
+    box-shadow:
+      -6px -6px 16px var(--neu-light, transparent),
+      6px 6px 18px var(--neu-dark, transparent),
+      inset 0 1px 0 var(--neu-edge, transparent);
+    outline-color: var(--neu-hairline, transparent);
+    outline-offset: -1px;
+    outline-width: 1px;
+    outline-style: solid;
+  }
+
+  /* The hero cards. A wider pair than `.neu-raised` because at that size a
+     small pair disappears into the ground. */
+  .neu-raised-lg {
+    box-shadow:
+      -10px -10px 26px var(--neu-light, transparent),
+      10px 10px 28px var(--neu-dark, transparent),
+      inset 0 1px 0 var(--neu-edge, transparent);
+    outline-color: var(--neu-hairline, transparent);
+    outline-offset: -1px;
+    outline-width: 1px;
+    outline-style: solid;
+  }
+
+  /* Pressed into the surface. The dark shadow leads here, where on a raised
+     element the light one does — that is what reads as "down". */
+  .neu-inset {
+    box-shadow:
+      inset 4px 4px 10px var(--neu-dark, transparent),
+      inset -4px -4px 10px var(--neu-light, transparent);
+  }
+
+  /* Buttons, links, any press surface. */
+  .neu-control {
+    box-shadow:
+      -4px -4px 12px var(--neu-light, transparent),
+      4px 4px 12px var(--neu-dark, transparent),
+      inset 0 1px 0 var(--neu-edge, transparent);
+    outline-color: var(--neu-hairline, transparent);
+    outline-offset: -1px;
+    outline-width: 1px;
+    outline-style: solid;
+    transition:
+      box-shadow 0.18s var(--ease-soft, cubic-bezier(0.32, 0.72, 0, 1)),
+      transform 0.18s var(--ease-soft, cubic-bezier(0.32, 0.72, 0, 1));
+  }
+
+  /* A 1px settle on press: enough to feel the surface move under the finger,
+     small enough that it does not reflow the label next to it. */
+  .neu-control:active {
+    transform: translateY(1px);
+  }
+
+  /* Selected nav items are already down and must not settle further. */
+  .neu-control[aria-current="page"],
+  .neu-control[aria-pressed="true"] {
+    transform: none;
+  }
+
+  /* One rule for all three "this is the active one" signals — a finger on it,
+     the current route, or a pressed toggle. The recipe has to be identical in
+     each case or the nav reads as three different states. */
+  .neu-control:active,
+  .neu-control[aria-current="page"],
+  .neu-control[aria-pressed="true"] {
+    box-shadow:
+      inset 3px 3px 8px var(--neu-dark, transparent),
+      inset -3px -3px 8px var(--neu-light, transparent);
+  }
+
+  /* The pinned bottom nav. A tighter pair than a card: at 3px this reads as a
+     press surface, where the card-sized pair would read as floating. */
+  .neu-control-nav {
+    box-shadow:
+      -3px -3px 8px var(--neu-light, transparent),
+      3px 3px 8px var(--neu-dark, transparent),
+      inset 0 1px 0 var(--neu-edge, transparent);
+  }
+
+  .neu-segment[aria-pressed="true"] {
+    box-shadow:
+      inset 4px 4px 10px var(--neu-dark, transparent),
+      inset -4px -4px 10px var(--neu-light, transparent);
+  }
+
+  .neu-float {
+    animation: neu-float 7s var(--ease-soft, cubic-bezier(0.32, 0.72, 0, 1))
+      infinite;
+  }
+
+  /* ---- Child panel hero entrance ----
+     The art slides in from the reading edge. The offset is a variable the
+     direction flips rather than a second keyframe set: one entrance, two
+     directions, and no LTR copy to keep in step with this one. */
+
+  .kid-hero-art {
+    --kid-hero-enter-x: -40px;
+    animation: 0.72s cubic-bezier(0.19, 0.86, 0.24, 1) both kid-hero-enter;
+  }
+
+  [dir="rtl"] .kid-hero-art {
+    --kid-hero-enter-x: 40px;
+  }
+
+  /* The copy trails the art by a beat so the two land as one gesture. */
+  .kid-hero-copy {
+    animation: 0.56s cubic-bezier(0.19, 0.86, 0.24, 1) 0.12s both
+      kid-hero-copy-enter;
+  }
+}
+
+@keyframes neu-float {
+  0%,
+  to {
+    transform: translate(0);
+  }
+
+  50% {
+    transform: translateY(-7px);
+  }
+}
+
+@keyframes kid-hero-enter {
+  0% {
+    opacity: 0;
+    transform: translate3d(var(--kid-hero-enter-x), 0, 0);
+  }
+
+  /* Opacity runs ahead of position: the element is fully readable before it
+     has finished travelling, so the entrance never feels like a wait. */
+  45% {
+    opacity: 1;
+  }
+
+  /* Two small counter-moves rather than one, which is what turns a linear
+     slide into something with weight. */
+  72% {
+    transform: translate3d(calc(var(--kid-hero-enter-x) * -0.09), 0, 0);
+  }
+
+  88% {
+    transform: translate3d(calc(var(--kid-hero-enter-x) * 0.03), 0, 0);
+  }
+
+  to {
+    opacity: 1;
+    transform: translate(0);
+  }
+}
+
+@keyframes kid-hero-copy-enter {
+  0% {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translate(0);
+  }
+}
+
+/* Motion off, both ways. The OS preference and the in-app setting are handled
+   separately on purpose: `system` leaves the page as it was, deferring to the
+   `prefers-reduced-motion` block above, and `reduced` is the option that
+   actually visibly does something. */
+@media (prefers-reduced-motion: reduce) {
+  .kid-hero-art,
+  .kid-hero-copy {
+    animation: none;
+  }
+
+  .neu-control {
+    transition: none;
+  }
+
+  .neu-control:active {
+    transform: none;
+  }
+
+  .neu-float {
+    animation: none;
+  }
+}
+
+html[data-motion="reduced"] .kid-hero-art,
+html[data-motion="reduced"] .kid-hero-copy {
+  animation: none;
+}
+
+html[data-motion="reduced"] .neu-control {
+  transition: none;
+}
+
+html[data-motion="reduced"] .neu-control:active,
+html[data-motion="reduced"] .neu-control[aria-current="page"],
+html[data-motion="reduced"] .neu-control[aria-pressed="true"] {
+  transform: none;
+}
+
+html[data-motion="reduced"] .neu-float {
+  animation: none;
+}
+
+/* ---------------- Child panel themes ----------------
+   One palette swap per theme, written on the scope class so it reaches every
+   element inside the panel at once — this is the whole reason the tokens are
+   custom properties rather than literal hex values in the components.
+
+   Only the steps a theme actually changes are listed. The three darkest
+   accents (`kid-sun-700`, `kid-mint-700`, `kid-berry-700`) are deliberately
+   absent from all four: they are text-on-light colours, and a theme that
+   re-tinted them would put a dark hue on body text at a contrast it was never
+   measured for. They keep their `@theme` value. */
+
+html[data-child-theme="sunset"] .neu-kid {
+  --color-x-kid-50: #fff5f2;
+  --color-x-kid-100: #ffe3db;
+  --color-x-kid-300: #ffb4a1;
+  --color-x-kid-500: #ff7b62;
+  --color-x-kid-700: #e14e34;
+  --color-x-kid-900: #8f3620;
+  --color-x-kid-sun-100: #ffe9c2;
+  --color-x-kid-sun-500: #ffb347;
+  --color-x-kid-mint-100: #ffe3d0;
+  --color-x-kid-mint-500: #ffb59d;
+  --color-x-kid-berry-100: #ffd9de;
+  --color-x-kid-berry-500: #f2677f;
+}
+
+html[data-child-theme="sunset"] .neu-teen {
+  --color-x-teen-50: #faf7f4;
+  --color-x-teen-100: #f1e9e2;
+  --color-x-teen-200: #e5d8cc;
+  --color-x-teen-300: #d5c3b0;
+  --color-x-teen-400: #bda58b;
+  --color-x-teen-500: #9b8465;
+  --color-x-teen-600: #7d6751;
+  --color-x-teen-700: #62503f;
+  --color-x-teen-800: #4b3e32;
+  --color-x-teen-900: #33291f;
+  --color-x-teen-violet-300: #f5cfc0;
+  --color-x-teen-violet-500: #d97e5a;
+  --color-x-teen-violet-600: #b25f3d;
+}
+
+html[data-child-theme="forest"] .neu-kid {
+  --color-x-kid-50: #f2faf3;
+  --color-x-kid-100: #dcf4e2;
+  --color-x-kid-300: #9fdcb0;
+  --color-x-kid-500: #4caf6d;
+  --color-x-kid-700: #2f7a48;
+  --color-x-kid-900: #1d5c33;
+  --color-x-kid-sun-100: #fdf6cf;
+  --color-x-kid-sun-500: #f0c94d;
+  --color-x-kid-mint-100: #d2f0dc;
+  --color-x-kid-mint-500: #58c98b;
+  --color-x-kid-berry-100: #e8e4f8;
+  --color-x-kid-berry-500: #8f7fd8;
+}
+
+html[data-child-theme="forest"] .neu-teen {
+  --color-x-teen-50: #f6faf6;
+  --color-x-teen-100: #eaf5ec;
+  --color-x-teen-200: #d7ead9;
+  --color-x-teen-300: #bcdcc3;
+  --color-x-teen-400: #97c5a4;
+  --color-x-teen-500: #6ba97e;
+  --color-x-teen-600: #4f8862;
+  --color-x-teen-700: #3d6a4d;
+  --color-x-teen-800: #2f5240;
+  --color-x-teen-900: #223a2e;
+  --color-x-teen-violet-300: #c3e6cf;
+  --color-x-teen-violet-500: #5fb584;
+  --color-x-teen-violet-600: #3f9363;
+}
+
+html[data-child-theme="candy"] .neu-kid {
+  --color-x-kid-50: #fdf2fa;
+  --color-x-kid-100: #fbddf0;
+  --color-x-kid-300: #f3a8d6;
+  --color-x-kid-500: #e86fb8;
+  --color-x-kid-700: #c24392;
+  --color-x-kid-900: #8a2a66;
+  --color-x-kid-sun-100: #fff6c9;
+  --color-x-kid-sun-500: #ffe066;
+  --color-x-kid-mint-100: #d5f5e3;
+  --color-x-kid-mint-500: #5ad0a0;
+  --color-x-kid-berry-100: #e9defc;
+  --color-x-kid-berry-500: #a06ce8;
+}
+
+html[data-child-theme="candy"] .neu-teen {
+  --color-x-teen-50: #faf6fb;
+  --color-x-teen-100: #f3eaf7;
+  --color-x-teen-200: #e8d8f0;
+  --color-x-teen-300: #d8c0e6;
+  --color-x-teen-400: #bd9dcc;
+  --color-x-teen-500: #a179b6;
+  --color-x-teen-600: #87629a;
+  --color-x-teen-700: #6a4c7d;
+  --color-x-teen-800: #543d64;
+  --color-x-teen-900: #3d2c4c;
+  --color-x-teen-violet-300: #e0c8f5;
+  --color-x-teen-violet-500: #b07fd8;
+  --color-x-teen-violet-600: #9358c0;
+}
+
+/* ---------------- Child panel UI size ----------------
+   A second multiplier on the root, independent of the reader's text size: this
+   one scales the panel's furniture as well as its type, for a child who needs
+   bigger targets rather than bigger words. `normal` is declared rather than
+   left to the `1` fallback so that switching back from `large` cannot leave the
+   root scaled. Read by the two rules under `html[data-font-scale]` above. */
+
+html[data-child-ui-size="small"] {
+  --app-ui-size: 0.9;
+}
+
+html[data-child-ui-size="normal"] {
+  --app-ui-size: 1;
+}
+
+html[data-child-ui-size="large"] {
+  --app-ui-size: 1.1;
 }

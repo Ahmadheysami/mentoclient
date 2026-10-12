@@ -21,7 +21,11 @@ import { faNumber } from "~/utils/fa";
  * stay with the `<li>` each page owns, because the delay is the row's position
  * in THAT page's list.
  */
-defineProps<{ item: TestAssets }>();
+defineProps<{
+  item: TestAssets;
+  /** When set to "employer", links point to the employer panel routes. */
+  panel?: string;
+}>();
 </script>
 
 <template>
@@ -63,7 +67,11 @@ defineProps<{ item: TestAssets }>();
     </div>
 
     <UButton
-      :to="`/test/active/exam?examId=${item.id}`"
+      :to="
+        panel === 'employer'
+          ? `/panels/employer/exam?examId=${item.id}`
+          : `/test/active/exam?examId=${item.id}`
+      "
       label="شروع آزمون"
       icon="solar:play-linear"
       block

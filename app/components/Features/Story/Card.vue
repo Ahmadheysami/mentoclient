@@ -35,7 +35,7 @@ const when = computed(() =>
 <template>
   <button
     type="button"
-    class="reveal-stagger w-20 shrink-0 rounded-2xl text-center transition-transform duration-150 ease-out active:scale-95 motion-reduce:active:scale-100"
+    class="reveal-stagger w-20 shrink-0 rounded-2xl text-center transition-transform duration-150 ease-out active:scale-95 motion-reduce:active:scale-100 [transform-origin:center]"
     :style="{ animationDelay: `${Math.min(index * 40, 240)}ms` }"
     :aria-label="`استوری ${group.author.title}، ${group.title}، ${when}`"
     @click="emit('select')"

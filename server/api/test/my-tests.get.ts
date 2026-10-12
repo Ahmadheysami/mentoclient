@@ -1,9 +1,12 @@
 export default defineEventHandler(async (event) => {
     try {
         const query = getQuery(event)
-        
-        return await api(event, 'access-token')('/test/a/my-tests', {
-            query: {...query}
+        // `scope` selects the session cookie; like the other scope-aware
+        // proxies under server/api/test, it is never forwarded upstream.
+        const { scope, ...forwarded } = query
+
+        return await api(event, sessionCookie(scope))('/test/a/my-tests', {
+            query: {...forwarded}
         })
     } catch(err) {
         return connectionResponseError()

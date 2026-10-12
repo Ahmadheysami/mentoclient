@@ -1,0 +1,133 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240" width="240" height="240" fill="none">
+  <!--
+    Kid hero art — GIRL. `kid-3d-boy.svg` is the reference build and carries the
+    full documentation: the volume recipe, the palette, the bust silhouette, the
+    square canvas. This is that same construction with different hair, top and
+    accessories, which is what makes the pair one character system rather than two
+    drawings.
+
+    The hair is separate masses — tails, then buns, then the cap — because one
+    path flattens the head into a plane. The cap is drawn LAST to close the seams,
+    and the tails fall IN FRONT of the shoulders, as hair does over a collar. They
+    take the SHEEN ramp: against the peach hero a tail that only darkens reads as
+    a brown slab beside the face.
+  -->
+  <defs>
+    <path id="g-torso" d="M18 240 26 182c6-20 26-32 54-36h8c3 7 10 10 32 10 22 0 29-3 32-10h8c28 4 48 16 54 36l8 58Z" />
+    <path id="g-cap" d="M69 76C67 32 89 12 120 12s53 20 51 64c-2-16-8-28-18-33-11 8-22 12-33 12s-22-4-33-12c-10 5-16 17-18 33Z" />
+    <clipPath id="g-clip"><circle cx="120" cy="76" r="54" /></clipPath>
+    <radialGradient id="g-skin" cx=".5" cy=".5" r=".55" fx=".33" fy=".29">
+      <stop offset="0" stop-color="#fff4ec" />
+      <stop offset=".4" stop-color="#ffe3d0" />
+      <stop offset=".79" stop-color="#ff8a4c" stop-opacity=".92" />
+      <stop offset="1" stop-color="#8a3d10" stop-opacity=".34" />
+    </radialGradient>
+    <radialGradient id="g-sheen" cx=".5" cy=".5" r=".5" fx=".3" fy=".28">
+      <stop offset="0" stop-color="#fff4ec" stop-opacity=".5" />
+      <stop offset="1" stop-color="#fff4ec" stop-opacity="0" />
+    </radialGradient>
+    <linearGradient id="g-lit" x1=".12" y1="0" x2=".72" y2=".9">
+      <stop offset="0" stop-color="#fff4ec" stop-opacity=".6" />
+      <stop offset=".58" stop-color="#fff4ec" stop-opacity="0" />
+    </linearGradient>
+    <radialGradient id="g-pool" cx=".86" cy="1" r=".74">
+      <stop offset=".3" stop-color="#8a3d10" stop-opacity=".32" />
+      <stop offset="1" stop-color="#8a3d10" stop-opacity="0" />
+    </radialGradient>
+    <filter id="g-soft" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="6" /></filter>
+    <filter id="g-fine" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="2.4" /></filter>
+  </defs>
+
+  <!-- The cast shadow: the figure's own silhouette thrown down-right. -->
+  <g fill="#8a3d10" opacity=".11" filter="url(#g-soft)" transform="translate(7 9)">
+    <use href="#g-torso" />
+    <circle cx="120" cy="76" r="54" />
+    <use href="#g-cap" />
+    <ellipse cx="58" cy="132" rx="22" ry="52" />
+    <ellipse cx="182" cy="132" rx="22" ry="52" />
+  </g>
+
+  <use href="#g-torso" fill="#f25c9e" />
+  <use href="#g-torso" fill="url(#g-lit)" />
+  <use href="#g-torso" fill="url(#g-pool)" />
+
+  <!-- Tails, over the shoulders, each with its own terminator. -->
+  <g fill="#8a3d10">
+    <ellipse cx="58" cy="132" rx="22" ry="52" />
+    <ellipse cx="182" cy="132" rx="22" ry="52" />
+  </g>
+  <g fill="url(#g-sheen)">
+    <ellipse cx="58" cy="132" rx="22" ry="52" />
+    <ellipse cx="182" cy="132" rx="22" ry="52" />
+  </g>
+
+  <!-- The neck stops inside the scoop the shirt cuts, or its bottom shows as a
+       block on the chest. -->
+  <path d="M104 96h32v59h-32Z" fill="url(#g-skin)" />
+
+  <!-- Lit collar arc (on the shirt, below the scoop), lashes, brows, bounce light. -->
+  <g fill="none" stroke-linecap="round">
+    <path d="M90 150c3 6 12 10 30 10s27-4 30-10" stroke="#fff4ec" stroke-opacity=".32" stroke-width="2.5" />
+    <path d="M96 82l-5-5M144 82l5-5" stroke="#8a3d10" stroke-width="3.2" />
+    <path d="M91 62c8-5 19-5 26-2M129 66c7-4 15-4 21 1" stroke="#8a3d10" stroke-width="5" />
+    <path d="M173 68a54 54 0 0 1-20 50" stroke="#fff4ec" stroke-opacity=".45" stroke-width="5" />
+  </g>
+
+  <ellipse cx="120" cy="138" rx="22" ry="6" fill="#8a3d10" opacity=".3" filter="url(#g-soft)" />
+
+  <g fill="url(#g-skin)">
+    <circle cx="66" cy="84" r="12" />
+    <circle cx="174" cy="84" r="12" />
+    <circle cx="120" cy="76" r="54" />
+  </g>
+
+  <!-- Clipped to the skull. Hairline AO sits between fringe and brow. -->
+  <g clip-path="url(#g-clip)">
+    <ellipse cx="118" cy="54" rx="40" ry="8" fill="#8a3d10" opacity=".26" filter="url(#g-soft)" />
+    <g fill="#f25c9e" opacity=".26" filter="url(#g-fine)">
+      <ellipse cx="84" cy="102" rx="11" ry="7" />
+      <ellipse cx="156" cy="102" rx="11" ry="7" />
+    </g>
+    <ellipse cx="44" cy="208" rx="22" ry="12" transform="rotate(-34 44 208)" fill="#fff4ec" opacity=".26" filter="url(#g-fine)" />
+  </g>
+
+  <g fill="#8a3d10">
+    <circle cx="58" cy="40" r="22" />
+    <circle cx="182" cy="40" r="22" />
+  </g>
+  <g fill="url(#g-sheen)">
+    <circle cx="58" cy="40" r="22" />
+    <circle cx="182" cy="40" r="22" />
+  </g>
+
+  <use href="#g-cap" fill="#8a3d10" />
+  <use href="#g-cap" fill="url(#g-sheen)" />
+  <path d="M120 14v9" stroke="#8a3d10" stroke-opacity=".3" stroke-width="3.5" stroke-linecap="round" fill="none" />
+
+  <g fill="#ffc93c">
+    <path d="M150 58l-18-8v16Z" />
+    <path d="M150 58l18-8v16Z" />
+    <circle cx="150" cy="58" r="5.5" />
+  </g>
+  <g fill="url(#g-sheen)">
+    <path d="M150 58l-18-8v16Z" />
+    <path d="M150 58l18-8v16Z" />
+    <circle cx="150" cy="58" r="5.5" />
+  </g>
+
+  <g fill="#fff4ec">
+    <ellipse cx="104" cy="86" rx="9.5" ry="10.5" />
+    <ellipse cx="136" cy="86" rx="9.5" ry="10.5" />
+    <circle cx="101.8" cy="83.6" r="2.3" />
+    <circle cx="133.8" cy="83.6" r="2.3" />
+    <path d="M110 103.5h23c-1.2 4.3-3.9 5.9-7.7 5.9h-7.6c-3.8 0-6.5-1.6-7.7-5.9Z" />
+  </g>
+  <g fill="#8a3d10">
+    <circle cx="104" cy="87" r="5.4" />
+    <circle cx="136" cy="87" r="5.4" />
+    <path d="M108 102c8 12 22 12 30 0Z" />
+  </g>
+
+  <circle cx="120" cy="96" r="3.2" fill="#ff8a4c" opacity=".55" />
+  <circle cx="118.9" cy="94.7" r="1.2" fill="#fff4ec" opacity=".75" />
+</svg>

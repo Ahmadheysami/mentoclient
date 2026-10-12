@@ -1,4 +1,4 @@
-import { IApiResponse } from "~/types/response";
+import type { IApiResponse } from "~/types/response";
 
 export default defineEventHandler(async (event) => {
   try {

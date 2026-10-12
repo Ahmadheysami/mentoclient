@@ -173,14 +173,58 @@ async function onStart(id: string) {
   await goalStore.getMessages(id);
 }
 
+/**
+ * The weekly report page to open after a review, or `null` when this goal has no
+ * entry that can be opened.
+ *
+ * **The id here is a MESSAGE uniqid, never the goal id.** The route is
+ * `/panels/big/goal/message/{id}` while this page is `/panels/big/goal/{id}`, and
+ * both ids travel through `/goal/…` paths, so mixing them lands the reader on a
+ * different goal's page rather than on an error.
+ *
+ * Two sources, in this order:
+ *
+ * 1. `newMessageId` from the reply — the window the review itself opened, which
+ *    is the one the reader means by «the latest entry».
+ * 2. `state.messages[0]` — ⚠️ the store keeps the server's order, which is
+ *    `createdAt: -1`, so index `0` IS the newest entry. It is the newest week of
+ *    THIS goal because `submitReview` has just re-read this goal's ladder, not
+ *    somebody else's.
+ *
+ * The fallback is skipped when that re-read itself FAILED (`error.messages` is
+ * set by `getMessages` and left `null` only when it succeeded): the array would
+ * then still hold the ladder as it was BEFORE the review, whose newest entry is
+ * last week's — not «the latest entry», and a silent wrong destination.
+ */
+function messageIdAfterReview(newMessageId: string | null): string | null {
+  if (newMessageId) return newMessageId;
+  if (goalStore.state.error.messages) return null;
+
+  return goalStore.state.messages[0]?.id ?? null;
+}
+
 async function onSubmitReview(review: string) {
-  const score = await goalStore.submitReview(goalId.value, review);
+  const result = await goalStore.submitReview(goalId.value, review);
 
   // `null` means the server refused; the reason is already rendered beside the
-  // composer, so a toast here would say the same thing twice.
-  if (score === null) return;
+  // composer, so a toast here would say the same thing twice — and nothing
+  // navigates, because no new week exists.
+  if (!result) return;
 
-  $toast.success(`گزارش شما ثبت شد. امتیاز پیگیری: ${faNumber(score)}`);
+  $toast.success(
+    result.score === null
+      ? "گزارش شما ثبت شد."
+      : `گزارش شما ثبت شد. امتیاز پیگیری: ${faNumber(result.score)}`,
+  );
+
+  const messageId = messageIdAfterReview(result.newMessageId);
+
+  // The review IS kept even when the ladder cannot be re-read, so the
+  // confirmation above stands on its own rather than being withheld over a
+  // missing destination — there is simply nothing to open.
+  if (messageId) {
+    await navigateTo(`/panels/big/goal/message/${messageId}`);
+  }
 }
 </script>
 

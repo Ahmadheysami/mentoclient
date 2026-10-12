@@ -1,0 +1,106 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120" fill="none">
+  <!--
+    Kid hero art — MASCOT. A subordinate companion accent, NOT a second focal
+    point: it renders at `size-12` (48px), a third of the character's own box,
+    and it is drawn behind the greeting row.
+
+    Same volume recipe as the two characters — hue base, focal point top-left, a
+    rim gradient for the terminator, warm blurred occlusion, small speculars, no
+    pure black and no pure white — scaled to one egg-shaped body so it still
+    reads at 48px. Everything that only survives above ~120px has been dropped on
+    purpose: no brows, no rim light, no hands. At 48px those are grey smudges,
+    and a smudge reads as dirt.
+
+    THE FACE AND THE EMBLEM MUST NOT OVERLAP. The first draft put the sun disc at
+    y=76 and the smile at y=78, and the two merged into a nose-and-mouth on a
+    face. The face now occupies y 36–70 and the belly sits at y=88, so the emblem
+    is unambiguously on the body.
+  -->
+  <defs>
+    <path id="m-body" d="M60 14c26 0 44 22 44 50 0 26-20 44-44 44S16 90 16 64c0-28 18-50 44-50Z" />
+
+    <radialGradient id="m-mint" cx=".5" cy=".5" r=".56" fx=".32" fy=".28">
+      <stop offset="0" stop-color="#fff4ec" stop-opacity=".85" />
+      <stop offset=".34" stop-color="#3ecf94" />
+      <stop offset=".8" stop-color="#3ecf94" />
+      <stop offset="1" stop-color="#8a3d10" stop-opacity=".42" />
+    </radialGradient>
+    <radialGradient id="m-core" cx=".5" cy=".5" r=".5" fx=".3" fy=".26">
+      <stop offset=".48" stop-color="#8a3d10" stop-opacity="0" />
+      <stop offset="1" stop-color="#8a3d10" stop-opacity=".36" />
+    </radialGradient>
+    <linearGradient id="m-lit" x1=".12" y1="0" x2=".74" y2=".92">
+      <stop offset="0" stop-color="#fff4ec" stop-opacity=".55" />
+      <stop offset=".55" stop-color="#fff4ec" stop-opacity="0" />
+    </linearGradient>
+    <radialGradient id="m-coral" cx=".5" cy=".5" r=".55" fx=".32" fy=".28">
+      <stop offset="0" stop-color="#fff4ec" />
+      <stop offset=".45" stop-color="#ff8a4c" />
+      <stop offset="1" stop-color="#8a3d10" stop-opacity=".4" />
+    </radialGradient>
+
+    <filter id="m-soft" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="4.5" /></filter>
+    <filter id="m-fine" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="1.8" /></filter>
+  </defs>
+
+  <!-- A real contact shadow: this one has feet and a floor to stand on, which the
+       cropped busts do not. -->
+  <ellipse cx="60" cy="110" rx="32" ry="5" fill="#8a3d10" opacity=".22" filter="url(#m-soft)" />
+
+  <!-- Feet, behind the body. -->
+  <g fill="#3ecf94">
+    <ellipse cx="44" cy="105" rx="12" ry="6" />
+    <ellipse cx="76" cy="105" rx="12" ry="6" />
+  </g>
+  <g fill="url(#m-core)">
+    <ellipse cx="44" cy="105" rx="12" ry="6" />
+    <ellipse cx="76" cy="105" rx="12" ry="6" />
+  </g>
+
+  <!-- Round ears, behind the body so only their top half shows, with a coral
+       inner. Side horns at this size read as devil horns. -->
+  <g fill="#3ecf94">
+    <circle cx="38" cy="20" r="15" />
+    <circle cx="82" cy="20" r="15" />
+  </g>
+  <g fill="url(#m-core)">
+    <circle cx="38" cy="20" r="15" />
+    <circle cx="82" cy="20" r="15" />
+  </g>
+  <g fill="url(#m-coral)">
+    <circle cx="38" cy="21" r="8" />
+    <circle cx="82" cy="21" r="8" />
+  </g>
+
+  <!-- Body: hue base, then the two gradient cues. -->
+  <use href="#m-body" fill="url(#m-mint)" />
+  <use href="#m-body" fill="url(#m-lit)" />
+  <use href="#m-body" fill="url(#m-core)" />
+
+  <!-- Belly: a lit patch, then the sun disc that marks this blob as a friend
+       rather than as an unlabelled decoration. -->
+  <ellipse cx="60" cy="88" rx="26" ry="15" fill="#fff4ec" opacity=".38" />
+  <circle cx="60" cy="88" r="9" fill="url(#m-coral)" />
+  <circle cx="57" cy="85" r="2.5" fill="#fff4ec" opacity=".75" />
+
+  <!-- Eyes. -->
+  <g fill="#fff4ec">
+    <ellipse cx="48" cy="46" rx="9" ry="10.5" />
+    <ellipse cx="72" cy="46" rx="9" ry="10.5" />
+    <circle cx="46" cy="43.6" r="2.1" />
+    <circle cx="70" cy="43.6" r="2.1" />
+  </g>
+  <g fill="#8a3d10">
+    <circle cx="48.5" cy="47" r="4.8" />
+    <circle cx="71.5" cy="47" r="4.8" />
+  </g>
+
+  <path d="M50 62c6 8 14 8 20 0" stroke="#8a3d10" stroke-width="3.4" stroke-linecap="round" fill="none" />
+  <g fill="#f25c9e" opacity=".3" filter="url(#m-fine)">
+    <ellipse cx="34" cy="58" rx="7" ry="4.5" />
+    <ellipse cx="86" cy="58" rx="7" ry="4.5" />
+  </g>
+
+  <!-- Specular on the forehead: the top-left light source made visible. -->
+  <ellipse cx="47" cy="32" rx="12" ry="7" transform="rotate(-24 47 32)" fill="#fff4ec" opacity=".45" filter="url(#m-fine)" />
+</svg>

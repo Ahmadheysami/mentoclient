@@ -20,6 +20,7 @@ definePageMeta({
   middleware: ["auth", "panel-plan"],
   panel: "big",
   panelTitle: "دستیار هوش مصنوعی",
+  hideBottomBar: true,
 });
 
 useSeoMeta({

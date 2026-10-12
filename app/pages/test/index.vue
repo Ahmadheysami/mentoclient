@@ -1,6 +1,10 @@
 <script setup lang="ts">
 import { faNumber } from "~/utils/fa";
 
+definePageMeta({
+  middleware: ["auth"],
+});
+
 const testStore = useTest();
 
 const LIMIT = 30;
@@ -9,7 +13,7 @@ const isLoading = computed(() => testStore.state.loading.getStore);
 
 const hasError = computed(() => !isLoading.value && Boolean(testStore.state.error));
 
-const hasTests = computed(() => testStore.state.store.length > 0);
+const hasTests = computed(() => (testStore.state.store?.length ?? 0) > 0);
 
 const pagination = computed(() => testStore.state.storePagination);
 const currentPage = computed(() => Number(pagination.value.currentPage ?? 1));

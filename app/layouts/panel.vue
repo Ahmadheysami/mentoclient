@@ -36,29 +36,71 @@ import BottomBar from '~/components/App/BottomBar.vue';
  * Also deliberately different from `default.vue`: `pb-33` is dropped, because
  * there is no bottom bar to clear — see below.
  */
+const route = useRoute();
+
+/**
+ * Whether the current route is in the employer panel.
+ *
+ * The employer panel has its own professional light theme (teal accent, slate
+ * surfaces) that is completely distinct from the big panel's sky/lime palette.
+ * The `.employer-panel` scope in `main.css` re-points shared component tokens
+ * (FeatureCard, BottomBar, PanelHeader, etc.) so they automatically use the
+ * employer palette when this class is present on the root element.
+ */
+const isEmployerPanel = computed(() => route.meta.panel === 'employer');
+
+/**
+ * The ONE chrome exception this layout makes: the assistant takes the whole
+ * screen.
+ *
+ * `Bot/ProChatView.vue` renders no navigation of its own, so the sub-menu on a
+ * panel page is this layout's `BottomBar` — and on the assistant route it is
+ * both rendered away and un-cleared: `<main>` swaps its `pb-23` for `pb-0`, so
+ * the chat's `h-full min-h-0` column gets the full height and its `shrink-0`
+ * composer sits on the bottom edge of the viewport instead of floating above a
+ * pill. `pb-23` was never a page gutter; it was that pill's clearance, and with
+ * the pill gone it would only reserve dead space.
+ *
+ * Same shape and the same reason as `hidesChrome` in `layouts/child.vue`. The
+ * `AppPanelHeader` above stays on every route: it is this page's own title bar
+ * — where you are, the way back, the coin pill — not a sub-menu.
+ */
+const isAssistantRoute = computed(
+  () => route.meta.hideBottomBar === true,
+);
 </script>
 
 <template>
     <div
-        class="panel__layout default__layout custom-scroll bg-x-primary-content-100 max-w-md border-x border-slate-200 h-dvh overflow-hidden mx-auto font-yekan-regular flex flex-col">
+        class="panel__layout default__layout custom-scroll bg-x-primary-content-100 max-w-md border-x border-slate-200 h-dvh overflow-hidden mx-auto font-yekan-regular flex flex-col"
+        :class="{ 'employer-panel': isEmployerPanel }"
+    >
         <AppPanelHeader />
 
         <!--
             The one scroller. `overscroll-contain` keeps a swipe that reaches the
             end of a transcript from chaining to a parent, which on a touch phone
             reads as the whole page lurching.
+
+            `pb-23` is `BottomBar`'s clearance and nothing else — that pill is
+            `absolute bottom-3.5` and floats over the content — so the assistant
+            route, which renders no pill, takes `pb-0` instead.
         -->
-        <main class="flex-1 overflow-y-auto overscroll-contain pb-23">
+        <main
+            class="flex-1 overflow-y-auto overscroll-contain"
+            :class="isAssistantRoute ? 'pb-0' : 'pb-23'">
             <slot />
-            <BottomBar />
+            <BottomBar v-if="!isAssistantRoute" />
         </main>
 
         <!--
-            NO `<AppBottomBar />`, unlike `default.vue`. All four of its items —
-            خانه / کیف پول / حساب / تنظیمات — lead outside the paid panel, and it
-            covers the bottom of the viewport: a composer pinned to the bottom
-            edge of a panel screen would sit behind it. The panel home page
-            (`/panels/big`) is the navigation hub instead.
+            NO full-width bottom bar, unlike `default.vue`: all four of this
+            layout's items — خانه / کیف پول و سکه / حساب / تنظیمات — lead outside
+            the paid panel, and such a bar covers the bottom of the viewport, so a
+            composer pinned to the bottom edge of a panel screen would sit behind
+            it. The panel home page (`/panels/big`) is the navigation hub instead,
+            and the compact floating `BottomBar` above stands in for it — except
+            on the assistant route, which takes the full screen.
         -->
     </div>
 </template>

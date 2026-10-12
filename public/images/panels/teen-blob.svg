@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 220 220">
+  <!-- Teen panel decorative blob. Its stops are pinned to the teen palette's
+       accent families (main.css @theme), NOT to the retired values: this was
+       #f1358b → #4da3f5 hot pink into sky blue, which only ever read correctly
+       against the dark hero. It is now violet into teal, so it belongs to the
+       same light gradient wash the hero sits on. -->
+  <defs>
+    <linearGradient id="tg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#c7bcf7"/>
+      <stop offset="1" stop-color="#a9e6de"/>
+    </linearGradient>
+  </defs>
+  <path d="M110 10c40 0 70 20 84 52s-6 70-44 96-92 22-114-8-10-70 16-102S70 10 110 10z" fill="url(#tg)" opacity="0.85"/>
+  <circle cx="168" cy="46" r="10" fill="#d0efdc"/>
+</svg>

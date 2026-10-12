@@ -1,0 +1,114 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240" width="240" height="240" fill="none">
+  <!--
+    Kid hero art — BOY, and the reference build: `kid-3d-girl.svg` is this same
+    construction with different hair, top and accessories.
+
+    THE VOLUME RECIPE, on every round form: a hue base; a `radialGradient` whose
+    FOCAL POINT sits top-LEFT, so the modelling agrees with the panel's own
+    neumorphic lighting (main.css §18: `-6px -6px` light, `6px 6px` dark); a rim
+    gradient for the terminator, because falloff toward the edge is what reads as
+    a sphere and not as a disc; warm occlusion where forms meet; small speculars.
+    NO PURE BLACK, NO PURE WHITE: shadows are the deep kid ink `#8a3d10` at
+    partial alpha, highlights the cream `#fff4ec`, all seven existing kid tokens.
+
+    SQUARE canvas, because the hero renders this at a fixed square box and a
+    non-square viewBox would be stretched by the default `object-fit: fill`. The
+    bust is CROPPED at the bottom, so there is no floor and the grounding shadow
+    is a CAST one thrown down-right, opposite the light, not a contact ellipse.
+
+    THE SILHOUETTE IS THE WHOLE FIGHT: a smooth curve from neck to bottom corner
+    reads as a hill however wide it is, so the shoulders are STRAIGHT segments and
+    the skull stays under 45% of the canvas so the body is a body.
+  -->
+  <defs>
+    <path id="b-torso" d="M18 240 26 182c6-20 26-32 54-36h8c3 7 10 10 32 10 22 0 29-3 32-10h8c28 4 48 16 54 36l8 58Z" />
+    <path id="b-hair" d="M67 78C65 34 88 14 120 14s55 20 53 64c-2-17-7-30-16-35-13 9-30 15-43 11-12-4-23-12-31-17-10 6-13 20-16 41Z" />
+    <clipPath id="b-clip"><circle cx="120" cy="76" r="54" /></clipPath>
+    <!-- Skin ramp per form; the last two stops ARE the terminator. -->
+    <radialGradient id="b-skin" cx=".5" cy=".5" r=".55" fx=".33" fy=".29">
+      <stop offset="0" stop-color="#fff4ec" />
+      <stop offset=".4" stop-color="#ffe3d0" />
+      <stop offset=".79" stop-color="#ff8a4c" stop-opacity=".92" />
+      <stop offset="1" stop-color="#8a3d10" stop-opacity=".34" />
+    </radialGradient>
+    <radialGradient id="b-sheen" cx=".5" cy=".5" r=".5" fx=".3" fy=".28">
+      <stop offset="0" stop-color="#fff4ec" stop-opacity=".5" />
+      <stop offset="1" stop-color="#fff4ec" stop-opacity="0" />
+    </radialGradient>
+    <!-- Clothing: a directional light ramp, then a pooled core shadow. -->
+    <linearGradient id="b-lit" x1=".12" y1="0" x2=".72" y2=".9">
+      <stop offset="0" stop-color="#fff4ec" stop-opacity=".6" />
+      <stop offset=".58" stop-color="#fff4ec" stop-opacity="0" />
+    </linearGradient>
+    <radialGradient id="b-pool" cx=".86" cy="1" r=".74">
+      <stop offset=".3" stop-color="#8a3d10" stop-opacity=".32" />
+      <stop offset="1" stop-color="#8a3d10" stop-opacity="0" />
+    </radialGradient>
+    <filter id="b-soft" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="6" /></filter>
+    <filter id="b-fine" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="2.4" /></filter>
+  </defs>
+
+  <!-- Cast shadow: the figure's own silhouette, thrown down-right. It is what
+       stops a cropped bust reading as a sticker. -->
+  <g fill="#8a3d10" opacity=".11" filter="url(#b-soft)" transform="translate(7 9)">
+    <use href="#b-torso" />
+    <circle cx="120" cy="76" r="54" />
+    <use href="#b-hair" />
+  </g>
+
+  <use href="#b-torso" fill="#3ecf94" />
+  <use href="#b-torso" fill="url(#b-lit)" />
+  <use href="#b-torso" fill="url(#b-pool)" />
+
+  <!-- Neck, drawn AFTER the shirt to fill the scoop the neckline cuts, and
+       stopping inside it or its bottom shows as a block on the chest. -->
+  <path d="M104 96h32v59h-32Z" fill="url(#b-skin)" />
+
+  <!-- One lit arc along the collar edge, brows, and the bounce light on the
+       lower-right rim. -->
+  <g fill="none" stroke-linecap="round">
+    <path d="M90 150c3 6 12 10 30 10s27-4 30-10" stroke="#fff4ec" stroke-opacity=".32" stroke-width="2.5" />
+    <path d="M91 62c8-5 19-5 26-2M129 66c7-4 15-4 21 1" stroke="#8a3d10" stroke-width="5" />
+    <path d="M173 68a54 54 0 0 1-20 50" stroke="#fff4ec" stroke-opacity=".45" stroke-width="5" />
+  </g>
+
+  <!-- AO: the head's own shadow on the neck. Tight, or it reads as a stain. -->
+  <ellipse cx="120" cy="138" rx="22" ry="6" fill="#8a3d10" opacity=".3" filter="url(#b-soft)" />
+
+  <g fill="url(#b-skin)">
+    <circle cx="66" cy="84" r="12" />
+    <circle cx="174" cy="84" r="12" />
+    <circle cx="120" cy="76" r="54" />
+  </g>
+
+  <!-- Clipped to the skull, so no occlusion spills onto the hero. -->
+  <g clip-path="url(#b-clip)">
+    <ellipse cx="118" cy="54" rx="40" ry="8" fill="#8a3d10" opacity=".26" filter="url(#b-soft)" />
+    <g fill="#f25c9e" opacity=".26" filter="url(#b-fine)">
+      <ellipse cx="84" cy="102" rx="11" ry="7" />
+      <ellipse cx="156" cy="102" rx="11" ry="7" />
+    </g>
+    <ellipse cx="44" cy="208" rx="22" ry="12" transform="rotate(-34 44 208)" fill="#fff4ec" opacity=".26" filter="url(#b-fine)" />
+  </g>
+
+  <use href="#b-hair" fill="#8a3d10" />
+  <use href="#b-hair" fill="url(#b-sheen)" />
+  <path d="M133 19c-7 9-12 17-15 25" stroke="#8a3d10" stroke-opacity=".3" stroke-width="4" stroke-linecap="round" fill="none" />
+
+  <!-- Cream sclera, ink iris, one specular each; teeth across the smile. -->
+  <g fill="#fff4ec">
+    <ellipse cx="104" cy="86" rx="9.5" ry="10.5" />
+    <ellipse cx="136" cy="86" rx="9.5" ry="10.5" />
+    <circle cx="101.8" cy="83.6" r="2.3" />
+    <circle cx="133.8" cy="83.6" r="2.3" />
+    <path d="M110 103.5h23c-1.2 4.3-3.9 5.9-7.7 5.9h-7.6c-3.8 0-6.5-1.6-7.7-5.9Z" />
+  </g>
+  <g fill="#8a3d10">
+    <circle cx="104" cy="87" r="5.4" />
+    <circle cx="136" cy="87" r="5.4" />
+    <path d="M108 102c8 12 22 12 30 0Z" />
+  </g>
+
+  <circle cx="120" cy="96" r="3.2" fill="#ff8a4c" opacity=".55" />
+  <circle cx="118.9" cy="94.7" r="1.2" fill="#fff4ec" opacity=".75" />
+</svg>

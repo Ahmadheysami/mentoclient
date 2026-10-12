@@ -18,7 +18,7 @@ const panels = [
         img: '/images/char/child.png',
         title: 'پنل کودکان',
         description: 'دارای امکانات ویژه و متنساب سازی با روحیات کودکان برای افراد ۸ تا ۱۸ سال',
-        to: '/panels/child'
+        to: '/panels/parent'
     },
     {
         id: 'emp',

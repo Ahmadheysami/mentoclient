@@ -119,8 +119,8 @@ const destinations: {
   {
     to: "/panels/big/astrology",
     icon: "solar:magic-stick-3-linear",
-    title: "طالع‌بینی",
-    description: "طالع‌بینی بر پایهٔ نقشهٔ تولد.",
+    title: "چارت تولد",
+    description: "اثر انگشت منحصر بفرد کیهانی (آسترولوژی)",
   },
   {
     to: "/panels/big/goals",
@@ -131,7 +131,7 @@ const destinations: {
   {
     to: "/panels/big/tests",
     icon: "solar:clipboard-list-linear",
-    title: "آزمون‌های تخصصی",
+    title: "آزمون های من",
     description: "آزمون‌های فعال و نتیجه‌های ثبت‌شدهٔ شما.",
   },
   {
@@ -175,12 +175,12 @@ const upcoming: {
   {
     icon: "solar:users-group-rounded-linear",
     name: "مشاورین من",
-    description: "مشاوران تخصصی در کنار شما",
+    description: "مشاوره تخصصی انسانی و هوش مصنوعی",
   },
   {
     icon: "solar:users-group-two-rounded-linear",
-    name: "من و پارتنر",
-    description: "بازبینی حساب با شریک زندگی",
+    name: "تطبیق حساب کاربری",
+    description: "همسان سازی حساب کاربری با شخص مورد نظر",
   },
   {
     icon: "solar:notebook-linear",
@@ -190,7 +190,7 @@ const upcoming: {
   {
     icon: "solar:gamepad-linear",
     name: "سرگرمی ها",
-    description: "بازی‌هایی بر پایهٔ شخصیت شما",
+    description: "سرگرمی های مناسب با الگوی رفتاری شما",
   },
 ];
 
@@ -206,43 +206,87 @@ const upcoming: {
  *
  * The two hues are the reference's own measured pair (78% sky, 15.7% lime) and they
  * alternate, so the four cards carry the page's colour weight instead of one hue
- * doing all the work. `index % 2` rather than a four-entry cycle: with an even
- * length the two rules are the same rule, and the shorter one cannot drift out of
- * step with the number of cards.
+ * doing all the work.
+ *
+ * ⚠️ **THE PARITY IS NOT `index % 2` — THAT PAINTS COLUMNS, NOT A CHECKERBOARD.**
+ * In a two-column grid `index % 2` gives `sky|lime / sky|lime`: two monochrome
+ * columns and a visible vertical seam down the page, which is the one thing a
+ * checkerboard exists to avoid. A checkerboard has to flip on BOTH axes, so the row
+ * has to be folded into the parity as well — see `toneOf` below. The parity is still
+ * computed rather than written down as a four-entry cycle: with an even length the
+ * two rules are the same rule, and a computed one cannot drift out of step with the
+ * number of cards.
  *
  * `mist` is a member of the card's tone union but is deliberately NOT in this
- * cycle. It is the neutral for a card that is CONTEXT rather than a destination —
- * which is what the roadmap's chips and the plan card's own neutral tiles already
- * are — and the four cards above are four things the reader is being invited to tap,
- * so they are all chromatic.
+ * cycle, and ⚠️ **NOTHING ON THIS PAGE PAINTS IT ANY MORE.** It used to be cited as
+ * evidence: the roadmap's chips were `bg-x-mist-100` and this comment called them
+ * context-not-destination. Those chips are `bg-x-sky-100` now, because `mist-100`
+ * measures 1.12:1 on a white card — no edge at all — so the argument it was enlisted
+ * in no longer holds, and the plan card's tiles were white with a hairline rather
+ * than mist to begin with. Context on this page is carried by being WHITE with a
+ * `sky-300` outline, not by a neutral fill; the four cards above are the only four
+ * things a reader is invited to tap, and they are the only four that carry a fill of
+ * their own. `mist` stays in the union so a future caller that does want a neutral
+ * surface for context gets a real one instead of an undefined class, which is what
+ * `Panel/FeatureCard.vue` says about it.
  */
 const FEATURE_TONES = ["sky", "lime"] as const;
 
 type FeatureTone = (typeof FEATURE_TONES)[number];
 
 /**
- * The tint for the card at `index`.
+ * The tint for the card at `index` — the page's one real invariant.
  *
- * `?? "sky"` rather than a non-null assertion: with
- * `noUncheckedIndexedAccess` the modulo is `FeatureTone | undefined`, and a total
- * function that cannot return `undefined` is the honest version of the same idea —
- * the fallback is a real member of the union, so no caller can receive a value the
- * prop does not accept.
+ * `(index + Math.floor(index / 2)) % length` is the flip on BOTH axes. In a
+ * two-column grid, `Math.floor(index / 2)` is the row, so adding it to the index and
+ * then taking the parity is exactly "alternate along each row, and alternate again
+ * between rows":
+ *
+ *     index   0     1     2     3     4     5
+ *     row     0     0     1     1     2     2
+ *     parity  0     1     1     0     0     1     → sky lime lime sky sky lime
+ *
+ * So the four cards read `sky|lime / lime|sky` — a checkerboard, with like tints
+ * sitting on the DIAGONAL. ⚠️ **Plain `index % 2` is wrong here** and was the bug
+ * this function carried from the spec through the first implementation: it yields
+ * `sky|lime / sky|lime`, i.e. two monochrome columns.
+ *
+ * The clearest way to tell the two rules apart is indices 1 and 2. They are
+ * consecutive in the array, but in the grid index 1 is (row 0, col 1) and index 2 is
+ * (row 1, col 0) — they sit on the DIAGONAL, not on a shared row. So they must be the
+ * SAME colour, and this parity gives them that: `toneOf(1) === toneOf(2) === "lime"`.
+ * `index % 2` cannot express it, because it has no idea a row boundary passed between
+ * them — it yields `"sky"` at index 2, the opposite. ⚠️ The rule is therefore about
+ * neighbours IN LAYOUT, not about consecutive indices — read it the array way and it
+ * looks wrong.
+ * Any future grid whose column count is not 2 has to re-derive the parity.
+ *
+ * `?? "sky"` rather than a non-null assertion: with `noUncheckedIndexedAccess` the
+ * modulo is `FeatureTone | undefined`, and a total function that cannot return
+ * `undefined` is the honest version of the same idea — the fallback is a real member
+ * of the union, so no caller can receive a value the prop does not accept.
  *
  * ⚠️ **DO NOT REPLACE THIS WITH A `tone` FIELD ON EACH ENTRY.** A hand-written
- * `tone` per card was tried during this redesign and reverted. It compiles, it
- * renders correctly, and it is indistinguishable in review — while making the one
- * guarantee this page has (neighbouring cards never share a surface) something a
- * later edit breaks silently: `FeatureTone` accepts either value at any index, so
- * adding a fifth destination or reordering the list puts two of the same tint side by
- * side and TypeScript has nothing to say about it. The tints are computed rather than
+ * `tone` per card has twice now been written into this file by something other than
+ * the author who wrote this function, and reverted twice: it compiles, it renders,
+ * and it is indistinguishable in review at a glance — while making the one guarantee
+ * this page has something a later edit breaks silently. `FeatureTone` accepts either
+ * value at any index, so adding a fifth destination, or reordering the list, puts two
+ * of the same tint side by side and TypeScript has nothing to say about it. Note that
+ * `.nuxt/tsconfig.app.json` sets `strict` but NOT `noUnusedLocals`, so deleting this
+ * function while keeping its callers' replacement also passes `vue-tsc` — the typecheck
+ * cannot be the thing that catches the regression. The tints are computed rather than
  * written down so that "the same tint twice in a row" is UNREPRESENTABLE, not merely
- * absent. This very JSDoc is the reason that matters: when the function was deleted
- * during this redesign, the comment survived it and went on describing a modulo that
- * no longer existed.
+ * absent.
+ *
+ * ⚠️ **AND NOTE THAT A HAND-WRITTEN SEQUENCE IS NOT EVEN TRUSTWORTHY AS AN EXAMPLE.**
+ * The version that was in this file most recently read `sky, lime, lime, sky`, which
+ * happens to be the correct checkerboard — and it still violated the rule that the
+ * mechanism exists to enforce, purely by being hand-maintained.
  */
 function toneOf(index: number): FeatureTone {
-  return FEATURE_TONES[index % FEATURE_TONES.length] ?? "sky";
+  const parity = (index + Math.floor(index / 2)) % FEATURE_TONES.length;
+  return FEATURE_TONES[parity] ?? "sky";
 }
 </script>
 
@@ -374,11 +418,18 @@ function toneOf(index: number): FeatureTone {
         (1.26:1), while the outline has to read as a container, so it takes `sky-300`
         (1.43:1).
 
-        ⚠️ The plan card ~30px below draws its own `ring-x-primary-100` (1.40:1), so
-        the two white cards on this screen do not carry identical hairlines. That is a
-        SCOPE artefact and not a choice: `App/UserPlanInfoCard.vue` is out of this
-        redesign's scope and is not edited. Recorded so the next person who owns both
-        reads the mismatch as history rather than as an oversight.
+        ⚠️ **THE PLAN CARD BELOW OUTLINES IN `sky-300` AS WELL, AND THAT IS THE
+        POINT.** It used to draw its own `ring-x-primary-100` (1.41:1), so the two
+        white cards on this screen carried different hairlines — a seam a reader sees
+        as a change of card and cannot account for. It now rings in `sky-300` like
+        this container does, which is not a coincidence of tokens: the step is chosen
+        by the ROLE, and both of these are containers rather than rules. A rule
+        between two rows only has to separate one row from the next, so it takes
+        `sky-200` as above; an outline has to read as a container, so it takes
+        `sky-300` — on this card and on every tile of the plan card below, which is
+        why they can now be changed together and must be. See each component's header
+        for the same rule read by size: those tiles keep `shadow-xs` and this card
+        does not, because a container its own size is already lifted by its ring.
       -->
       <ul
         class="mt-3 divide-y divide-x-sky-200 rounded-3xl bg-white px-3.5 py-1 ring-1 ring-x-sky-300"
@@ -406,10 +457,14 @@ function toneOf(index: number): FeatureTone {
       anywhere else: which plan governs this panel, and when it runs out.
 
       ⚠️ **A NAMED LANDMARK, AND NO HEADING OF OUR OWN.**
-      `App/UserPlanInfoCard.vue` is out of this redesign's scope and is not edited,
-      so it cannot be given an `id` for `aria-labelledby` to point at. The card
-      already prints its OWN `sr-only` `<h2>` — «اطلاعات پنل» — beside its visible
-      `<h3>` when `show-reader="false"`. An earlier version of this wrapper added a
+      The card exposes no `id` for `aria-labelledby` to point at: its headings are an
+      `<h2>` and an `<h3>` and nothing on it carries an identifier, so this wrapper
+      cannot borrow the card's own heading however the card happens to be painted.
+      (It has since been edited — chips, rings, skeleton fills — and the identifiers
+      are still absent on purpose: they belong to a documented public contract and not
+      to a palette, and adding one would reach into that contract to save a wrapper.)
+      The card already prints its OWN `sr-only` `<h2>` — «اطلاعات پنل» — beside its
+      visible `<h3>` when `show-reader="false"`. An earlier version of this wrapper added a
       third heading with those same words to reach the card, which put «اطلاعات پنل»
       into the heading list twice: invisible twice, but a heading navigation list does
       not care whether a heading is visible. So the wrapper names itself with

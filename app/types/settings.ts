@@ -24,6 +24,16 @@
 export type FontScale = "sm" | "md" | "lg";
 
 /**
+ * The child panel's colour theme. `ocean` is the designed default palette —
+ * the one `@theme` ships with — so its rule set is the EMPTY one: the other
+ * three re-tint, `ocean` recalls.
+ */
+export type AppearanceTheme = "ocean" | "sunset" | "forest" | "candy";
+
+/** The child panel's chrome size. Applies while the child layout is mounted. */
+export type UiSize = "small" | "normal" | "large";
+
+/**
  * How much the app is allowed to move.
  *
  * `system` follows `prefers-reduced-motion`, `reduced` overrides it, and
@@ -43,6 +53,10 @@ export interface SettingsPrefs {
   notificationPreview: boolean;
   /** Whether the notification socket is opened at all. */
   realtimeNotifications: boolean;
+  /** Child panel colour theme — applied only while the child layout runs. */
+  theme: AppearanceTheme;
+  /** Child panel size — applied only while the child layout runs. */
+  uiSize: UiSize;
 }
 
 /**
@@ -120,6 +134,8 @@ export function defaultSettings(): SettingsPrefs {
     notificationSound: true,
     notificationPreview: true,
     realtimeNotifications: true,
+    theme: "ocean",
+    uiSize: "normal",
   };
 }
 
@@ -127,6 +143,19 @@ export const FONT_SCALE_LABELS: Record<FontScale, string> = {
   sm: "کوچک",
   md: "معمولی",
   lg: "بزرگ",
+};
+
+export const APPEARANCE_THEME_LABELS: Record<AppearanceTheme, string> = {
+  ocean: "اقیانوس",
+  sunset: "غروب",
+  forest: "جنگل",
+  candy: "شیرینی",
+};
+
+export const UI_SIZE_LABELS: Record<UiSize, string> = {
+  small: "کوچک",
+  normal: "معمولی",
+  large: "بزرگ",
 };
 
 export const MOTION_LABELS: Record<MotionPreference, string> = {
@@ -150,6 +179,15 @@ const MOTION_PREFERENCES: readonly MotionPreference[] = [
   "system",
 ];
 
+const APPEARANCE_THEMES: readonly AppearanceTheme[] = [
+  "ocean",
+  "sunset",
+  "forest",
+  "candy",
+];
+
+const UI_SIZES: readonly UiSize[] = ["small", "normal", "large"];
+
 /** Narrows an untrusted cookie value to a known text size. */
 export function isFontScale(value: unknown): value is FontScale {
   return FONT_SCALES.some((scale) => scale === value);
@@ -160,4 +198,16 @@ export function isMotionPreference(
   value: unknown,
 ): value is MotionPreference {
   return MOTION_PREFERENCES.some((preference) => preference === value);
+}
+
+/** Narrows an untrusted cookie value to a known child-panel theme. */
+export function isAppearanceTheme(
+  value: unknown,
+): value is AppearanceTheme {
+  return APPEARANCE_THEMES.some((theme) => theme === value);
+}
+
+/** Narrows an untrusted cookie value to a known child-panel size. */
+export function isUiSize(value: unknown): value is UiSize {
+  return UI_SIZES.some((size) => size === value);
 }

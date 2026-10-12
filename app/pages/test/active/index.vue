@@ -1,4 +1,8 @@
 <script setup lang="ts">
+definePageMeta({
+  middleware: ["auth"],
+});
+
 const testStore = useTest();
 
 /** Newest purchase first, so the most recent test is always on top. */

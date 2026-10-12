@@ -10,12 +10,18 @@ defineProps<{
   item: TestResult;
   /** Small caption above the title, e.g. «تلاش ۱». */
   heading?: string;
+  /** When set to "employer", links point to the employer panel routes. */
+  panel?: string;
 }>();
 </script>
 
 <template>
   <NuxtLink
-    :to="`/test/done/${item.id}`"
+    :to="
+      panel === 'employer'
+        ? `/panels/employer/results/${item.id}`
+        : `/test/done/${item.id}`
+    "
     class="flex items-center gap-3 rounded-3xl bg-white p-4 transition duration-200 ease-out hover:scale-95 hover:opacity-90 active:scale-95 active:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-x-primary-600"
   >
     <span
@@ -38,10 +44,10 @@ defineProps<{
       </time>
     </span>
 
-    <span
+    <!-- <span
       class="shrink-0 truncate rounded-full px-3 py-1.5 text-xs font-medium bg-linear-to-l from-x-secondary-200 to-x-secondary-100 text-x-secondary-900 ring-1 ring-x-secondary-300/60 max-w-1/2"
     >
       {{ item.result.title }}
-    </span>
+    </span> -->
   </NuxtLink>
 </template>

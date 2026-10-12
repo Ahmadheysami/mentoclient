@@ -1,6 +1,31 @@
 # Big Panel Home — Redesign Specification
 
-Status: approved design intent, to be implemented.
+Status: **implemented.** Reviewed 2026-10-03 — typecheck clean, `nuxt build` exit 0,
+security gate PASS, code review PASS.
+
+> ### ⚠️ This document is the SPEC, and four parts of it no longer describe the code.
+>
+> It was written before implementation and before review forced corrections. Where the
+> two disagree, **the code is right and this document is the stale artifact.** Do not
+> "restore" the code to match the text below.
+>
+> 1. **§1's "Do not modify it" and §7.3's "byte-identical" are superseded.** The user
+>    then asked for `App/UserPlanInfoCard.vue` to be redesigned too, so it WAS
+>    modified — harmonized onto `sky-100` chips / `sky-300` rings / `sky-200`
+>    skeletons, with its public contract preserved. §3.E is superseded with it.
+> 2. **§3.C's chevron in `x-text-muted` was repainted** to `x-primary-content-700`
+>    after measuring 2.06:1 and 1.97:1 against the tinted card fills — WCAG asks 3:1 of
+>    any non-text element. `x-text-muted` appears in no class attribute on the page.
+> 3. **§3.D's `<h2>` in `x-text-muted` was repainted** to `x-text-title`: 2.27:1 on the
+>    page ground against 9.10:1. Subordination is now carried by surfaces and order.
+> 4. **§3.D's `gold-500` dot is now `gold-700`** — `gold-500` measured 1.24:1 against
+>    the `gold-200` badge it sits inside, i.e. invisible on its only real surface.
+>
+> Two bugs in the SPEC ITSELF were found during review and are corrected in code:
+> `toneOf`'s parity was written as `index % 2`, which in a two-column grid paints
+> **two monochrome columns**, not the checkerboard §3.C asks for; and §3.C's claim that
+> `mist` was in use "for the plan/roadmap context" was already false on arrival —
+> nothing on this page paints `mist` at all.
 Scope: `app/pages/panels/big/index.vue`, the `app/components/Panel/*` components it owns,
 and one **additive** token block in `app/assets/css/main.css`.
 
@@ -12,8 +37,9 @@ and one **additive** token block in `app/assets/css/main.css`.
 matches in **exactly one file**: `app/pages/panels/big/index.vue`.
 
 - Every `Panel/*` component is private to this page and may be redesigned freely.
-- `App/UserPlanInfoCard.vue` has no other caller, but it lives in `App/`, carries a documented
-  public `showReader` contract, and is outside the redesign brief. **Do not modify it.**
+- `App/UserPlanInfoCard.vue` has no other caller, but it lives in `App/` and carries a documented
+  public `showReader` contract. **It was excluded from the original brief and the user later
+  overrode that — it HAS been redesigned. Its public contract is what stayed fixed.**
 
 Layout: `app/layouts/panel.vue` is `max-w-md` (448px) centred, `h-dvh`, one scroller, no bottom
 bar, `bg-x-primary-content-100` = `#ecf0fb`, `dir="rtl"`. Design target is a **~416px column**.
@@ -134,12 +160,19 @@ the snap scroller, its `[overscroll-behavior-x:contain]`, the `-mx-…/px-…` b
 Tint is a **checkerboard** so the grid reads as one set rather than a table, and the two
 hues carry the page's colour weight:
 
+The four surfaces, in the order `destinations` actually holds them:
+
 | # | feature | surface |
 | --- | --- | --- |
-| 0 | طالعه بیاتی | `bg-x-sky-200` |
-| 1 | دستیار هوشمند | `bg-x-lime-200` |
-| 2 | من و پارتنر | `bg-x-sky-200` |
-| 3 | آزمون های هوشمند | `bg-x-lime-200` |
+| 0 | طالع‌بینی | `bg-x-sky-200` |
+| 1 | هدف‌گذاری | `bg-x-lime-200` |
+| 2 | آزمون‌های تخصصی | `bg-x-lime-200` |
+| 3 | دستیار هوش مصنوعی | `bg-x-sky-200` |
+
+⚠️ This table read `sky / lime / sky / lime` when first written — verbatim the two
+monochrome columns this section calls the bug two paragraphs below. The names in it
+(`طالعه بیاتی`, `من و پارتنر`, …) were also invented and matched no destination;
+both were corrected to the real data and the real surfaces.
 
 Card: white icon chip 40px, title `font-yekan-bold text-sm`, description `text-xs leading-6
 line-clamp-2`, chevron inline-end (`solar:alt-arrow-left-linear`) in `x-text-muted`. Press
@@ -147,22 +180,40 @@ feedback only — `active:scale-[0.98]` + `transition-transform` + the `motion-r
 a `focus-visible` ring. **No `hover:`.**
 
 Keep `FEATURE_TONES` / `toneOf()` in the page, not the card, for the reason its comment gives —
-but the tone type becomes the two measured surfaces plus `mist` for the plan/roadmap context,
-not the four dead lavenders. Rewrite that comment to describe the checkerboard rule.
+but the tone type becomes the two measured surfaces plus `mist`, not the four dead lavenders.
+Rewrite that comment to describe the checkerboard rule.
+
+⚠️ **The parity is `(index + Math.floor(index / 2)) % length`, NOT `index % 2`.** `index % 2`
+gives `sky|lime / sky|lime` — two monochrome columns and a vertical seam, which is exactly what a
+checkerboard exists to prevent. Folding the row into the parity flips on both axes and yields
+`sky|lime / lime|sky`, like tints on the diagonal.
+
+The clearest test of the two rules is indices 1 and 2: consecutive in the array, but (row 0, col 1)
+and (row 1, col 0) in the grid — on the **diagonal**, not on a shared row. They must therefore be
+the **same** colour, which is exactly what `index % 2` cannot express. So the rule is about
+neighbours **in layout**, and reading it the array way looks like a contradiction.
 
 ### D. Roadmap — `Panel/ComingSoonCard.vue`
 Five stacked cards become **one grouped card** holding five compact rows: icon chip, brand
 name in a `<bdi>` (brand names are never translated), description, and a `bg-x-gold-200`
-`text-x-gold-700` «به‌زودی» badge with a `gold-500` dot — the reference's amber used as a
+`text-x-gold-700` «به‌زودی» badge with a `gold-700` dot (the measured `gold-500` is 1.24:1 on
+its own badge fill and cannot be seen) — the reference's amber used as a
 genuine status. Drop the dashed outline; keep the load-bearing rule the component exists to
 enforce: **no link, no button, no `role`, no `tabindex`, no `hover:`, no `active:`.** Nothing
 here may look pressable, because nothing here is. Keep `line-clamp-2` and the `<bdi>`.
 
 Its `<h2>` stays `x-text-muted` — the only muted heading on the page.
 
-### E. Plan — `App/UserPlanInfoCard.vue`, untouched
-Keep `panel="big" :show-reader="false"`, wrapped in a `<section aria-labelledby="panel-big-plan">`
-pointing at its own visible heading. Do not add a second heading above it.
+### E. Plan — `App/UserPlanInfoCard.vue` — **superseded, it was redesigned**
+Keep `panel="big" :show-reader="false"` and every part of its public contract: the `panel` prop,
+`showReader` defaulting to `true`, all eleven computeds, the `<dl>`/`<dt>`/`<dd>` structure,
+`aria-busy`, the «وارد نشده» wording and its `shadow-xs`. Harmonize it onto the same surface
+vocabulary as the roadmap: `bg-x-sky-100` chips with the ink token, `ring-x-sky-300` on every
+tile, `bg-x-sky-200` skeletons.
+
+It is wrapped in `<section aria-label="اطلاعات پنل">` and **NOT** `aria-labelledby`: the card
+exposes no `id`, and it already prints its own `sr-only` `<h2>` with those exact words beside its
+visible `<h3>`, so a wrapper heading would put «اطلاعات پنل» into the heading list twice.
 
 ---
 
@@ -219,8 +270,8 @@ House fonts only (`font-yekan-light|regular|bold|extra`), one scale:
 1. `npx vue-tsc --noEmit -p tsconfig.json` → no output.
 2. Changes confined to: `app/pages/panels/big/index.vue`, `app/components/Panel/*.vue`,
    `main.css` (additive `@theme` hunk only). Deleted: `Panel/DomainScoreCard.vue`.
-3. `App/UserPlanInfoCard.vue`, `app/layouts/panel.vue`, `App/PanelHeader.vue` and every other
-   page byte-identical.
+3. `app/layouts/panel.vue`, `App/PanelHeader.vue` and every other page byte-identical.
+   `App/UserPlanInfoCard.vue` is the one deliberate exception — see the note at the top.
 4. All five hero states present in the markup; `loading` / `empty` / `error` intact.
 5. No rail remnants in the features section.
 6. At least three distinct hues visible in the markup: `sky-*`, `lime-*`, `gold-*`.

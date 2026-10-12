@@ -112,7 +112,7 @@ function submit() {
     fullscreen
     :title="`ثبت هدف در ${GOAL_DOMAINS_META[domain].label}`"
     description="هر چه روشن‌تر بنویسید، راهنمای هفتگی دقیق‌تر می‌شود."
-    :ui="{ content: 'sm:max-w-md' }"
+    :ui="{ content: 'max-w-md mx-auto' }"
     @update:open="emit('update:open', $event)"
   >
     <template #body>
@@ -268,7 +268,7 @@ function submit() {
           label="انصراف"
           variant="soft"
           color="neutral"
-          class="flex-1"
+          class="flex-1 grid place-items-center"
           :ui="{ base: 'h-12 rounded-2xl' }"
           :disabled="submitting"
           @click="emit('update:open', false)"
@@ -277,7 +277,7 @@ function submit() {
           label="ثبت هدف"
           variant="solid"
           color="x-primary"
-          class="flex-[2]"
+          class="flex-[2] grid place-items-center"
           :loading="submitting"
           :disabled="!canSubmit"
           :ui="{ base: 'h-12 rounded-2xl bg-x-primary-600! hover:bg-x-primary-700!' }"

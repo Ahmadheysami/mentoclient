@@ -133,7 +133,7 @@ const services: {
         img: '/images/char/emp.png',
         title: 'کارفرمایان',
         description: 'امکانات ویژه کارفرمایان دارای تخفیفات ویژه و پیدا کردن افراد مناسب در هر زمینه شغلی',
-        to: '/panels/emp'
+        to: '/panels/employer'
     },
     {
         id: 'org',
@@ -146,14 +146,14 @@ const services: {
 </script>
 
 <template>
-    <div class="relative bg-linear-60 from-x-secondary-500 to-x-secondary-800 group hover:scale-95 transition w-11/12 mx-auto my-2 overflow-hidden rounded-3xl">
+    <div class="relative bg-linear-60 from-x-secondary-500 to-x-secondary-800 group transition w-11/12 mx-auto my-3 shadow-2xl shadow-x-secondary-500/50 overflow-hidden rounded-3xl">
 
         <NuxtLink to="/plans" class="relative z-30">
 
-            <div class=" p-3.5">
-                <div class="w-full flex items-center justify-between">
-                    <strong class="text-3xl font-liana! text-white" >پنل های منتویا پرو</strong>
-                    <UIcon name="solar:arrow-left-linear" size="30" class="text-white group-hover:rotate-45 transition" />
+            <div class=" p-2.5">
+                <div class="w-full flex items-center justify-center text-center">
+                    <strong class="text-xl font-liana! text-white" >پنل های منتویا پرو</strong>
+                    <!-- <UIcon name="solar:arrow-left-linear" size="30" class="text-white group-hover:rotate-45 transition" /> -->
                 </div>
             </div>
         </NuxtLink>

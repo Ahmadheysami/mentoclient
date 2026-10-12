@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { mockStoryGroups } from "~/data/stories.mock";
 import { flattenStoryGroups } from "~/types/story";
 import type { StoryGroup } from "~/types/story";
+import { useStory } from "~/stores/story";
 
 /**
  * The story rail plus its viewer — the entry point, and the ONE place the data
@@ -15,8 +15,8 @@ import type { StoryGroup } from "~/types/story";
  * `Features/Story/` as `List`, `Card`, `Viewer*` and `Link*`.
  */
 
-// ── The single line the API phase replaces ────────────────────────────────
-const groups = ref<StoryGroup[]>(mockStoryGroups());
+const storyStore = useStory();
+const groups = computed<StoryGroup[]>(() => storyStore.groups);
 
 /**
  * groupId → the MOST RECENT item index visited, not the furthest one reached.
@@ -35,8 +35,23 @@ const flat = computed(() => flattenStoryGroups(groups.value));
 const viewerOpen = ref(false);
 const startSlide = ref(0);
 
+onMounted(async () => {
+  await storyStore.fetchThreads();
+  storyStore.fetchAllStoryItems();
+});
+
 /** A group with zero items renders no ring, so it must not mount the rail. */
-const hasStories = computed(() => groups.value.some((g) => g.items.length > 0));
+const hasStories = computed(() => storyStore.state.threads.length > 0);
+
+/** Whether the current viewer's group items are still loading. */
+const isCurrentGroupLoading = computed(() => {
+  if (!viewerOpen.value) return false;
+  const currentGroup = flat.value.find(
+    (f) => f.groupIndex === startSlide.value,
+  )?.group;
+  if (!currentGroup) return false;
+  return storyStore.state.loading.items[currentGroup.id] ?? false;
+});
 
 /** The flat index of a specific frame, or -1. */
 function frameIndexOf(groupId: string, itemIndex: number): number {
@@ -45,7 +60,7 @@ function frameIndexOf(groupId: string, itemIndex: number): number {
   );
 }
 
-function openGroup(groupIndex: number) {
+async function openGroup(groupIndex: number) {
   const first = flat.value.findIndex((frame) => frame.groupIndex === groupIndex);
 
   // Defensive: a group with zero items has no frame to open.
@@ -99,6 +114,7 @@ function closeViewer() {
       v-if="viewerOpen"
       :groups="groups"
       :start-slide="startSlide"
+      :loading="isCurrentGroupLoading"
       @close="closeViewer"
       @finished="closeViewer"
       @progress="onViewerProgress"

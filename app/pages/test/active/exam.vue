@@ -1,17 +1,52 @@
 <script lang="ts" setup>
 import { useIntervalFn } from "@vueuse/core";
 import { faNumber } from "~/utils/fa";
+import authMiddleware from "~/middleware/auth";
+import childPanelMiddleware from "~/middleware/child-panel";
+import type { ChildAssignedTestBody } from "~/types/child-panel";
 
 definePageMeta({
-  middleware: ["auth"],
+  // A function: the two identities need different gates and a page declares
+  // only one list. `scope` is a REQUEST selector, not a claim.
+  //
+  // ⚠ It inlines the two named guards instead of returning their names: a
+  // page middleware function in Nuxt 4 must BE the guard — a string it
+  // returns is handed to vue-router as a redirect target, not as a call
+  // into the named middleware.
+  middleware: [
+    (to, from) =>
+      to.query.scope === "child"
+        ? childPanelMiddleware(to, from)
+        : authMiddleware(to, from),
+  ],
   layout: "blank",
 });
 
 const route = useRoute();
 const { $toast } = useNuxtApp();
 const testStore = useTest();
+const childPanel = useChildPanel();
 
 const examId = (route.query?.examId as string) || "";
+
+/**
+ * A child attempt ends in a celebration, not the adult result sheet.
+ * `scope` is the same REQUEST selector the middleware and the store calls
+ * already read.
+ */
+const isChildScope = computed(() => route.query.scope === "child");
+
+const childFirstName = computed(
+  () => childPanel.state.profile?.fullName?.first ?? "",
+);
+
+/**
+ * The score the celebration shows — DISPLAY ONLY. The results API exposes no
+ * numeric score (`types/test.ts`) and a child gets praise, not a figure to
+ * compare, so the modal always presents a full ۲۰/۲۰. The real payload stays
+ * untouched in `resultData` for analytics.
+ */
+const CELEBRATION_SCORE = 20;
 
 /** Ring geometry for the total-exam countdown. */
 const RING_RADIUS = 26;
@@ -125,7 +160,7 @@ const ringDashoffset = computed(() =>
 const optionLetter = (index: number) => OPTION_LETTERS[index] ?? String(index + 1);
 
 const faDigits = (value: number) =>
-  faNumber(value).replace(/\d/g, (digit) => "۰۱۲۳۴۵۶۷۸۹"[Number(digit)]);
+  faNumber(value).replace(/\d/g, (digit) => "۰۱۲۳۴۵۶۷۸۹".charAt(Number(digit)));
 
 const faTwoDigits = (value: number) => faDigits(value).padStart(2, "۰");
 
@@ -224,6 +259,32 @@ watch(currentQuestion, () => {
 
 /** Reads `duration` off the purchased asset that matches the current exam. */
 const resolveDuration = async () => {
+  if (route.query.scope === "child") {
+    // The child's list comes from the SAME card source the attempt gate
+    // checked — `testStore.state.myTests` is `{userId:req.userId}`-filtered,
+    // so it is always empty for a child and can never give a countdown.
+    if (childPanel.state.available.length === 0 && childPanel.state.consumed.length === 0) {
+      await childPanel.loadTests();
+    }
+
+    const asset =
+      childPanel.state.available.find((entry) => entry.id === examId) ??
+      childPanel.state.consumed.find((entry) => entry.id === examId);
+
+    // `duration` is not on the upstream projection's declared type, but the
+    // populated test object carries it at runtime — narrow rather than `any`.
+    const body = asset?.test?.[0] as
+      | (ChildAssignedTestBody & { duration?: number })
+      | undefined;
+    const minutes = Number(body?.duration ?? 0);
+
+    examMinutes.value = Number.isFinite(minutes) && minutes > 0 ? minutes : 0;
+    totalSeconds.value = Math.round(examMinutes.value * 60);
+    remainingSeconds.value = totalSeconds.value;
+
+    return;
+  }
+
   if (!testStore.state.myTests?.length) {
     await testStore.getMyTests("available");
   }
@@ -241,7 +302,7 @@ const sendAnswers = async () => {
   isSubmitting.value = true;
 
   try {
-    const res = await testStore.sendAnswer(answerKeys.value, examId);
+    const res = await testStore.sendAnswer(answerKeys.value, examId, route.query.scope as string | undefined);
 
     if (!res?.success) {
       if (res?.reason === "ERR_VALIDATION") {
@@ -289,7 +350,7 @@ watch([acceptTerms, hasTotalTime], ([accepted, hasTime]) => {
 });
 
 onBeforeMount(async () => {
-  const getQuestions = await testStore.getTestQuestions(examId);
+  const getQuestions = await testStore.getTestQuestions(examId, route.query.scope as string | undefined);
   if (!getQuestions?.success) {
     testStore.state.loading.getQuestions = false;
     $toast.error("خطای اعتبار سنجی", {
@@ -655,7 +716,57 @@ onBeforeMount(async () => {
     }"
   >
     <template #content>
-      <div class="grid place-items-center px-3 w-full overflow-y-auto">
+      <!--
+        Child celebration: praise and a friendly fixed score instead of the
+        clinical result sheet. The real payload is never rendered here — it
+        stays in `resultData` for analytics.
+      -->
+      <div
+        v-if="isChildScope"
+        class="relative grid w-full place-items-center overflow-hidden px-5 pb-6 pt-9 text-center"
+      >
+        <span aria-hidden="true" class="celebration__star absolute top-7 start-8 text-x-kid-sun-500">
+          <UIcon name="solar:star-bold" size="22" />
+        </span>
+        <span aria-hidden="true" class="celebration__star absolute top-14 end-7 text-x-kid-berry-500" style="animation-delay: 0.4s">
+          <UIcon name="solar:star-bold" size="16" />
+        </span>
+        <span aria-hidden="true" class="celebration__star absolute top-24 start-14 text-x-kid-mint-500" style="animation-delay: 0.8s">
+          <UIcon name="solar:star-bold" size="14" />
+        </span>
+
+        <span
+          class="animate__animated animate__bounceIn motion-reduce:animation-none grid size-28 place-items-center rounded-full bg-x-kid-sun-100 ring-8 ring-x-kid-sun-500/30"
+          aria-hidden="true"
+        >
+          <UIcon name="solar:cup-star-bold" size="56" class="text-x-kid-sun-700" />
+        </span>
+
+        <p class="animate__animated animate__fadeInUp motion-reduce:animation-none mt-5 font-yekan-extra text-2xl text-x-text-title">
+          آفرین{{ childFirstName ? ` ${childFirstName}` : "" }}!
+        </p>
+        <p class="animate__animated animate__fadeInUp motion-reduce:animation-none mt-1 text-sm leading-7 text-x-text-subtitle">
+          تو موفق شدی آزمون «{{ testStore.state.questions?.title }}» را تمام کنی
+        </p>
+
+        <p class="animate__animated animate__fadeInUp motion-reduce:animation-none mt-4 grid place-items-center rounded-3xl bg-x-kid-sun-100 px-8 py-3">
+          <span class="font-yekan-extra text-4xl leading-none text-x-kid-900">
+            {{ faNumber(CELEBRATION_SCORE) }}
+          </span>
+          <span class="mt-1.5 text-[11px] text-x-text-subtitle">
+            از {{ faNumber(CELEBRATION_SCORE) }}
+          </span>
+        </p>
+
+        <NuxtLink
+          to="/panels/child/results"
+          class="mt-6 inline-flex h-12 w-full items-center justify-center rounded-full bg-x-kid-sun-500 font-yekan-bold text-x-kid-900 transition-transform duration-150 ease-soft active:scale-[0.97] motion-reduce:transition-none motion-reduce:active:scale-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-x-kid-berry-700"
+        >
+          بازگشت
+        </NuxtLink>
+      </div>
+
+      <div v-else class="grid place-items-center px-3 w-full overflow-y-auto">
         <div class="grid place-items-center w-full pb-7">
           <NuxtImg
             src="/images/icons/check-icon.png"
@@ -704,5 +815,28 @@ onBeforeMount(async () => {
 <style scoped lang="scss">
 .exam__safe-bottom {
   padding-bottom: calc(1rem + env(safe-area-inset-bottom));
+}
+
+/* Child celebration: a gentle bob for the decorative stars. Meaning-free
+   decoration, so reduced motion simply stops it (the entrance animations
+   carry their own `motion-reduce` utilities). */
+.celebration__star {
+  animation: celebration-star-float 3s ease-in-out infinite;
+}
+
+@keyframes celebration-star-float {
+  0%,
+  100% {
+    transform: translateY(0) scale(1);
+  }
+  50% {
+    transform: translateY(-8px) scale(1.08);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .celebration__star {
+    animation: none;
+  }
 }
 </style>

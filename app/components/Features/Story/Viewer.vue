@@ -51,6 +51,8 @@ const props = defineProps<{
   groups: StoryGroup[];
   /** Flat index to open at — the rail resumes where the reader stopped. */
   startSlide: number;
+  /** Whether story items are still loading for the current group. */
+  loading?: boolean;
 }>();
 
 const emit = defineEmits<{
@@ -184,7 +186,7 @@ const viewerVars = {
  */
 const viewerUi = {
   overlay: "bg-black! backdrop-blur-none!",
-  content: "bg-black! divide-y-0 rounded-none ring-0 shadow-none",
+  content: "bg-black! divide-y-0 rounded-none ring-0 shadow-none max-w-md mx-auto",
 };
 
 /* ---------------------------------------------------------------- navigation -- */
@@ -377,8 +379,32 @@ function close() {
         <div
           class="absolute inset-x-0 top-0 z-40 flex flex-col bg-linear-to-b from-black/88 via-black/45 to-transparent pt-[calc(0.5rem+env(safe-area-inset-top))] pb-8"
         >
+          <!--
+            Instagram-style loading progress bar. Shown while story items are
+            loading, with a shimmer animation across the segments.
+          -->
+          <div
+            v-if="loading"
+            class="flex items-center gap-1 h-0.5"
+            role="progressbar"
+            aria-valuemin="0"
+            aria-valuemax="1"
+            aria-valuenow="0"
+            aria-valuetext="در حال بارگذاری استوری"
+          >
+            <span
+              v-for="i in 3"
+              :key="i"
+              class="story-loading-seg relative flex-1 h-0.5 overflow-hidden rounded-full"
+              :style="{ backgroundColor: STORY_VIEWER_COLORS.barTrack }"
+              aria-hidden="true"
+            >
+              <span class="story-loading-fill absolute inset-0 rounded-full bg-white" />
+            </span>
+          </div>
+
           <FeaturesStoryViewerProgress
-            v-if="currentFrame"
+            v-if="currentFrame && !loading"
             :item-key="currentFrame.key"
             :total="totalSegments"
             :active-index="currentFrame.itemIndex"
@@ -454,6 +480,29 @@ function close() {
 
 @media (prefers-reduced-motion: reduce) {
   .story-root {
+    animation: none;
+  }
+}
+
+/* Loading progress bar animation */
+.story-loading-fill {
+  animation: story-loading-shimmer 1.2s ease-in-out infinite;
+}
+
+@keyframes story-loading-shimmer {
+  0%,
+  100% {
+    transform: scaleX(0.3);
+    opacity: 0.4;
+  }
+  50% {
+    transform: scaleX(1);
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .story-loading-fill {
     animation: none;
   }
 }

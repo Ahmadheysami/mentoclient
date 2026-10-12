@@ -1,6 +1,10 @@
 <script setup lang="ts">
 import { faDate, faNumber } from "~/utils/fa";
 
+definePageMeta({
+  middleware: ["auth"],
+});
+
 const route = useRoute(),
   testStore = useTest(),
   resultId = computed(() => String(route.params.id ?? ""));

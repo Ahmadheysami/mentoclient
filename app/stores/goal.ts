@@ -18,6 +18,7 @@ import {
   type GoalMessageSingleResponse,
   type GoalMessagesResponse,
   type GoalReviewResponse,
+  type GoalReviewResult,
   type GoalReviewState,
   type GoalStartResponse,
 } from "~/types/goal";
@@ -655,13 +656,17 @@ export const useGoal = defineStore("goal", () => {
    * somewhere else — would be arguing with the server, and the reader would be
    * asked to write a review the server will refuse.
    *
-   * Returns the punctuality `score` (a different currency from `coins`) so the
-   * page can report it; it is `null` when the call did not succeed.
+   * Returns `GoalReviewResult` on success and **`null` on any failure**, so a
+   * caller can tell «the server refused» from «the server accepted and sent no
+   * score» — a bare `number | null` could not, and would have read a successful
+   * review that carried no score as a refusal. The score (a different currency
+   * from `coins`) is inside it so the page can report it, and `newMessageId` so
+   * the page can open the window the review just opened.
    */
   async function submitReview(
     goalId: string,
     review: string,
-  ): Promise<number | null> {
+  ): Promise<GoalReviewResult | null> {
     try {
       state.loading.review = true;
       state.error.review = null;
@@ -702,7 +707,19 @@ export const useGoal = defineStore("goal", () => {
       // open over a ladder that has already moved on.
       await getMessages(goalId);
 
-      return typeof response.score === "number" ? response.score : null;
+      // An absent or empty `newMessageId` is reported as absent rather than
+      // passed on: an empty string would navigate to `/goal/message/`, which is
+      // the COLLECTION route, not a week. The caller falls back to the newest
+      // ladder entry, which this re-read has just refreshed.
+      const newMessageId =
+        typeof response.newMessageId === "string" && response.newMessageId !== ""
+          ? response.newMessageId
+          : null;
+
+      return {
+        score: typeof response.score === "number" ? response.score : null,
+        newMessageId,
+      };
     } catch {
       state.reason = "ERR_NET_CONNECTION";
       state.error.review = FALLBACK.reviewNet;

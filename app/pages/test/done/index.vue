@@ -2,6 +2,10 @@
 import type { TestResult } from "~/types/test";
 import { faDate, faNumber } from "~/utils/fa";
 
+definePageMeta({
+  middleware: ["auth"],
+});
+
 const testStore = useTest();
 
 const isLoading = computed(() => testStore.state.loading.getTestsDone);

@@ -283,7 +283,7 @@ function progressLabel(
         what the reference puts on a light page.
       -->
       <p
-        class="mt-1.5 font-yekan-extra text-5xl leading-none text-x-text-title tabular-nums"
+        class="mt-1.5 font-yekan-extra font-bold text-5xl leading-none text-x-text-title tabular-nums"
       >
         {{ figure }}
       </p>

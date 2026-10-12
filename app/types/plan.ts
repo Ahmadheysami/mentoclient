@@ -131,7 +131,7 @@ export interface PurchaseResponse {
 /**
  * Panel labels.
  *
- * The backend emits `big` / `parent` / `employee` / `organization`, while
+ * The backend emits `big` / `parent` / `employer` / `organization`, while
  * existing components hardcode `child` / `emp` / `org`. The two vocabularies
  * disagree; until the backend is unified, a `Record<string, string>` lookup
  * with a fallback keeps an unknown value safe instead of throwing.
@@ -139,6 +139,6 @@ export interface PurchaseResponse {
 export const PLAN_PANEL_LABELS: Record<string, string> = {
   big: "بزرگسالان",
   parent: "کودک و نوجوان",
-  employee: "کارمندان",
+  employer: "کارفرما",
   organization: "سازمانی",
 };

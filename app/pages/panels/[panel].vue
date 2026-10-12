@@ -12,6 +12,16 @@ import { faNumber } from "~/utils/fa";
  * the gate needs would have to be static — and this page is reached from
  * `Home/Services.vue` as `/panels/child`, `/panels/emp`, `/panels/org`, which
  * cannot supply one. `auth` only, until a real panel page replaces this.
+ *
+ * ROUTE PRECEDENCE (Nuxt file-based routing): a static record wins over a
+ * dynamic one at the same position, so `/panels/parent` and `/panels/child`
+ * now resolve to their own static trees (`panels/parent.vue` +
+ * `panels/parent/index.vue`, `panels/child.vue` + `panels/child/index.vue`)
+ * and only UNKNOWN panel ids fall through to this dynamic page. Note this
+ * gate is `auth`-only, so deep-linking an unknown panel id while signed in
+ * lands here rather than on a plan-gated screen — that is what "a purchased
+ * plan must not land on the framework error page" already allowed. The real
+ * gates live on the static pages themselves.
  */
 definePageMeta({ middleware: ["auth"] });
 

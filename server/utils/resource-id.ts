@@ -24,6 +24,9 @@
  * It covers `astrology/[id]/single.get.ts`, `goal/[id].delete.ts`,
  * `goal/[id]/messages.get.ts`, `goal/[id]/start.post.ts`,
  * `goal/[id]/start-more-and-review.post.ts` and `goal/message/[id].get.ts`.
+ * It now covers the two id shapes: Mongo/uniqid resource ids without dots
+ * (`RESOURCE_ID_PATTERN`) and dotted `userAssetModel` asset ids
+ * (`ASSET_ID_PATTERN`).
  *
  * NOT the same thing as the pinned client-side `ASTROLOGY_REPORT_ID_PATTERN` in
  * `app/types/astrology.ts`, which checks an id BEFORE a request exists so a bad one
@@ -50,4 +53,20 @@ export const RESOURCE_ID_PATTERN = /^[A-Za-z0-9_-]{1,64}$/;
  */
 export function isResourceId(value: unknown): boolean {
   return typeof value === "string" && RESOURCE_ID_PATTERN.test(value);
+}
+
+/**
+ * The allowed shape of a `userAssetModel` id — `uniqId('user.', '.access')`
+ * (`test.services.ts:117`) — so it CONTAINS DOTS and `RESOURCE_ID_PATTERN`
+ * above deliberately rejects it. Same allowlist logic, dot-tolerant tail:
+ * alphanumeric/`_`/`-` segments joined by dots, so `/`, `\`, `%`, `?`, `#`
+ * and whitespace are impossible, and so is a `..` traversal.
+ * The segment count is permissive on purpose — refusing a real id is the one
+ * error direction that must not happen.
+ */
+export const ASSET_ID_PATTERN = /^[A-Za-z0-9_-]{1,64}(?:\.[A-Za-z0-9_-]{1,64}){0,4}$/;
+
+/** Whether an untrusted query value is an asset id this proxy may forward. */
+export function isAssetId(value: unknown): boolean {
+  return typeof value === "string" && ASSET_ID_PATTERN.test(value);
 }

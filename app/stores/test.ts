@@ -124,6 +124,7 @@ export const useTest = defineStore("test", () => {
    */
   async function getMyTests(
     status?: "available" | "consumed",
+    scope?: string,
   ): Promise<boolean> {
     try {
       state.loading.getMyTests = true;
@@ -131,6 +132,7 @@ export const useTest = defineStore("test", () => {
       const response: any = await $fetch("/api/test/my-tests", {
         query: {
           ...(status && { status }),
+          ...(scope && { scope }),
         },
       });
 
@@ -176,13 +178,14 @@ export const useTest = defineStore("test", () => {
     }
   }
 
-  async function getTestQuestions(assetId: string) {
+  async function getTestQuestions(assetId: string, scope?: string) {
     try {
       state.loading.getQuestions = true;
 
       const response: any = await $fetch("/api/test/get-questions", {
         query: {
           assetId,
+          ...(scope && { scope }),
         },
       });
 
@@ -204,6 +207,7 @@ export const useTest = defineStore("test", () => {
   async function sendAnswer(
     results: { oId: string; qId: string; subOptionId?: string }[],
     id: string,
+    scope?: string,
   ) {
     try {
       state.loading.sendAnswer = true;
@@ -211,6 +215,7 @@ export const useTest = defineStore("test", () => {
         method: "post",
         query: {
           id,
+          ...(scope && { scope }),
         },
         body: {
           results,
@@ -231,13 +236,14 @@ export const useTest = defineStore("test", () => {
    * can hold this list and the purchased one, and one shared `state.error` can
    * only name one of them.
    */
-  async function getTestResults (sub?: string): Promise<boolean> {
+  async function getTestResults (sub?: string, scope?: string): Promise<boolean> {
     try {
       state.loading.getTestsDone = true
       state.error = null
       const response: any = await $fetch("/api/test/results", {
         query: {
-          ...(sub && {sub})
+          ...(sub && {sub}),
+          ...(scope && {scope})
         }
       })
 

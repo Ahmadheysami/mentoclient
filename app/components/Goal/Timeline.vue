@@ -108,11 +108,25 @@ function submitReview() {
   emit("submit-review", review.value.trim());
 }
 
-/** Clear the composer only once the server has accepted it. */
+/**
+ * Clear the composer once the server has accepted the report.
+ *
+ * Two ways this draft can stop belonging to the box it is typed in, and both are
+ * checked:
+ *
+ * 1. **The composer closed** — `state` is no longer `review-due`.
+ * 2. **The week underneath it changed** — `current` is now a different message.
+ *    The ladder is re-read after every submit, success AND refusal, and only a
+ *    refusal for a week that has not elapsed leaves the SAME newest message in
+ *    place (which is exactly the case where the reader's words must survive). If
+ *    a different entry is newest, this text belonged to a week that is no longer
+ *    being asked about, and leaving it behind would offer the reader last week's
+ *    report to be submitted as this week's.
+ */
 watch(
-  () => props.state,
-  (next) => {
-    if (next !== "review-due") review.value = "";
+  [() => props.state, () => current.value?.id],
+  ([state, id], [, previousId]) => {
+    if (state !== "review-due" || id !== previousId) review.value = "";
   },
 );
 </script>
@@ -252,11 +266,18 @@ watch(
           در این هفته چه کردید، چه چیزی سخت بود و هفتهٔ بعد چه می‌کنید؟
         </p>
 
+        <!--
+          `disabled` while the report is in flight, for the same reason the button
+          below it is: whatever is typed in this box is either already sent or about
+          to be discarded by the `watch` above, so accepting more of it would only
+          be text the reader loses.
+        -->
         <UTextarea
           v-model="review"
           :rows="4"
           autoresize
           :maxlength="1200"
+          :disabled="submitting"
           color="x-primary"
           variant="soft"
           placeholder="مثلاً: سه جلسه تمرین کردم، اما دو شب به خاطر خستگی عقب افتادم."

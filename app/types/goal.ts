@@ -446,6 +446,33 @@ export interface GoalReviewResponse {
   reason?: GoalFailureReason | null;
 }
 
+/**
+ * What ONE successful `POST /goal/:id/start-more-and-review` hands back to the
+ * page that asked for it.
+ *
+ * ⚠️ **A MISSING FIELD HERE IS NOT A FAILURE.** Both are `| null` on purpose, and
+ * `null` is the honest answer when the reply did not carry the figure:
+ *
+ * - `newMessageId` — the server may not name the window it just opened, so the
+ *   caller falls back to the newest ladder entry it re-read itself.
+ * - `score` — the punctuality score is awarded for the TIMING of the review and
+ *   the reply may omit it, which says nothing about the report having been kept.
+ *
+ * That is exactly why this is an object and not the bare `score` the store used to
+ * return: a single `number | null` cannot tell «the server refused» apart from
+ * «the server accepted and sent no score», and a caller reading it as the former
+ * would silently skip the confirmation for a review that succeeded.
+ */
+export interface GoalReviewResult {
+  /** 1..10, awarded for the timing of this review. Not a coin figure. */
+  score: number | null;
+  /**
+   * MESSAGE uniqid of the newly opened window — a message id, never a goal id —
+   * or `null` when the reply did not name it.
+   */
+  newMessageId: string | null;
+}
+
 /** One point of `GET /goal/chart`. */
 export interface GoalChartPoint {
   /** `goal_${domain}_module` — a `GOAL_DOMAINS_META` slug, never a domain. */

@@ -127,11 +127,11 @@ definePageMeta({
   layout: "panel",
   middleware: ["auth", "panel-plan"],
   panel: "big",
-  panelTitle: "طالع‌بینی",
+  panelTitle: "چارت تولد",
 });
 
 useSeoMeta({
-  title: "طالع‌بینی",
+  title: "چارت تولد",
 });
 
 const astrology = useAstrology();
@@ -152,6 +152,52 @@ const coins = computed<number | null>(() => wallet.state.coinsBalance);
 
 const coinsLabel = computed<string>(() => formatCoins(coins.value));
 
+/**
+ * ⚠️ THIS THRESHOLD IS UX, NOT AUTHORIZATION — read this before "simplifying" it.
+ *
+ * `canRestart` exists so the reader is never offered a button the wallet cannot
+ * pay for. It is NOT the gate. The gate is upstream: `restart.post.ts` refuses the
+ * re-queue with `ERR_TOKEN_BALANCE`, and that server-side refusal is the whole
+ * authorization story — a reader who edits the template, calls the endpoint from
+ * devtools, or replays it by hand gains nothing they did not already have, because
+ * the coins never leave their account without the server saying yes. So this
+ * computed must never be described as a security control, and a "the client
+ * already checks" comment anywhere near it would be the kind of note that outlives
+ * its reasoning and eventually protects nothing.
+ *
+ * That endpoint stays server-authorized by construction: it forwards through
+ * `api(event, "access-token")`, which reads the auth cookie in Nitro and sends it
+ * as a bearer token, and the upstream `X-Api-Key` comes from `apiKey`, which lives
+ * in server-only `runtimeConfig` (`nuxt.config.ts`) and must never appear under
+ * `runtimeConfig.public` or in client code. Nothing here changes that, and nothing
+ * here may be edited to compensate for it.
+ *
+ * ## WHERE THE COINS ACTUALLY LEAVE THE ACCOUNT
+ *
+ * Not at the tap. The re-queue **checks** the balance; the charge happens upstream,
+ * and when exactly upstream debits is NOT something this repo records — `restart.post.ts`
+ * documents only that a success "charges nothing synchronously", which is all this page
+ * is entitled to rely on:
+ *
+ * - `restart()` in `app/stores/astrology.ts` performs NO wallet write. The only
+ *   wallet write in that store is `runActivation()`'s `setCoinsFromRaw`, which
+ *   belongs to the INITIAL activation — not to the re-queue.
+ * - `server/api/astrology/restart.post.ts` documents that a success "charges
+ *   nothing synchronously and it returns no report: the job runs later".
+ *
+ * So the two halves are deliberately separate: this page may offer or withhold the
+ * button, and the balance may be stale by the time the job finishes. What it may
+ * NOT do is simulate, predict, or optimistically decrement the pending charge —
+ * a decrement here would be a guess at a job that has not run, and it would leave
+ * a figure on screen that no server ever sent. The number on screen comes from
+ * `App/CoinPill` → `wallet.getCoinBalance()` (upstream `/balance`) and from the
+ * activation response's raw `balance`/`coins`, converted once by `setCoinsFromRaw`
+ * and printed by `formatCoins`. Never from arithmetic done here, and never as a
+ * raw figure: every coin BALANCE in the app reaches the screen through
+ * `formatCoins` (`App/CoinPill`, `Wallet/Balance.vue`, this page). A coin-denominated
+ * COST is a different thing and is rendered as a number via `faNumber`
+ * (`Astrology/Report.vue`) — that distinction is the codebase's, not this page's.
+ */
 const canRestart = computed<boolean>(
   () =>
     coins.value !== null && coins.value >= ASTROLOGY_RESTART_COIN_THRESHOLD,
@@ -263,7 +309,7 @@ const activationNote = computed<{ title: string; description: string } | null>(
   () => {
     if (astrology.state.lastActivation === "already-started") {
       return {
-        title: "طالع‌بینی شما قبلاً فعال شده است",
+        title: "چارت تولد شما قبلاً فعال شده است",
         description:
           "اطلاعات تولد این حساب پیش‌تر ثبت شده و به همین دلیل امکان فعال‌سازی دوباره با اطلاعات جدید وجود ندارد.",
       };
@@ -377,9 +423,9 @@ function monthProgressOf(
 function reportTitle(entry: AstrologyResultSummary): string {
   const parts = faJalaliParts(entry.createdAt);
 
-  if (parts === null) return "گزارش طالع‌بینی";
+  if (parts === null) return "گزارش چارت تولد";
 
-  return `طالع‌بینی ${parts.monthName}`;
+  return `چارت تولد ${parts.monthName}`;
 }
 
 /** Everything one row of the list prints, derived once per render. */
@@ -606,7 +652,7 @@ async function onRestart(): Promise<void> {
   }
 
   if (response.reason === "ERR_ASTROLOGY_NOT_FOUND") {
-    $toast.info("طالع‌بینی برای این حساب فعال نشده است.");
+    $toast.info("چارت تولد برای این حساب فعال نشده است.");
     return;
   }
 
@@ -816,7 +862,7 @@ onBeforeUnmount(() => {
       class="reveal"
     >
       <h2 id="panel-astrology-offer" class="font-yekan-bold text-x-text-title">
-        طالع‌بینی بر پایهٔ نقشهٔ تولد
+        چارت تولد بر پایهٔ نقشهٔ تولد
       </h2>
 
       <div
@@ -844,7 +890,7 @@ onBeforeUnmount(() => {
 
         <UButton
           to="/panels/big/astrology/new"
-          label="فعال‌سازی طالع‌بینی"
+          label="فعال‌سازی چارت تولد "
           icon="solar:magic-stick-3-linear"
           trailing-icon
           block
@@ -1082,7 +1128,7 @@ onBeforeUnmount(() => {
       class="mt-6"
     >
       <h2 id="panel-astrology-restart" class="sr-only">
-        فعال‌سازی مجدد طالع‌بینی
+        فعال‌سازی مجدد چارت تولد
       </h2>
 
       <!--
@@ -1116,11 +1162,23 @@ onBeforeUnmount(() => {
         The balance line above and the `UAlert` below are deliberately OUTSIDE the
         guard, and the alert's `mt-4` is the button's own `mt-4` — so the block
         swaps in place and nothing jumps.
+
+        ⚠️ THE THRESHOLD MAY NOT BE WRITTEN HERE. `canRestart` reads
+        `ASTROLOGY_RESTART_COIN_THRESHOLD` from `app/types/astrology.ts`, and that
+        constant is the ONLY place the `>= 8` boundary is pinned — the type file
+        spells out why it is pinned at `>=` and not `>`, because the two readings
+        disagree at exactly 8 and the `>` one strands a reader holding exactly 8
+        coins on a button that leads nowhere. A literal in this template
+        out-ranks that constant without anyone deciding it, and the guard that was
+        here was worse than a plain drift: it read the raw `coins` ref and coerced
+        it, so `null` became `0` and "balance not loaded yet" was folded into
+        "below the threshold" — the very substitution this chain refuses to make,
+        while hiding the button from every reader the threshold was written for.
       -->
       <template v-if="!restartQueued">
         <UButton
           v-if="canRestart"
-          label="فعال‌سازی مجدد طالع‌بینی"
+          label="فعال‌سازی مجدد چارت تولد"
           icon="solar:refresh-linear"
           block
           variant="solid"
@@ -1141,7 +1199,7 @@ onBeforeUnmount(() => {
         -->
         <UButton
           v-else-if="coins === null"
-          label="فعال‌سازی مجدد طالع‌بینی"
+          label="فعال‌سازی مجدد چارت تولد"
           block
           variant="solid"
           color="x-primary"
