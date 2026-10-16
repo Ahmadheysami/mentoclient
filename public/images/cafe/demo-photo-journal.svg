@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 480" width="640" height="480" role="img" aria-label="طرح انتزاعی طلوع بر فراز تپه‌ها">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#1b2a5e"/>
+      <stop offset=".38" stop-color="#6a4f9e"/>
+      <stop offset=".66" stop-color="#e08a6a"/>
+      <stop offset="1" stop-color="#f7c98b"/>
+    </linearGradient>
+    <linearGradient id="far" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#3c2f63"/>
+      <stop offset="1" stop-color="#241d45"/>
+    </linearGradient>
+    <linearGradient id="near" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#191634"/>
+      <stop offset="1" stop-color="#0d0b1d"/>
+    </linearGradient>
+    <radialGradient id="glow" cx=".5" cy=".5" r=".5">
+      <stop offset="0" stop-color="#ffd79a" stop-opacity=".95"/>
+      <stop offset=".55" stop-color="#ffb26b" stop-opacity=".45"/>
+      <stop offset="1" stop-color="#ffb26b" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <rect width="640" height="480" fill="url(#sky)"/>
+  <circle cx="320" cy="300" r="150" fill="url(#glow)"/>
+  <circle cx="320" cy="300" r="46" fill="#ffe7bd"/>
+
+  <path d="M0 318 L120 268 L232 320 L330 258 L452 318 L552 276 L640 316 V480 H0 Z" fill="url(#far)" opacity=".85"/>
+  <path d="M0 372 L148 330 L268 380 L400 322 L528 378 L640 340 V480 H0 Z" fill="url(#near)"/>
+
+  <g fill="#0d0b1d" opacity=".92">
+    <path d="M96 168 q10 -11 20 0 q10 -11 20 0 q-10 7 -20 0 q-10 7 -20 0Z"/>
+    <path d="M150 142 q8 -9 16 0 q8 -9 16 0 q-8 6 -16 0 q-8 6 -16 0Z" opacity=".7"/>
+    <path d="M470 190 q7 -8 14 0 q7 -8 14 0 q-7 5 -14 0 q-7 5 -14 0Z" opacity=".6"/>
+  </g>
+
+  <g stroke="#ffe7bd" stroke-width="2" opacity=".22" fill="none">
+    <path d="M0 396 H640"/>
+    <path d="M0 416 H640"/>
+  </g>
+</svg>

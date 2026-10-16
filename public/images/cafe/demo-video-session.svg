@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" width="640" height="360" role="img" aria-label="پوستر انتزاعی غروب با سایهٔ یک گروه">
+  <defs>
+    <linearGradient id="dusk" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#07285c"/>
+      <stop offset=".42" stop-color="#1452b8"/>
+      <stop offset=".74" stop-color="#e08a6a"/>
+      <stop offset="1" stop-color="#f7c98b"/>
+    </linearGradient>
+    <linearGradient id="ground" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#191634"/>
+      <stop offset="1" stop-color="#0a0817"/>
+    </linearGradient>
+    <radialGradient id="halo" cx=".5" cy=".5" r=".5">
+      <stop offset="0" stop-color="#fff1cf" stop-opacity=".9"/>
+      <stop offset="1" stop-color="#fff1cf" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <rect width="640" height="360" fill="url(#dusk)"/>
+  <circle cx="320" cy="272" r="120" fill="url(#halo)"/>
+  <circle cx="320" cy="272" r="34" fill="#fff3d6"/>
+
+  <path d="M0 274 H640 V360 H0 Z" fill="url(#ground)"/>
+  <path d="M0 274 H640" stroke="#ffcf9b" stroke-opacity=".5" stroke-width="2"/>
+
+  <g fill="#0a0817">
+    <circle cx="196" cy="250" r="11"/>
+    <path d="M178 274 q18 -22 36 0 Z"/>
+    <circle cx="262" cy="244" r="13"/>
+    <path d="M241 274 q21 -26 42 0 Z"/>
+    <circle cx="332" cy="252" r="10"/>
+    <path d="M315 274 q17 -20 34 0 Z"/>
+    <circle cx="398" cy="246" r="12"/>
+    <path d="M379 274 q19 -24 38 0 Z"/>
+    <circle cx="458" cy="252" r="9"/>
+    <path d="M443 274 q15 -18 30 0 Z"/>
+  </g>
+
+  <g stroke="#fff3d6" stroke-opacity=".16" stroke-width="2" fill="none">
+    <path d="M40 74 q30 -14 60 0 q30 14 60 0 q30 -14 60 0"/>
+    <path d="M400 108 q26 -12 52 0 q26 12 52 0"/>
+  </g>
+</svg>

@@ -27,6 +27,13 @@ const faDateFormatter = new Intl.DateTimeFormat("fa-IR", {
   timeZone: TIME_ZONE,
 });
 
+const faTimeFormatter = new Intl.DateTimeFormat("fa-IR", {
+  hour: "2-digit",
+  minute: "2-digit",
+  timeZone: TIME_ZONE,
+  hourCycle: "h23",
+});
+
 const faNumberFormatter = new Intl.NumberFormat("fa-IR");
 
 /** «۱۲ آبان ۱۴۰۴» */
@@ -36,6 +43,29 @@ export function faDate(value: string | number | Date | undefined | null): string
   const date = value instanceof Date ? value : new Date(value);
 
   return Number.isNaN(date.getTime()) ? "" : faDateFormatter.format(date);
+}
+
+/**
+ * «۱۴:۳۰» — the wall clock of one instant, in the zone, with no date.
+ *
+ * This is `faDate`'s other half: a window that opens at 14:30 and shuts at 16:00
+ * is two times on one day, and printing the Jalali date twice beside them is
+ * noise the reader has to look past. Callers that need to know whether two
+ * instants share a day compare `faDate(a) === faDate(b)` — the same formatter,
+ * the same zone, so the answer is a fact and not an approximation.
+ *
+ * `hourCycle: "h23"` is explicit for the reason `zoneClockFormatter` above
+ * records: under `hour12: false` some ICU builds answer midnight as `"24"`,
+ * which is not an hour of the day.
+ *
+ * `""` for an unusable value, like `faDate`.
+ */
+export function faTimeOfDay(value: string | number | Date | undefined | null): string {
+  if (value === undefined || value === null) return "";
+
+  const date = value instanceof Date ? value : new Date(value);
+
+  return Number.isNaN(date.getTime()) ? "" : faTimeFormatter.format(date);
 }
 
 /** «۳» — Persian digits, so counts sit naturally next to Persian dates. */
