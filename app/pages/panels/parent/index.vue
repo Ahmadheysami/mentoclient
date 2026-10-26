@@ -163,7 +163,7 @@ async function retry(): Promise<void> {
     />
 
     <template v-else>
-      <section aria-label="خلاصه خانواده" class="mt-5">
+      <section data-scroll-reveal aria-label="خلاصه خانواده" class="mt-5">
         <!--
           ⚠ `statsFailed` OMITS the tray rather than printing zeros: the totals are
           the server's own aggregate, and an unread aggregate is not «no tests have
@@ -204,7 +204,11 @@ async function retry(): Promise<void> {
         </UAlert>
       </section>
 
-      <section aria-labelledby="parent-children" class="mt-8">
+      <section
+        aria-labelledby="parent-children"
+        data-scroll-reveal
+        class="mt-8"
+      >
         <div class="flex items-center justify-between">
           <h2 id="parent-children" class="text-sm font-yekan-bold text-x-text-title">
             فرزندان
@@ -235,7 +239,11 @@ async function retry(): Promise<void> {
         />
       </section>
 
-            <section aria-labelledby="parent-access" class="mt-8">
+            <section
+              aria-labelledby="parent-access"
+              data-scroll-reveal
+              class="mt-8"
+            >
         <h2 id="parent-access" class="text-sm font-yekan-bold text-x-text-title">
           دسترسی فرزندان
         </h2>
@@ -289,7 +297,11 @@ async function retry(): Promise<void> {
         </NuxtLink>
       </section>
 
-      <section aria-labelledby="parent-activity" class="mt-8">
+      <section
+        aria-labelledby="parent-activity"
+        data-scroll-reveal
+        class="mt-8"
+      >
         <div class="flex items-center justify-between">
           <h2 id="parent-activity" class="text-sm font-yekan-bold text-x-text-title">
             فعالیت‌های اخیر

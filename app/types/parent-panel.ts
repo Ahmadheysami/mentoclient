@@ -62,6 +62,119 @@ export interface ChildStatsDto {
   };
 }
 
+/** `GET /child/{childId}/overview` → `result.general`. */
+export interface ChildOverviewGeneralDto {
+  age?: number;
+  gender?: string;
+  avatar?: string;
+  birthDate?: number;
+  createdAt?: string;
+  disable: boolean; // the ACCOUNT flag, not the accessibility switch (see ChildProfileDto)
+  hasAccessCode: boolean; // the EXISTENCE of a code, never its value
+  isOnline: boolean;
+  lastSeen: number | null;
+  accessibility: AccessibilityWindow[]; // empty means no restriction
+  lastLoginAt: string | null;
+}
+
+/** One completed test row: at most 50 upstream, newest first. */
+export interface ChildOverviewTestResultDto {
+  id: string;
+  testId: string;
+  assetId: string;
+  version: number;
+  title: string | null; // null when the test document is gone
+  testType: string | null;
+  categories: string[];
+  status: string;
+  /** `code` is opaque upstream — never stringify, parse or compare it here. */
+  result: { code: unknown; title?: string; body?: string };
+  aiAnalysis: string | null;
+  completedAt: string;
+}
+
+/** `tests.completed` and `byType` are derived upstream from those same 50 rows. */
+export interface ChildOverviewTestsDto {
+  completed: number;
+  byType: { testType: string; count: number }[];
+  recent: ChildOverviewTestResultDto[];
+}
+
+/** One spend group (`metadata.name`); `used` is raw, `usedTokens` is already converted. */
+export interface ChildOverviewTokenBreakdownDto {
+  name: string;
+  used: number;
+  usedTokens: number;
+  entries: number;
+}
+
+export interface ChildOverviewTokenLogDto {
+  id: string;
+  name: string;
+  used: number;
+  usedTokens: number;
+  createdAt: string;
+}
+
+/** Every `*Tokens` figure and `estimatedCost` is already converted upstream — never divide again. */
+export interface ChildOverviewTokensDto {
+  base: number;
+  currency: string;
+  unitAmount: number;
+  used: number;
+  usedTokens: number;
+  balance: number;
+  balanceTokens: number;
+  /** The most recent usage log's `remaining`, NOT the current balance. */
+  remaining: number;
+  remainingTokens: number;
+  estimatedCost: number;
+  breakdown: ChildOverviewTokenBreakdownDto[];
+  recent: ChildOverviewTokenLogDto[];
+}
+
+/** One `performanceModel` row — `description` is a log string, never rendered raw. */
+export interface ChildOverviewActivityDto {
+  description: string;
+  agent?: string;
+  createdAt: string;
+}
+
+export interface ChildOverviewActivitiesDto {
+  total: number;
+  lastAt: string | null;
+  recent: ChildOverviewActivityDto[];
+}
+
+export interface ChildOverviewGoalDto {
+  id: string;
+  goal: string;
+  steps: number;
+  createdAt: string;
+}
+
+export interface ChildOverviewGoalsDto {
+  total: number;
+  approvedSteps: number;
+  recent: ChildOverviewGoalDto[];
+}
+
+export interface ChildBalanceDto {
+  type: string | null;
+  balance: number;
+}
+
+/** `GET /child/{childId}/overview` → `result`, the whole report in one response. */
+export interface ChildOverviewDto {
+  child: ChildProfileDto;
+  general: ChildOverviewGeneralDto;
+  tests: ChildOverviewTestsDto;
+  tokens: ChildOverviewTokensDto;
+  activities: ChildOverviewActivitiesDto;
+  goals: ChildOverviewGoalsDto;
+  balances: ChildBalanceDto[];
+}
+
 /** The ONLY activity row shape — a `performanceModel` document. */
 export interface PerformanceRowDto {
   _id?: string;
@@ -95,6 +208,8 @@ export type ChildListResponse = ParentEnvelope<ChildProfileDto[]>;
 export type ChildResponse = ParentEnvelope<ChildProfileDto>;
 export type ParentStatsResponse = ParentEnvelope<ParentChildrenStatsDto>;
 export type ChildStatsResponse = ParentEnvelope<ChildStatsDto>;
+/** Still HTTP 200 for `ERR_CHILD_NOT_FOUND` — the 404 lives in `statusCode` inside the body. */
+export interface ChildOverviewResponse extends ParentEnvelope<ChildOverviewDto> {}
 /** `[]` not 404 when the child is not yours → empty list is indistinguishable from no activity. */
 export type ActivitiesResponse = ParentEnvelope<PerformanceRowDto[]>;
 export type AccessRevokedResponse = ParentEnvelope<null>;

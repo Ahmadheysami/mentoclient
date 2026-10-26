@@ -41,8 +41,10 @@ withDefaults(
     now?: number;
     /** The panel-wide list names the child on every row; one child's own does not. */
     showChild?: boolean;
+    /** An empty log is a section of the report, not a whole screen. */
+    compactEmpty?: boolean;
   }>(),
-  { now: undefined, showChild: false },
+  { now: undefined, showChild: false, compactEmpty: false },
 );
 
 const emit = defineEmits<{ retry: [] }>();
@@ -80,6 +82,7 @@ const emit = defineEmits<{ retry: [] }>();
 
     <UiStateMessage
       v-else-if="items.length === 0"
+      :compact="compactEmpty"
       icon="solar:pulse-2-linear"
       title="هنوز فعالیتی ثبت نشده"
       description="ورود فرزند شما به پنل، ساخت کد دسترسی و لغو آن اینجا ثبت می‌شود."

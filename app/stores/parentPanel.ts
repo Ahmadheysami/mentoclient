@@ -11,6 +11,8 @@ import {
   type ChildCreatedResponse,
   type ChildCountersDto,
   type ChildListResponse,
+  type ChildOverviewDto,
+  type ChildOverviewResponse,
   type ChildProfileDto,
   type ChildResponse,
   type ChildStage,
@@ -45,6 +47,8 @@ interface ParentPanelState {
   stats: ParentChildrenStatsDto | null;
   /** Keyed by `userId`, one entry per child whose detail page has been opened. */
   detail: Record<string, ParentChildDetail>;
+  /** `GET /child/{childId}/overview` verbatim, keyed by `userId`. */
+  reports: Record<string, ChildOverviewDto>;
   /**
    * The code VALUE, in memory for exactly one screen, never persisted.
    *
@@ -62,6 +66,8 @@ interface ParentPanelState {
      *  would be cleared by whichever child answered first. */
     activities: Record<string, boolean>;
     detail: Record<string, boolean>;
+    /** One flag per child, created on demand by `loadChildReport`. */
+    reports: Record<string, boolean>;
     create: boolean;
     issueCode: boolean;
     revokeCode: boolean;
@@ -86,6 +92,8 @@ interface ParentPanelState {
      * load).
      */
     detail: Record<string, string | null>;
+    /** The overview read's sentence, one per child. */
+    reports: Record<string, string | null>;
     create: string | null;
     issueCode: string | null;
     revokeCode: string | null;
@@ -105,6 +113,12 @@ interface ParentPanelState {
    * the screen already has to handle.
    */
   reason: { create: string | null; accessibility: string | null } | null;
+  /**
+   * Machine reasons for the overview read, one per child. Separate from `reason`
+   * above (which belongs to the writes) so `ERR_CHILD_NOT_FOUND` can evict a
+   * cached report without matching prose.
+   */
+  reportReason: Record<string, string | null>;
 }
 
 /** The body `POST /child/create` takes — exactly what the proxy forwards. */
@@ -197,6 +211,10 @@ const FALLBACK = {
     "در حال حاضر نشد اطلاعات این فرزند را دریافت کنیم. لطفاً کمی بعد دوباره تلاش کنید.",
   detailNet:
     "در حال حاضر نشد اطلاعات این فرزند را دریافت کنیم. اتصال اینترنت را بررسی کنید.",
+  report:
+    "در حال حاضر نشد گزارش این فرزند را دریافت کنیم. لطفاً کمی بعد دوباره تلاش کنید.",
+  reportNet:
+    "در حال حاضر نشد گزارش این فرزند را دریافت کنیم. اتصال اینترنت را بررسی کنید.",
   counters: "نشد آمار این فرزند را دریافت کنیم. لطفاً کمی بعد دوباره تلاش کنید.",
   countersNet: "نشد آمار این فرزند را دریافت کنیم. اتصال اینترنت را بررسی کنید.",
   activities:
@@ -224,6 +242,11 @@ function toSentence(value: unknown): string {
   return typeof value === "string" ? value : "";
 }
 
+/** A non-null, non-array object — the minimum shape a report section must have. */
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
 /**
  * One read that either answers with its envelope or answers with nothing at all.
  *
@@ -235,6 +258,22 @@ function toSentence(value: unknown): string {
  * discard the other's envelope and the reader would be told the whole screen
  * failed when half of it arrived.
  */
+/**
+ * `$fetch` under a name the compiler can actually finish checking — the same
+ * `TS2321` recursion-limit escape as `plainFetch` in `stores/childPanel.ts` and
+ * `CafeFetcher` in `stores/cafe.ts`.
+ *
+ * ⚠ Nitro types a request path against one union member per route, and at 89
+ * routes that comparison recurses past TypeScript's depth limit. It is a *limit*,
+ * not a type error: no route is wrong, the compiler simply cannot finish. A
+ * path supplied at runtime is not in the generated union anyway, so resolving it
+ * against that union proves nothing.
+ */
+const plainFetch = $fetch as unknown as (
+  url: string,
+  options?: { method?: string },
+) => Promise<unknown>;
+
 async function readEnvelope<TResponse extends ApiFailureEnvelope>(
   url: string,
 ): Promise<TResponse | null> {
@@ -243,7 +282,7 @@ async function readEnvelope<TResponse extends ApiFailureEnvelope>(
     // helper is given at runtime resolves to no typed internal route, so the
     // generic must be re-asserted once. Each CALL SITE names its own envelope, so
     // the shape the store reads is still declared per route.
-    return (await $fetch(url, { method: "get" })) as TResponse;
+    return (await plainFetch(url, { method: "get" })) as TResponse;
   } catch {
     return null;
   }
@@ -270,6 +309,7 @@ export const useParentPanel = defineStore("parent-panel", () => {
     children: [],
     stats: null,
     detail: {},
+    reports: {},
     issuedCode: null,
     loading: {
       // ⚠ `true` on purpose, and identical on the server and in the browser: the
@@ -283,6 +323,7 @@ export const useParentPanel = defineStore("parent-panel", () => {
       /** One flag per child, created on demand by `loadChild` — one shared flag
        *  would be cleared by whichever child answered first. */
       detail: {},
+      reports: {},
       // `false`, and never anything else: these are a button's busy state, and a
       // button has no server-rendered frame to agree with.
       create: false,
@@ -296,6 +337,7 @@ export const useParentPanel = defineStore("parent-panel", () => {
       stats: null,
       activities: null,
       detail: {},
+      reports: {},
       create: null,
       issueCode: null,
       revokeCode: null,
@@ -303,6 +345,7 @@ export const useParentPanel = defineStore("parent-panel", () => {
       assignment: null,
     },
     reason: null,
+    reportReason: {},
   });
 
   const plan = usePlan();
@@ -703,6 +746,77 @@ export const useParentPanel = defineStore("parent-panel", () => {
     } finally {
       state.loading.detail[userId] = false;
       state.loading.activities[userId] = false;
+    }
+  }
+
+  /**
+   * One child's complete report, in one upstream read — profile, tests, converted
+   * token usage, activities, goals and balances.
+   *
+   * A refusal keeps the cached report the reader is already looking at, EXCEPT
+   * `ERR_CHILD_NOT_FOUND`: that child no longer belongs to this parent, so the
+   * cached copy is evicted rather than left on screen under an error.
+   *
+   * @returns `true` when this call stored a fresh report — or, on a non-forced
+   * call, found an already-loaded report with no recorded error. A refused
+   * refresh returns `false` even when a cached report remains on screen.
+   */
+  async function loadChildReport(
+    userId: string,
+    force?: boolean,
+  ): Promise<boolean> {
+    if (
+      !force &&
+      state.reports[userId] !== undefined &&
+      state.error.reports[userId] == null
+    ) {
+      return true;
+    }
+
+    try {
+      state.loading.reports[userId] = true;
+      state.error.reports[userId] = null;
+      state.reportReason[userId] = null;
+
+      const response = await readEnvelope<ChildOverviewResponse>(
+        `/api/panels/parent/children/${userId}/overview`,
+      );
+
+      const result = response?.result;
+
+      if (
+        response !== null &&
+        response.success === true &&
+        isRecord(result) &&
+        isRecord(result.child) &&
+        isRecord(result.general) &&
+        isRecord(result.tests) &&
+        isRecord(result.tokens) &&
+        isRecord(result.activities) &&
+        isRecord(result.goals) &&
+        Array.isArray(result.balances)
+      ) {
+        state.reports[userId] = response.result;
+
+        return true;
+      }
+
+      const reason = typeof response?.reason === "string" ? response.reason : null;
+
+      state.error.reports[userId] = readFailure(
+        response,
+        FALLBACK.report,
+        FALLBACK.reportNet,
+      );
+      state.reportReason[userId] = reason;
+
+      // Only a child that is gone invalidates the cache. Every other refusal —
+      // a dropped connection, a 5xx — leaves the last real report in place.
+      if (reason === "ERR_CHILD_NOT_FOUND") delete state.reports[userId];
+
+      return false;
+    } finally {
+      state.loading.reports[userId] = false;
     }
   }
 
@@ -1121,6 +1235,7 @@ export const useParentPanel = defineStore("parent-panel", () => {
     canAddChild,
     loadOverview,
     loadChild,
+    loadChildReport,
     createChild,
     issueAccessCode,
     revokeAccessCode,
