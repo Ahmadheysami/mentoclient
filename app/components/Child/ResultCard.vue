@@ -8,8 +8,14 @@ import { faDate, faNumber } from "~/utils/fa";
  * carries the score when the caller has one. (The wire result itself has no
  * numeric score today; the props stay optional so the card never invents
  * data.)
+ *
+ * `to` turns the whole card into a link to one result. Omitted, the card stays
+ * a plain read-only row — the home preview has always been display-only.
+ *
+ * Without a `to`, the card is a real `<button>` that emits `open`: the two
+ * screens holding one show it in a sheet rather than navigating away.
  */
-withDefaults(
+const props = withDefaults(
   defineProps<{
     title: string;
     date: string;
@@ -20,17 +26,48 @@ withDefaults(
      * rather than a number — the child results read is one. Wins over `score`.
      */
     chipLabel?: string;
+    /** Result page this card opens. When absent the card is not a link. */
+    to?: string;
   }>(),
-  { score: null, total: null, chipLabel: undefined },
+  { score: null, total: null, chipLabel: undefined, to: undefined },
 );
 
+const emit = defineEmits<{
+  /** The reader tapped a non-linked card and wants its result sheet. */
+  open: [];
+}>();
+
 const childPanel = useChildPanel();
+
+/** `NuxtLink` has to be resolved, not named: a string `:is` would not pick it up. */
+const NuxtLinkComponent = resolveComponent("NuxtLink");
+
+const surfaceRadius = computed(() =>
+  childPanel.variant === "child" ? "rounded-3xl" : "rounded-xl",
+);
+
+/** A link needs a visible affordance; a read-only card must not pretend. */
+const isLink = computed(() => typeof props.to === "string" && props.to.length > 0);
 </script>
 
 <template>
-  <article
-    class="neu-raised flex items-center gap-3 bg-white p-4"
-    :class="childPanel.variant === 'child' ? 'rounded-3xl' : 'rounded-xl'"
+  <component
+    :is="isLink ? NuxtLinkComponent : 'button'"
+    :to="isLink ? to : undefined"
+    :type="isLink ? undefined : 'button'"
+    :aria-label="isLink ? undefined : `دیدن نتیجه ${title}`"
+    :class="[
+      surfaceRadius,
+      'transition-transform duration-150 ease-out active:scale-[0.99] motion-reduce:transition-none motion-reduce:active:scale-100',
+      isLink ? 'focus-visible:outline-2 focus-visible:outline-offset-2' : 'cursor-pointer text-start',
+      isLink
+        ? childPanel.variant === 'child'
+          ? 'focus-visible:outline-x-kid-berry-700'
+          : 'focus-visible:outline-x-teen-violet-600'
+        : '',
+    ]"
+    class="neu-raised flex w-full items-center gap-3 bg-white p-4"
+    @click="isLink ? undefined : emit('open')"
   >
     <span
       class="grid size-12 shrink-0 place-items-center"
@@ -79,5 +116,13 @@ const childPanel = useChildPanel();
       </template>
       <template v-else>{{ faNumber(score) }}</template>
     </span>
-  </article>
+
+    <UIcon
+      v-if="isLink"
+      name="solar:alt-arrow-left-linear"
+      size="16"
+      class="shrink-0 text-x-text-muted"
+      aria-hidden="true"
+    />
+  </component>
 </template>

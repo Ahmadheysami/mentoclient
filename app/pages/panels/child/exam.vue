@@ -34,8 +34,11 @@ const isSubmitting = ref<boolean>(false);
 const resultTitle = ref<string>("");
 /** The scoring endpoint answers `{ code, title, body }` — it has no numeric
  *  score and no fixed total, so the modal shows the real code rather than an
- *  invented "۲۰ از ۲۰". */
+ *  invented "۲۰ از ۲۰". `body` is the child/teen's own interpretation, which is
+ *  exactly the version this panel must show (the parent's is `for`, which only
+ *  the parent panel renders). */
 const resultCode = ref<string>("");
+const resultBody = ref<string>("");
 const loadError = ref<string | null>(null);
 
 const examMinutes = ref<number>(0);
@@ -69,6 +72,9 @@ const isDiscTest = computed(() => testStore.state.questions?.type === "DISC");
 const currentOptions = computed(
   () => questions.value?.at(currentQuestion.value)?.options ?? [],
 );
+
+/** Four- and five-option tests get tighter rows so every option stays visible. */
+const compactOptions = computed(() => currentOptions.value.length >= 4);
 
 const currentQuestionId = computed(
   () => questions.value?.at(currentQuestion.value)?.questionId ?? "",
@@ -230,6 +236,8 @@ async function sendAnswers() {
     resultModal.value = true;
     resultTitle.value = res?.response?.title ?? "";
     resultCode.value = String(res?.response?.code ?? "");
+    resultBody.value =
+      typeof res?.response?.body === "string" ? res.response.body : "";
     return true;
   } finally {
     isSubmitting.value = false;
@@ -404,12 +412,19 @@ onMounted(async () => {
 
       <div class="flex-1 pt-6 pb-40">
         <div class="neu-raised relative overflow-hidden bg-white p-5" :class="radius">
-          <p class="relative text-base font-bold leading-8 text-x-text-body">
+          <p
+            class="relative break-words text-base font-bold leading-8 text-x-text-body"
+          >
             {{ questions?.at(currentQuestion)?.text }}
           </p>
         </div>
 
-        <div class="mt-5 grid gap-2.5" role="radiogroup" aria-label="گزینه‌های پاسخ">
+        <div
+          class="mt-5 grid"
+          :class="compactOptions ? 'gap-2' : 'gap-2.5'"
+          role="radiogroup"
+          aria-label="گزینه‌های پاسخ"
+        >
           <div
             v-for="(op, index) of currentOptions"
             :key="op.optionId"
@@ -424,28 +439,65 @@ onMounted(async () => {
               type="button"
               role="radio"
               :aria-checked="selectedOptionId === op.optionId"
-              class="flex min-h-14 w-full cursor-pointer items-center gap-3 px-3 py-3.5 text-start"
+              class="flex w-full cursor-pointer items-center gap-3 px-3 text-start"
+              :class="compactOptions ? 'min-h-11 py-2.5' : 'min-h-14 py-3.5'"
               @click="selectAnswer(currentQuestionId, op.optionId)"
             >
-              <span class="grid size-8 shrink-0 place-items-center bg-white text-sm font-bold text-x-text-subtitle shadow-sm" :class="surfaceRadius" aria-hidden="true">
+              <span
+                class="grid shrink-0 place-items-center bg-white font-bold text-x-text-subtitle shadow-sm"
+                :class="[
+                  surfaceRadius,
+                  compactOptions ? 'size-7 text-xs' : 'size-8 text-sm',
+                ]"
+                aria-hidden="true"
+              >
                 {{ optionLetter(index) }}
               </span>
-              <span class="text-sm text-x-text-body">{{ op.text }}</span>
+              <span
+                class="text-x-text-body"
+                :class="compactOptions ? 'text-[13px] leading-6' : 'text-sm'"
+                >{{ op.text }}</span
+              >
             </button>
 
-            <div v-else class="flex items-center gap-3 px-3 pt-3.5">
-              <span class="grid size-8 shrink-0 place-items-center bg-white text-sm font-bold text-x-text-subtitle shadow-sm" :class="surfaceRadius" aria-hidden="true">
+            <div
+              v-else
+              class="flex items-center gap-3 px-3"
+              :class="compactOptions ? 'pt-2.5' : 'pt-3.5'"
+            >
+              <span
+                class="grid shrink-0 place-items-center bg-white font-bold text-x-text-subtitle shadow-sm"
+                :class="[
+                  surfaceRadius,
+                  compactOptions ? 'size-7 text-xs' : 'size-8 text-sm',
+                ]"
+                aria-hidden="true"
+              >
                 {{ optionLetter(index) }}
               </span>
-              <p class="text-sm text-x-text-body">{{ op.text }}</p>
+              <p
+                class="text-x-text-body"
+                :class="compactOptions ? 'text-[13px] leading-6' : 'text-sm'"
+              >
+                {{ op.text }}
+              </p>
             </div>
 
-            <div v-if="isDiscTest" class="grid grid-cols-2 gap-2 p-3 pt-2 text-xs">
+            <div
+              v-if="isDiscTest"
+              class="grid grid-cols-2 text-xs"
+              :class="compactOptions ? 'gap-1.5 p-2 pt-1.5' : 'gap-2 p-3 pt-2'"
+            >
               <button
                 type="button"
                 :aria-pressed="leastOptionId === op.optionId"
-                class="relative flex h-11 items-center justify-center rounded-2xl border border-neutral-500/10 transition"
-                :class="leastOptionId === op.optionId ? 'bg-red-500! font-bold text-white! shadow-md' : 'bg-white text-x-text-title'"
+                class="relative flex items-center justify-center rounded-2xl border border-neutral-500/10 transition"
+                :class="[
+                  leastOptionId === op.optionId
+                    ? 'bg-red-500! font-bold text-white! shadow-md'
+                    : 'bg-white text-x-text-title',
+                  compactOptions ? 'h-9 text-[11px]' : 'h-11',
+                ]"
                 @click.stop="selectDiscAnswer(currentQuestionId, op.optionId, op?.score?.least?.id, 'least')"
               >
                 {{ op?.score?.least?.label || "کمترین" }}
@@ -454,8 +506,13 @@ onMounted(async () => {
               <button
                 type="button"
                 :aria-pressed="mostOptionId === op.optionId"
-                class="relative flex h-11 items-center justify-center rounded-2xl border border-neutral-500/10 transition"
-                :class="mostOptionId === op.optionId ? 'bg-emerald-600! font-bold text-white! shadow-md' : 'bg-white text-x-text-title'"
+                class="relative flex items-center justify-center rounded-2xl border border-neutral-500/10 transition"
+                :class="[
+                  mostOptionId === op.optionId
+                    ? 'bg-emerald-600! font-bold text-white! shadow-md'
+                    : 'bg-white text-x-text-title',
+                  compactOptions ? 'h-9 text-[11px]' : 'h-11',
+                ]"
                 @click.stop="selectDiscAnswer(currentQuestionId, op.optionId, op?.score?.most?.id, 'most')"
               >
                 {{ op?.score?.most?.label || "بیشترین" }}
@@ -508,7 +565,9 @@ onMounted(async () => {
       :ui="{ content: 'w-85 rounded-3xl shadow-none', overlay: 'backdrop-blur-md', header: 'hidden' }"
     >
       <template #content>
-        <div class="relative grid w-full place-items-center overflow-hidden px-5 pb-6 pt-9 text-center">
+        <div
+          class="relative grid max-h-[85dvh] w-full place-items-center overflow-y-auto px-5 pb-6 pt-9 text-center"
+        >
           <span
             class="grid size-28 place-items-center rounded-full ring-8"
             :class="isChild ? 'bg-x-kid-sun-100 ring-x-kid-sun-500/30' : 'bg-x-teen-violet-300/30 ring-x-teen-violet-500/20'"
@@ -524,17 +583,57 @@ onMounted(async () => {
             تو موفق شدی آزمون «{{ testStore.state.questions?.title }}» را تمام کنی
           </p>
 
-          <p class="mt-4 grid place-items-center rounded-3xl px-8 py-3" :class="isChild ? 'bg-x-kid-sun-100' : 'bg-x-teen-violet-300/20'">
-            <span
-              dir="ltr"
-              class="font-yekan-extra text-4xl leading-none"
-              :class="isChild ? 'text-x-kid-900' : 'text-x-teen-900'"
-            >{{ resultCode || resultTitle }}</span>
+          <!-- The result itself: a card that leans toward the pointer on
+               hover-capable devices, flat on touch — and the interpretation
+               text the scoring endpoint returns for this reader. -->
+          <ChildTiltCard :max="7" class="mt-5 w-full">
+            <div
+              class="grid place-items-center gap-2 rounded-3xl p-5 text-center"
+              :class="
+                isChild
+                  ? 'bg-linear-to-b from-x-kid-sun-50 to-white ring-1 ring-x-kid-sun-500/30'
+                  : 'bg-linear-to-b from-x-teen-50 to-white ring-1 ring-x-teen-violet-500/20'
+              "
+            >
+              <span
+                class="grid size-20 place-items-center rounded-full ring-8"
+                :class="isChild ? 'bg-x-kid-sun-100 ring-x-kid-sun-500/30' : 'bg-x-teen-violet-300/30 ring-x-teen-violet-500/20'"
+                aria-hidden="true"
+              >
+                <UIcon name="solar:cup-star-bold" size="40" :class="isChild ? 'text-x-kid-sun-700' : 'text-x-teen-violet-600'" />
+              </span>
+
+              <h2
+                class="mt-2 break-words font-yekan-extra text-lg leading-8"
+                :class="isChild ? 'text-x-kid-900' : 'text-x-text-title'"
+              >
+                {{ resultTitle || "نتیجه آزمون" }}
+              </h2>
+
+              <p
+                v-if="resultCode"
+                class="inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-yekan-bold"
+                :class="isChild ? 'bg-x-kid-mint-100 text-x-kid-mint-700' : 'bg-x-teen-100 text-x-teen-700'"
+              >
+                کد نتیجه:
+                <span dir="ltr" class="font-yekan-extra">{{ resultCode }}</span>
+              </p>
+            </div>
+          </ChildTiltCard>
+
+          <div
+            v-if="resultBody"
+            class="content mt-3 w-full rounded-3xl px-4 py-4 text-start text-sm leading-7 text-x-text-body"
+            :class="isChild ? 'bg-x-kid-sun-100/70' : 'bg-x-teen-violet-300/15'"
+            v-html="resultBody"
+          />
+          <p v-else class="mt-3 text-xs leading-6 text-x-text-muted">
+            متن نتیجه ثبت نشده است.
           </p>
 
           <NuxtLink
             to="/panels/child/results"
-            class="mt-6 inline-flex h-12 w-full items-center justify-center rounded-full font-yekan-bold focus-visible:outline-2 focus-visible:outline-offset-2"
+            class="mt-6 inline-flex h-12 w-full shrink-0 items-center justify-center rounded-full font-yekan-bold focus-visible:outline-2 focus-visible:outline-offset-2"
             :class="isChild ? 'bg-x-kid-sun-500 text-x-kid-900' : 'bg-x-teen-violet-600 text-white'"
           >
             بازگشت

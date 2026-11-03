@@ -88,7 +88,15 @@ export interface ChildOverviewTestResultDto {
   categories: string[];
   status: string;
   /** `code` is opaque upstream — never stringify, parse or compare it here. */
-  result: { code: unknown; title?: string; body?: string };
+  result: {
+    code: unknown;
+    title?: string;
+    /** The reader's own interpretation — a child/teen panel renders this. */
+    body?: string;
+    /** The PARENT-facing interpretation (`for` is the upstream key). Absent on
+     *  results stored before the field existed, so it is always narrowed. */
+    for?: string;
+  };
   aiAnalysis: string | null;
   completedAt: string;
 }

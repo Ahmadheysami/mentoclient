@@ -22,6 +22,8 @@ onMounted(async () => {
 })
 </script>
 <template>
+  <!-- Single root: the global page transition needs one element to animate. -->
+  <div>
     <!-- Head -->
     <UDashboardToolbar :ui="{ root: 'border-none py-2  ' }">
         <template #right>
@@ -64,4 +66,5 @@ onMounted(async () => {
             </UButton>
         </div>
     </div>
+  </div>
 </template>

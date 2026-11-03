@@ -95,7 +95,7 @@ const isEnterRoute = computed(
       <li v-for="item in items" :key="item.to">
         <NuxtLink
           :to="item.to"
-          class="neu-control flex h-16 flex-col items-center justify-center gap-1 rounded-3xl text-xs font-yekan-bold whitespace-nowrap focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-x-kid-berry-700"
+          class="neu-control flex h-16 flex-col items-center justify-center gap-1 rounded-3xl text-xs font-yekan-bold whitespace-nowrap transition-colors duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-x-kid-berry-700 motion-reduce:transition-none"
           :class="
             isActive(item.to)
               ? 'bg-x-kid-sun-100 text-x-kid-900'
@@ -119,7 +119,7 @@ const isEnterRoute = computed(
       <li v-for="item in items" :key="item.to">
         <NuxtLink
           :to="item.to"
-          class="neu-control neu-control-nav flex h-12 flex-col items-center justify-center gap-1 rounded-xl text-[11px] font-yekan-bold whitespace-nowrap focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-x-teen-violet-600"
+          class="neu-control neu-control-nav flex h-12 flex-col items-center justify-center gap-1 rounded-xl text-[11px] font-yekan-bold whitespace-nowrap transition-colors duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-x-teen-violet-600 motion-reduce:transition-none"
           :class="
             isActive(item.to)
               ? 'bg-x-teen-violet-300/45 text-x-teen-900'

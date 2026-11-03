@@ -25,7 +25,7 @@ export interface ICafePoll {
 </script>
 
 <script setup lang="ts">
-import type { ICafeTableMessage } from "~/types/cafe";
+import type { ICafeThreadMessage } from "~/types/cafe";
 
 /**
  * One message as Screen B draws it.
@@ -39,10 +39,28 @@ import type { ICafeTableMessage } from "~/types/cafe";
  * bubble instead of an obvious bug. One boolean, resolved once, by the caller
  * that already knows. `own === true` means **black bubble**, and in this app's
  * hard-coded RTL that places it on the physical LEFT.
+ *
+ * ## ⚠️ THE INLINE EDIT LIVES HERE, AND THE MESSAGES IT IS ABOUT ARE `ICafeThreadMessage`
+ *
+ * `ICafeTableMessage` describes what the history returns; a row this client is
+ * holding may additionally be `sending`, `failed` or `provisional` and may have
+ * no `sequence`, no `senderId` and no `status` yet. Those are the only fields
+ * the edit affordance and the state chips below read, and every one of them is
+ * nullable, so the props say `ICafeThreadMessage` — the superset — rather than
+ * pretending a live bubble is a persisted message.
+ *
+ * ## ⚠️ EDIT IS **INLINE**, NOT A SHEET
+ *
+ * Doc §7 lists «ویرایش» in the context menu, and this bubble is what that row
+ * turns on: the menu emits one `edit` intent and the parent switches this bubble
+ * into its editor. The reason is the reader's own history — a «ویرایش» that
+ * opened a sheet over a screen with thirty messages above and below it would
+ * hide the very message being edited, and §12's edit is a single sentence of
+ * text, which is a one-field form.
  */
 const props = withDefaults(
   defineProps<{
-    message: ICafeTableMessage;
+    message: ICafeThreadMessage;
     /** True when the reader sent it. Decides the surface, the corner and the side. */
     own: boolean;
     /** Show the sender's avatar in the gutter. Ignored for `own` — see below. */
@@ -58,6 +76,26 @@ const props = withDefaults(
     grouped?: boolean;
     /** Epoch ms of "now", forwarded to `CafeMessageTimestamp`. Omit for a static label. */
     now?: number;
+    /** This reader is in the message's `like` array. Drawn as a filled heart. */
+    liked?: boolean;
+    /** `like.length` — the count, because `like` is a flat list of user ids. */
+    likeCount?: number;
+    /**
+     * This device has posted a read receipt covering this message
+     * (`cafe.isRead(sequence)`).
+     *
+     * ⚠️ It is about **this client** and nothing else — §8 carries one `seen`
+     * number per table per user — so it is drawn on the reader's own messages
+     * only. A tick on somebody else's bubble would be a claim about another
+     * person's reading that no field on the wire supports.
+     */
+    read?: boolean;
+    /** The parent switched this row into its editor (the menu's «ویرایش»). */
+    editing?: boolean;
+    /** The edit request is in the air. Blocks a second save. */
+    savingEdit?: boolean;
+    /** The last edit was refused. The editor stays open and says why. */
+    editError?: string | null;
   }>(),
   {
     showAvatar: false,
@@ -65,8 +103,27 @@ const props = withDefaults(
     senderImage: "",
     repliedName: "",
     grouped: false,
+    liked: false,
+    likeCount: 0,
+    read: false,
+    editing: false,
+    savingEdit: false,
+    editError: null,
   },
 );
+
+const emit = defineEmits<{
+  /** Save. Enter saves; Escape cancels. */
+  edit: [text: string];
+  /** Cancel the editor — Escape, or the «انصراف» row. */
+  cancelEdit: [];
+  /**
+   * The heart was pressed. The bubble owns no request: it flips on the props the
+   * store hands down and asks the screen to send, exactly as it asks the screen to
+   * run the edit.
+   */
+  like: [];
+}>();
 
 /**
  * ## THE TWO INKS
@@ -127,10 +184,28 @@ const isTrack = computed(() => props.message.type === "audio");
 
 const bodyText = computed(() => props.message.text ?? "");
 
+/**
+ * ⚠️ A SOFT-MODERATED MESSAGE IS DRAWN WITH THE **SERVER'S** CENSORED TEXT.
+ *
+ * §11 stores a censored body and holds the message for a moderator; that is an
+ * accepted send, not a refusal. This client keeps no word list of its own and has
+ * no business censoring somebody's words a second time — so the two are separate
+ * branches rather than a filter, and a `report` block cannot empty a bubble that
+ * is perfectly readable.
+ *
+ * `mediaCaption`, `fallbackText` and the plain-text branch all read THIS, so a
+ * censored caption under a photo is censored the same way the body is.
+ */
+const displayText = computed(() => {
+  const censored = props.message.report?.censoredText;
+
+  return typeof censored === "string" && censored !== "" ? censored : bodyText.value;
+});
+
 /** Media whose file never arrived must say so rather than draw an empty bubble. */
 const fallbackText = computed(() =>
-  bodyText.value.trim().length > 0
-    ? bodyText.value
+  displayText.value.trim().length > 0
+    ? displayText.value
     : "محتوای این پیام در دسترس نیست",
 );
 
@@ -255,7 +330,7 @@ function toPersianDigits(value: string): string {
  * that branch — so `mediaCaption` is not used there.
  */
 const mediaCaption = computed(() => {
-  const caption = bodyText.value.trim();
+  const caption = displayText.value.trim();
 
   if (caption === "") return "";
   if (videoDuration.value !== "") return "";
@@ -335,7 +410,7 @@ function readCount(value: unknown): number {
  *   is neither answers `null` and the bubble falls through to plain text — an
  *   unreadable blob in a bubble would be a worse answer than a sentence.
  */
-function readPoll(message: ICafeTableMessage): ICafePoll | null {
+function readPoll(message: ICafeThreadMessage): ICafePoll | null {
   const payload: unknown = message.poll;
 
   if (isRecord(payload)) {
@@ -450,6 +525,153 @@ const moderation = computed(() => {
 
   return "";
 });
+
+/* ------------------------------------------------------- client-only states -- */
+
+/**
+ * The three states a row can be in that the SERVER does not know about, because
+ * they are statements about this client and about a request that is still in the
+ * air. They are drawn, never hidden: a message the reader believes they sent and
+ * cannot see is the single worst state a messenger can be in, so every one of
+ * these says plainly what is true.
+ *
+ * - `sending` — the REST 201 has not landed. §11's 200–600 ms is the window.
+ * - `failed` — the request was refused. **The row stays** (the store's own rule):
+ *   a message the reader believes they sent must never vanish without saying so.
+ * - `provisional` — somebody's broadcast arrived and no history read has
+ *   reconciled it yet. It has no `sequence`, which is exactly why it draws
+ *   quietly and why nothing may order it by time. §14.1 lets it carry
+ *   `senderId`/`createdAt` and they are read when present — what it may NEVER
+ *   carry is a `sequence`, or the row would claim a place in the transcript
+ *   before the transcript has one.
+ */
+const isSending = computed(() => props.message.sending === true);
+const isFailed = computed(() => props.message.failed === true);
+
+/** ⚠️ MUTUALLY EXCLUSIVE WITH THE OTHER TWO, and checked in that order. */
+const isProvisional = computed(
+  () => props.message.provisional === true && !isSending.value && !isFailed.value,
+);
+
+/* ------------------------------------------------------------------- likes -- */
+
+/**
+ * §9's `like` is a flat list of user ids, so `like.length` IS the count and
+ * `like.includes(myId)` is the state. The list resolves both and hands them over
+ * as plain values, for the same reason `own` is a boolean: a bubble guessing
+ * identity is a wrong-coloured bubble.
+ *
+ * The count carries the «پسند» word at every figure, so a single like does not read
+ * as a bare «۱» and a large one does not need the reader to guess what is counted.
+ */
+const likeLabel = computed(() => {
+  if (props.likeCount <= 0) return "";
+
+  return props.likeCount === 1
+    ? `${faNumber(1)} پسند`
+    : `${faNumber(props.likeCount)} پسند`;
+});
+
+/**
+ * ⚠️ THE HEART'S **ACCESSIBLE NAME**, and it is assembled here rather than handed
+ * to `aria-label`.
+ *
+ * `aria-label` **overrides** the element's own content in the accessible-name
+ * calculation, so the label this button used to carry deleted everything inside
+ * it from the announcement: both the visible «۳ پسند» and the `sr-only` sentence
+ * beside it. A toggle whose count a screen reader could not read is not a toggle —
+ * and nothing on screen looked wrong, because the label still worked for every
+ * button that has no content of its own.
+ *
+ * ⚠️ **THE NAME IS THE ACTION, NOT THE STATE.** This is a toggle button, and a
+ * toggle's name is what pressing it DOES — «پسندیدن پیام» while it is off,
+ * «برداشتن پسند» once it is on — because `aria-pressed` is already announcing the
+ * state in its own right. Restating that state inside the name («شما این پیام را
+ * پسندیده‌اید») says the same thing twice and names no action at all, which is
+ * what a label like «پسندیده‌شده» leaves a reader with.
+ *
+ * The count is folded in here rather than left to the visible one, because that
+ * one is `aria-hidden` so the count would otherwise be announced twice.
+ */
+const likeName = computed(() => {
+  const action = props.liked ? "برداشتن پسند" : "پسندیدن پیام";
+
+  return props.likeCount > 0 ? `${action} — ${likeLabel.value}` : action;
+});
+
+/* -------------------------------------------------------------- inline edit -- */
+
+/**
+ * §11's `MESSAGE_TEXT_MAX`, written here because `stores/cafe.ts` does not export
+ * it. The screen holds the same figure and hands it to the composer; a component
+ * the screen cannot reach a module constant from states its own copy, and a cap the
+ * editor states is better than one it silently does not.
+ */
+const EDIT_TEXT_MAX = 2000;
+
+const draft = ref("");
+const editor = useTemplateRef<HTMLTextAreaElement>("editor");
+
+/** `editing` is the PARENT's decision; the draft is this bubble's own. */
+watch(
+  () => props.editing,
+  (editing) => {
+    if (!editing) return;
+
+    // ⚠️ The draft starts from the text on screen, never from `message.text`
+    // directly: for a soft-moderated message the two differ, and an editor that
+    // opened on the uncensored words would show the reader text the transcript
+    // deliberately is not showing.
+    draft.value = displayText.value;
+
+    void nextTick(() => {
+      editor.value?.focus();
+      editor.value?.setSelectionRange(draft.value.length, draft.value.length);
+    });
+  },
+);
+
+/** The store refuses a blank or an over-long edit; the editor says so first. */
+const editTooLong = computed(() => draft.value.length > EDIT_TEXT_MAX);
+const canSaveEdit = computed(
+  () =>
+    !props.savingEdit &&
+    !editTooLong.value &&
+    draft.value.trim() !== "" &&
+    draft.value !== displayText.value,
+);
+
+function saveEdit(): void {
+  if (!props.editing || !canSaveEdit.value) return;
+
+  emit("edit", draft.value);
+}
+
+/**
+ * Enter saves, Shift+Enter and Escape do not.
+ *
+ * ⚠️ `isComposing` is the Persian IME guard, and it matters here exactly as it
+ * does in `ComposerShell`: the first Enter on a half-typed Persian word ACCEPTS
+ * the composed letter, and saving on that keystroke would store a broken word
+ * and close the editor under the reader's hands.
+ */
+function onEditKeydown(event: KeyboardEvent) {
+  if (event.key === "Escape") {
+    event.preventDefault();
+
+    // ⚠️ NOT WHILE THE SAVE IS IN THE AIR. The request has left; closing the editor
+    // now would hide the row that is about to change and leave a reader pressing
+    // Escape again on a message that is no longer being edited.
+    if (!props.savingEdit) emit("cancelEdit");
+    return;
+  }
+
+  if (event.key !== "Enter" || event.shiftKey || event.isComposing) return;
+
+  event.preventDefault();
+  saveEdit();
+}
+
 </script>
 
 <template>
@@ -520,7 +742,91 @@ const moderation = computed(() => {
         </p>
       </blockquote>
 
+      <!--
+        ## THE INLINE EDITOR, AND WHY IT REPLACES THE BUBBLE RATHER THAN FLOATING OVER IT
+
+        One field, one save, one cancel. §12's edit is a single sentence of text, and
+        a sheet over a screen with thirty messages above and below would hide the
+        very message being edited.
+
+        ⚠️ `w-full` rather than `max-w-4/5`: the editor is a working surface, and
+        capping it at four fifths of the screen would wrap a sentence the reader is
+        editing into a narrower column than the sentence they are correcting. It
+        stays inside the same flex column, so it is still on the message's own side.
+
+        The surface is white with an `x-primary` ring rather than the bubble's own
+        ink: it is an INPUT, not a message, and drawing it as an outgoing black
+        bubble would say «this is what it will look like» while the reader is still
+        typing it.
+      -->
       <div
+        v-if="editing"
+        class="w-full rounded-3xl border border-x-primary-500 bg-white p-2"
+      >
+        <textarea
+          ref="editor"
+          v-model="draft"
+          :rows="3"
+          :maxlength="EDIT_TEXT_MAX"
+          aria-label="ویرایش متن پیام"
+          class="w-full resize-none rounded-2xl bg-transparent p-2 text-sm leading-7 text-x-text-body focus:outline-none"
+          @keydown="onEditKeydown"
+        />
+
+        <!--
+          The refusal is drawn inside the editor, beside the button that caused
+          it. Nothing above is disabled while it shows: the point is that the
+          reader can fix the sentence and try again with the words they wrote.
+        -->
+        <p
+          v-if="editError"
+          role="alert"
+          class="rounded-2xl bg-red-50 px-3 py-2 text-xs leading-6 text-red-700"
+        >
+          {{ editError }}
+        </p>
+
+        <p
+          v-else-if="editTooLong"
+          role="alert"
+          class="rounded-2xl bg-red-50 px-3 py-2 text-xs leading-6 text-red-700"
+        >
+          متن پیام نمی‌تواند بیش از {{ faNumber(EDIT_TEXT_MAX) }} نویسه باشد.
+        </p>
+
+        <!--
+          `min-h-11` on both rows, for the reason every control on this screen is
+          44px: the reader is typing with one hand and the save is the one control
+          they must hit without looking.
+        -->
+        <div class="mt-1 flex items-center gap-2">
+          <UButton
+            type="button"
+            variant="ghost"
+            color="x-primary"
+            label="انصراف"
+            :disabled="savingEdit"
+            class="min-h-11 flex-1"
+            :ui="{ base: 'min-h-11 rounded-full text-xs font-bold' }"
+            @click="emit('cancelEdit')"
+          />
+
+          <UButton
+            type="button"
+            variant="solid"
+            color="x-primary"
+            label="ذخیره"
+            :disabled="!canSaveEdit"
+            :loading="savingEdit"
+            class="min-h-11 flex-1"
+            :ui="{ base: 'min-h-11 rounded-full text-xs font-bold' }"
+            @click="saveEdit"
+          />
+        </div>
+      </div>
+
+      <div
+        v-else
         class="min-w-0 rounded-3xl px-3.5 py-2.5"
         :class="[surfaceClass, cornerClass]"
       >
@@ -528,7 +834,7 @@ const moderation = computed(() => {
           v-if="message.type === 'text'"
           class="text-sm leading-7 whitespace-pre-wrap break-words"
         >
-          {{ bodyText }}
+          {{ displayText }}
         </p>
 
         <!--
@@ -915,11 +1221,22 @@ const moderation = computed(() => {
       </div>
 
       <!--
-        The moderation state sits beside the clock, in the one place the design
-        already spends a word — the alternative, a coloured bubble, would colour
-        a message for something the reader cannot act on.
+        The meta row: the clock, the states that are words, the like, and — on the
+        reader's own side only — the read receipt.
+
+        ⚠️ It sits UNDER the bubble rather than over it, so nothing about a
+        message is ever obscured by its own metadata, and it is `flex-wrap` so a
+        long thread of words wraps under a 320px phone instead of pushing the
+        bubble sideways.
       -->
-      <div class="flex flex-wrap items-center gap-2 px-1">
+      <div class="flex flex-wrap items-center gap-x-2 gap-y-1 px-1">
+        <!--
+          ⚠️ A ROW WITH NO `createdAt` HAS NO TIMESTAMP TO PRINT AND IS NOT ASKED FOR
+          ONE — `CafeMessageTimestamp` answers nothing for it. §14.1 says a broadcast
+          MAY carry `createdAt`, and it is rendered when it does; when it does not,
+          the gap below is the honest picture of a message this client has received
+          but not yet reconciled.
+        -->
         <CafeMessageTimestamp
           :value="message.createdAt"
           :now="now"
@@ -936,6 +1253,139 @@ const moderation = computed(() => {
         >
           {{ moderation }}
         </span>
+
+        <!--
+          ⚠️ THE THREE CLIENT-ONLY STATES, IN THIS ORDER, and never hidden.
+
+          `sending` — the 201 has not landed (§11's 200–600 ms).
+          `failed` — the request was refused. **The row stays**: a message the
+          reader believes they sent must never vanish without saying so.
+          `provisional` — somebody's broadcast arrived and no history read has
+          reconciled it, so it has no `sequence`. It may already carry a
+          `senderId`/`createdAt` (§14.1), and when it does they are rendered — it
+          draws quietly because it is about to change by itself, not because it is
+          anonymous.
+        -->
+        <span
+          v-if="isSending"
+          class="flex items-center gap-1 text-xs text-x-text-subtitle"
+        >
+          <UIcon name="solar:clock-circle-linear" size="14" aria-hidden="true" />
+          در حال ارسال
+        </span>
+
+        <span
+          v-if="isFailed"
+          class="flex items-center gap-1 text-xs text-red-600"
+        >
+          <UIcon name="solar:close-circle-linear" size="14" aria-hidden="true" />
+          ارسال نشد
+        </span>
+
+        <span
+          v-if="isProvisional"
+          class="flex items-center gap-1 text-xs text-x-text-subtitle opacity-70"
+        >
+          <UIcon name="solar:cloud-cross-linear" size="14" aria-hidden="true" />
+          در حال دریافت
+        </span>
+
+        <!--
+          ⚠️ A REAL CONTROL, DRAWN ALWAYS — and both halves of that matter.
+
+          It used to be an inert `<span>` drawn only when somebody had already
+          liked the message, which made liking unreachable in the only case where
+          there is anything to decide: a message nobody has liked has nothing on
+          screen to press. So the heart is now always drawn, a real `<button>`,
+          and it emits `like` — the store still flips `like` optimistically, so
+          the heart fills on the tap rather than on the answer, and a refusal flips
+          it back, which is the same visual contract in reverse. Nothing here has to
+          know a request exists.
+
+          ⚠️ **NO `aria-label` ON IT, AND THAT IS DELIBERATE.** A label overrides the
+          element's own content in the accessible-name calculation, so one here
+          silently deleted the count and the `sr-only` sentence from what a screen
+          reader says — while looking perfectly correct to everyone else. The name
+          is `likeName`, spoken from the content; `aria-pressed` stays because the
+          pressed STATE is not part of a name.
+
+          ⚠️ `@pointerdown.stop` **AND** `@contextmenu.stop`, and closing only the
+          first is a bug that only shows on Android. The row around this bubble has
+          TWO doors to its menu — a 500 ms press and the native `contextmenu` — so
+          stopping the pointer event alone closed one and left the other open: a
+          long press on the heart opened the message menu, and no `click` follows a
+          long press, so nothing was liked at all. `@click.stop` is the same wall
+          for the click the row swallows after its own press.
+
+          `min-h-11` — 44px — is the floor every other control in this feature uses,
+          and the one AGENTS.md §8 asks a reviewer to hold the app to. The icon
+          carries `aria-hidden` because the button's text is its name. The visible
+          count is printed only when there is one — an empty «۰ پسند» under a heart
+          is a number nobody asked for — and it is `aria-hidden` so it is not
+          announced next to the copy of itself inside `likeName`.
+        -->
+        <button
+          type="button"
+          :aria-pressed="liked"
+          class="focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-x-primary-500 inline-flex min-h-11 items-center gap-1 rounded-full px-2 text-xs transition-colors hover:bg-x-primary-content-200"
+          :class="liked ? 'text-red-500' : 'text-x-text-subtitle'"
+          @click.stop="emit('like')"
+          @pointerdown.stop
+          @contextmenu.stop
+        >
+          <UIcon
+            :name="liked ? 'solar:heart-bold' : 'solar:heart-linear'"
+            size="14"
+            aria-hidden="true"
+          />
+          <span v-if="likeCount > 0" aria-hidden="true">{{ likeLabel }}</span>
+          <span class="sr-only">{{ likeName }}</span>
+        </button>
+
+        <!--
+          ⚠️ THE READ RECEIPT IS **THIS CLIENT'S**, ON THE READER'S OWN MESSAGES, AND
+          NOWHERE ELSE.
+
+          §8 carries exactly ONE number per table per user (`seen`), and
+          `GET /table/:tableId/users` returns user documents rather than participant
+          records — so there is no per-sender read state anywhere on the wire, and a
+          tick on somebody else's bubble would be a claim about another person's
+          reading that this client cannot make. `read` is therefore the list's
+          `cafe.isRead(sequence)`: «has THIS device reported this one».
+
+          A single tick before the frontier and a doubled one after it, which is the
+          Telegram idiom and is honest here for a second reason — the frontier is a
+          high-water mark, so the transition the reader sees is their OWN receipt
+          moving, not anybody else's.
+        -->
+        <span
+          v-if="own && !editing"
+          class="flex items-center text-x-text-subtitle"
+          :aria-label="read ? 'خوانده شد' : 'ارسال شد'"
+          role="img"
+        >
+          <UIcon
+            :name="read ? 'solar:verified-check-linear' : 'solar:check-circle-linear'"
+            size="16"
+            aria-hidden="true"
+          />
+        </span>
+
+        <!--
+          ⚠️ NO RETRY BUTTON, AND THAT IS A DELIBERATE ABSENCE.
+
+          §3.3's rule is that a refused message stays on screen with its text
+          rather than vanishing — and it is right. What it does not promise is a
+          way to re-send THAT ROW: `cafe.sendMessage` builds a **new** optimistic
+          row with a fresh `local:` id, and nothing in the store can reuse or drop
+          the failed one. A «تلاش دوباره» control would therefore leave the reader
+          with a red «ارسال نشد» bubble *and* a second copy of the same words — two
+          rows for one intent, which is a worse picture than no control at all.
+
+          The retry the reader actually gets is the one the screen can offer
+          honestly: the composer never cleared the draft on a refusal, so the words
+          are still in the field one tap away.
+        -->
       </div>
     </div>
   </div>

@@ -14,7 +14,7 @@ import type { ICafeFabMenuItem } from "~/components/Cafe/FabMenu.vue";
  *
  * ## WHY THIS PAGE IS THE TAB ROOT AND CARRIES NO BACK CHEVRON
  *
- * It is one of the four destinations in `CafeBottomMenu`, so it is reached from
+ * It is one of the three destinations in `CafeBottomMenu`, so it is reached from
  * the bottom of the app with no screen above it — and the reference's own
  * Messages screen draws its big title with no arrow for the same reason. A
  * chevron here would offer a way back to wherever the reader came from, which
@@ -273,11 +273,16 @@ const stagger = (index: number) => ({
 /* --------------------------------------------------------------------- fab -- */
 
 const FAB_ITEMS: ICafeFabMenuItem[] = [
-  { label: "گفتگوی تازه", icon: "solar:chat-round-linear", to: "/cafe/chat" },
+  // ⚠️ `disabled` and **no `to`**, for the same reason `/cafe/chat` redirects to
+  // `/cafe/joined`: direct conversations are off in this wave. A row that stays
+  // navigable is a row that 404s or bounces, and a row with a `to` and a badge
+  // is the live-looking control `CafeFabMenu`'s `disabled` exists to prevent —
+  // pressing it must not close the menu.
+  { label: "گفتگوی تازه", icon: "solar:chat-round-linear", disabled: true, badge: "به‌زودی" },
   { label: "میزهای پیوسته", icon: "solar:chat-dots-linear", to: "/cafe/joined" },
   // ⚠️ The one item whose destination is a LIST OF THE READER'S OWN GRANTS, so it
-  // belongs with the other two navigation rows and before the settings link —
-  // which stays last among the destinations that go somewhere.
+  // belongs with the other navigation rows and before the settings link — which
+  // stays last among the destinations that go somewhere.
   { label: "مدیریت من", icon: "solar:shield-check-linear", to: "/cafe/management" },
   { label: "تنظیمات کافه", icon: "solar:settings-linear", to: "/cafe/settings" },
   { label: "میز تازه", icon: "solar:add-circle-linear", disabled: true, badge: "به‌زودی" },
@@ -305,6 +310,17 @@ const FAB_ITEMS: ICafeFabMenuItem[] = [
             placeholder="جستجو در کافه‌ها"
           />
         </div>
+      </template>
+
+      <!--
+        The connection pill sits in `#actions`, which ScreenHeader renders on
+        the far side of the title row. It carries its own hydration gate (see
+        `SocketStatusBadge.vue`), so the call site needs nothing else — and the
+        socket itself is opened app-wide by the plugin, so there is nothing to
+        start here either.
+      -->
+      <template #actions>
+        <CafeSocketStatusBadge />
       </template>
     </CafeScreenHeader>
 

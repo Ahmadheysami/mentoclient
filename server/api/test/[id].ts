@@ -1,7 +1,9 @@
 export default defineEventHandler(async event => {
     const id = getRouterParam(event, 'id')
     try {
-        return await api(event, 'access-token')(`/test/${id}`)
+        const res = await api(event, 'access-token')(`/test/${id}`)
+        
+        return res
     } catch(err) {
         return connectionResponseError()
     }

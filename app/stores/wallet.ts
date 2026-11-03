@@ -17,6 +17,12 @@ export const useWallet = defineStore("wallet", () => {
         autoConvertToToken: boolean;
       };
     };
+    /**
+     * Deposit form figures, in **ریال** — the unit `POST /api/wallet/deposit`
+     * and the payment gateway both speak. The UI quotes تومان (this app's money
+     * base, 1 تومان = 10 ریال); `Wallet/Deposit.vue` converts at its own bound:
+     * تومان on the input, ریال here and on the wire.
+     */
     formData: {
       amount: number;
       min: number;

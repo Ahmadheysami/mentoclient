@@ -26,7 +26,7 @@
  * `sort`, and invented keys that Express's default `qs` turns into Mongo
  * OPERATORS (`?type[$ne]=…`). An unusable value is DROPPED, not refused.
  *
- * ⚠️ The query travels INSIDE `query`, as in `table/[cafeId]/tables.get.ts`:
+ * ⚠️ The query travels INSIDE `query`, as in `table/[resourceId]/index.get.ts`:
  * spread at the top level, ofetch sends it as OPTIONS and the filter is dropped
  * without a word.
  */

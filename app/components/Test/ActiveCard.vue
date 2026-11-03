@@ -29,8 +29,14 @@ defineProps<{
 </script>
 
 <template>
-  <article class="rounded-3xl bg-white p-4">
-    <div class="flex items-center gap-3">
+  <article class="rounded-3xl bg-white p-3.5 sm:p-4">
+    <!--
+      One row on every phone: a fixed icon, the title (which wraps to two
+      lines instead of being cut off) and a status pill that sheds its icon
+      below `sm` so the title keeps the width. Nothing here has a fixed pixel
+      width, so the card narrows with the 320px screen instead of overflowing.
+    -->
+    <div class="flex items-center gap-2.5 sm:gap-3">
       <span
         class="grid size-12 shrink-0 place-items-center overflow-hidden rounded-2xl bg-x-primary-100 text-x-primary-800"
       >
@@ -49,19 +55,24 @@ defineProps<{
       </span>
 
       <div class="min-w-0 flex-1">
-        <strong class="block truncate text-x-text-title">
+        <strong class="line-clamp-2 text-sm leading-5 text-x-text-title sm:text-base">
           {{ item.test[0]?.title }}
         </strong>
-        <span class="block text-xs text-x-text-subtitle">
+        <span class="block text-[11px] text-x-text-subtitle sm:text-xs">
           {{ faNumber(item.usedCount) }} از {{ faNumber(item.usageLimit) }}
           استفاده شده
         </span>
       </div>
 
       <span
-        class="inline-flex shrink-0 items-center gap-1 rounded-full px-3 py-1.5 text-xs font-bold text-shadow-lg bg-linear-to-l from-x-primary-200 to-x-primary-100 text-white ring-1 ring-x-primary-300/60"
+        class="inline-flex shrink-0 items-center gap-1 rounded-full px-2 py-1 text-[11px] font-bold text-shadow-lg bg-linear-to-l from-x-primary-200 to-x-primary-100 text-white ring-1 ring-x-primary-300/60 sm:px-3 sm:py-1.5 sm:text-xs"
       >
-        <UIcon name="solar:check-circle-linear" size="14" aria-hidden="true" />
+        <UIcon
+          name="solar:check-circle-linear"
+          size="14"
+          class="hidden sm:block"
+          aria-hidden="true"
+        />
         {{ item.status === "available" ? "فعال" : "غیرفعال" }}
       </span>
     </div>
@@ -82,6 +93,7 @@ defineProps<{
     />
 
     <NuxtLink
+      v-if="item.test[0]?.testId"
       :to="`/test?s=${item.test[0]?.testId}`"
       class="mt-3 block text-center text-xs text-x-primary-700 underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-x-primary-600"
     >

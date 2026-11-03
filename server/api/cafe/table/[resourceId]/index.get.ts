@@ -1,7 +1,7 @@
 import { isCafeBooleanFilter, isCafeSort } from "~/types/cafe";
 
 /**
- * `GET /api/cafe/table/{cafeId}/tables` → the same upstream — one café's tables,
+ * `GET /api/cafe/table/{cafeId}` → the same upstream — one café's tables,
  * with every filter applied BY THE SERVER for a reader too.
  *
  * ## ⚠️ `{cafeId}` IS INTERPOLATED INTO THE UPSTREAM PATH, SO IT IS GUARDED
@@ -45,7 +45,8 @@ import { isCafeBooleanFilter, isCafeSort } from "~/types/cafe";
  */
 export default defineEventHandler(async (event) => {
   try {
-    const cafeId = getRouterParam(event, "cafeId");
+    // ⚠ The position's router param is `resourceId` (radix3 tolerates only one placeholder name per position); on this route its value is the CAFE id.
+    const cafeId = getRouterParam(event, "resourceId");
     const query = getQuery(event);
     const status = query?.status;
     const q = query?.q;
@@ -60,7 +61,7 @@ export default defineEventHandler(async (event) => {
     // ⚠ THE TRAVERSAL GUARD — a `cafeId` this proxy may not paste into a path.
     if (!isResourceId(cafeId)) return connectionResponseError();
 
-    return await api(event, "access-token")(`/cafe/table/${cafeId}/tables`, {
+    const res = await api(event, "access-token")(`/cafe/table/${cafeId}/tables`, {
       query: {
         // ⚠ STRINGS ONLY, so `qs` can never hand the upstream an operator where
         // a filter was meant; and `isCafeSort` / `isCafeBooleanFilter` above are
@@ -76,6 +77,8 @@ export default defineEventHandler(async (event) => {
         ...(limit !== undefined && { limit }),
       },
     });
+
+    return res;
   } catch (err) {
     return connectionResponseError();
   }

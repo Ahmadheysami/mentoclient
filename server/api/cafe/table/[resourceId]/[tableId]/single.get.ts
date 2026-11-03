@@ -17,7 +17,8 @@
  */
 export default defineEventHandler(async (event) => {
   try {
-    const cafeId = getRouterParam(event, "cafeId");
+    // ⚠ The position's router param is `resourceId` (radix3 tolerates only one placeholder name per position); on this route its value is the CAFE id.
+    const cafeId = getRouterParam(event, "resourceId");
     const tableId = getRouterParam(event, "tableId");
 
     // ⚠ THE TRAVERSAL GUARDS — neither value may reach the upstream path unproven.

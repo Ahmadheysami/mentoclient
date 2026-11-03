@@ -1,4 +1,10 @@
-import type { TestAssets, TestItem, TestPagination, TestResult } from "~/types/test";
+import type {
+  AiAnalysisResponse,
+  TestAssets,
+  TestItem,
+  TestPagination,
+  TestResult,
+} from "~/types/test";
 
 export interface QuestionsData {
   title?: string;
@@ -30,7 +36,8 @@ interface TestState {
     | "buyTest"
     | "getQuestions"
     | "sendAnswer"
-    | "getTestsDone",
+    | "getTestsDone"
+    | "analyzeAi",
     boolean
   >;
   store?: TestItem[];
@@ -43,6 +50,20 @@ interface TestState {
   error: string | null;
 }
 
+/**
+ * A plain-callable view of `$fetch` for the AI endpoint.
+ *
+ * `$fetch` resolves a path against Nitro's generated route union; with the
+ * whole app's routes in that union the comparison exceeds TypeScript's stack
+ * depth (the same limit documented in `server/utils/api.ts`). Narrowing the
+ * callable to `(path: string) => Promise<T>` keeps the runtime identical and
+ * stops that conditional from being instantiated for this one call.
+ */
+const callApi = $fetch as unknown as <T>(
+  path: string,
+  options?: Record<string, unknown>,
+) => Promise<T>;
+
 export const useTest = defineStore("test", () => {
   const state = reactive<TestState>({
     loading: {
@@ -52,7 +73,8 @@ export const useTest = defineStore("test", () => {
       buyTest: false,
       getQuestions: true,
       sendAnswer: false,
-      getTestsDone: true
+      getTestsDone: true,
+      analyzeAi: false
     },
     store: [],
     singleTest: null,
@@ -98,6 +120,14 @@ export const useTest = defineStore("test", () => {
   }
 
   async function getSingleTest(testId: string) {
+    // A missing id, or the stringified `undefined`/`null` a broken link can
+    // carry, must never reach `/api/test/undefined` — that 500s upstream.
+    if (!testId || testId === "undefined" || testId === "null") {
+      state.singleTest = null;
+      state.loading.getSingleTest = false;
+      return;
+    }
+
     try {
       state.loading.getSingleTest = true;
       const response: any = await $fetch(`/api/test/${testId}`);
@@ -106,8 +136,21 @@ export const useTest = defineStore("test", () => {
         return (state.singleTest = null);
       }
 
-      state.singleTest = response?.test;
+      // The AI flags live on the test object in the documented payload, and on
+      // the response root in some upstream projections. Accept either without
+      // inventing a value: `undefined` still means "not offered".
+      const test = response?.test;
+      state.singleTest = test
+        ? {
+            ...test,
+            analysisAiEnabled:
+              test.analysisAiEnabled ?? response?.analysisAiEnabled,
+            analysisAiPrice: test.analysisAiPrice ?? response?.analysisAiPrice,
+          }
+        : null;
       state.tokenBase = response?.tokenBase;
+    } catch {
+      state.singleTest = null;
     } finally {
       state.loading.getSingleTest = false;
     }
@@ -273,6 +316,48 @@ export const useTest = defineStore("test", () => {
     }
   }
 
+  /**
+   * Generate (or reuse) the AI analysis of one finished result.
+   *
+   * `refresh=false` reuses a stored analysis; `refresh=true` forces a new one
+   * and charges the reader again. The response is written back onto the cached
+   * result so a return to the page shows the newest analysis without a refetch.
+   */
+  async function analyzeResultWithAi(
+    id: string,
+    refresh = false,
+    scope?: string,
+  ): Promise<AiAnalysisResponse> {
+    try {
+      state.loading.analyzeAi = true;
+      const response = await callApi<AiAnalysisResponse>(
+        "/api/test/result-with-ai",
+        {
+          method: "post",
+          query: {
+            refresh: refresh ? "true" : "false",
+            ...(scope && { scope }),
+          },
+          body: { id },
+        },
+      );
+
+      if (response?.success && typeof response.analysis === "string") {
+        const cached = state.testResults.find((item) => item.id === id);
+        if (cached) cached.aiAnalysis = response.analysis;
+      }
+
+      return response;
+    } catch {
+      return {
+        success: false,
+        message: "در حال حاضر نشد تحلیل را دریافت کنیم. اتصال اینترنت را بررسی کنید.",
+      };
+    } finally {
+      state.loading.analyzeAi = false;
+    }
+  }
+
   return {
     state,
     getStore,
@@ -281,6 +366,7 @@ export const useTest = defineStore("test", () => {
     buyTest,
     getTestQuestions,
     sendAnswer,
-    getTestResults
+    getTestResults,
+    analyzeResultWithAi
   };
 });

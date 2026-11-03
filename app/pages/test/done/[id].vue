@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { faDate, faNumber } from "~/utils/fa";
+import type { DiscRawScore, DiscScores } from "~/types/test";
 
 definePageMeta({
   middleware: ["auth"],
@@ -40,9 +41,75 @@ const hasError = computed(
   () => !isLoading.value && Boolean(testStore.state.error),
 );
 
+/**
+ * The catalogue entry for THIS attempt's test. Guarded on `testId` because
+ * `singleTest` is shared with the test modal: a stale entry from a previously
+ * opened test must never decide whether this result may be analysed.
+ */
+const testConfig = computed(() => {
+  const config = testStore.state.singleTest;
+  return config?.testId === result.value?.testId ? config : null;
+});
+
+const analysisEnabled = computed(
+  () => testConfig.value?.analysisAiEnabled === true,
+);
+
+const analysisPrice = computed(() => {
+  const price = Number(testConfig.value?.analysisAiPrice ?? 0);
+  return Number.isFinite(price) && price > 0 ? price : 0;
+});
+
+/** DISC is decided by the test configuration, never by the rawScore shape. */
+const isDisc = computed(() => {
+  const type = testConfig.value?.testType?.toUpperCase() ?? "";
+  if (type.includes("DISC")) return true;
+
+  // The catalogue field is absent on some upstream projections; the id is the
+  // second, narrower signal. Both are DISC-specific, so MBTI cannot match.
+  return result.value?.testId?.toUpperCase().startsWith("DISC") === true;
+});
+
+function normalizeDiscScores(value: unknown): DiscScores | null {
+  if (typeof value !== "object" || value === null) return null;
+
+  const source = value as Record<string, unknown>;
+  const score = (key: keyof DiscScores) => {
+    const raw = Number(source[key]);
+    return Number.isFinite(raw) ? Math.min(7, Math.max(0, Math.round(raw))) : 0;
+  };
+
+  return { D: score("D"), I: score("I"), S: score("S"), C: score("C") };
+}
+
+const discScores = computed<DiscRawScore | null>(() => {
+  if (!isDisc.value || !result.value?.rawScore) return null;
+
+  const raw = result.value.rawScore as Record<string, unknown>;
+  const leastGraph = normalizeDiscScores(raw.leastGraph);
+  const mostGraph = normalizeDiscScores(raw.mostGraph);
+  const finalProfile = normalizeDiscScores(raw.finalProfile);
+
+  return leastGraph && mostGraph && finalProfile
+    ? { leastGraph, mostGraph, finalProfile }
+    : null;
+});
+
 const loadResults = async () => {
   await testStore.getTestResults();
 };
+
+/** Reads `analysisAiEnabled` / `analysisAiPrice` for the result's own test. */
+watch(
+  () => result.value?.testId,
+  async (testId) => {
+    if (!testId) return;
+    if (testStore.state.singleTest?.testId === testId) return;
+
+    await testStore.getSingleTest(testId);
+  },
+  { immediate: true },
+);
 
 // Only fetch when the store is cold, so navigating from the list feels instant.
 onMounted(async () => {
@@ -112,8 +179,12 @@ onMounted(async () => {
     />
 
     <div v-else class="space-y-4 pb-4">
+      <!-- DISC only: the three profiles, before the written outcome. -->
+      <TestDiscCharts v-if="discScores" :scores="discScores" />
+
       <!-- Hero: the outcome, readable within a few seconds -->
       <section
+        data-scroll-reveal
         class="reveal grid place-items-center gap-3 rounded-4xl bg-white p-6 text-center"
       >
         <span
@@ -137,14 +208,25 @@ onMounted(async () => {
       </section>
 
       <!-- Interpretation: plain text, comfortable measure, no v-html -->
-      <section class="rounded-3xl bg-white p-5">
+      <section data-scroll-reveal class="rounded-3xl bg-white p-5">
         <h2 class="text-sm font-bold text-x-text-title">تفسیر نتیجه</h2>
         <p class="mt-3 whitespace-pre-line text-sm leading-8 text-x-text-body content" v-html="result.result.body">
         </p>
       </section>
 
+      <!-- Paid AI analysis: only when this test enables it. -->
+      <TestAiAnalysis
+        :result="result"
+        :enabled="analysisEnabled"
+        :price="analysisPrice"
+      />
+
       <!-- History: a plain list, hidden when there is nothing before this attempt -->
-      <section class="space-y-3" v-if="previousAttempts.length">
+      <section
+        v-if="previousAttempts.length"
+        data-scroll-reveal
+        class="space-y-3"
+      >
         <h2 class="text-sm font-bold text-x-text-title">تلاش‌های پیشین این آزمون</h2>
         <p class="text-xs leading-6 text-x-text-subtitle">
           این آزمون را {{ faNumber(attempts.length) }} بار تکمیل کرده‌اید.
@@ -178,7 +260,7 @@ onMounted(async () => {
           :ui="{ base: 'h-11 rounded-full' }"
         />
         <p class="pt-1 text-center text-xs leading-6 text-x-text-subtitle">
-          خروجی PDF و تحلیل هوش مصنوعی به‌زودی فعال می‌شود.
+          خروجی PDF به‌زودی فعال می‌شود.
         </p>
       </section>
     </div>

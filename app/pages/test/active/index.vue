@@ -22,6 +22,8 @@ onMounted(loadActiveTests);
 </script>
 
 <template>
+  <!-- Single root: the global page transition needs one element to animate. -->
+  <div>
   <TestTabItems />
   <div class="w-11/12 mx-auto">
     <p class="text-sm mt-2 mb-4 inline-block font-bold text-x-text-title">
@@ -65,5 +67,6 @@ onMounted(loadActiveTests);
         </li>
       </ul>
     </div>
+  </div>
   </div>
 </template>

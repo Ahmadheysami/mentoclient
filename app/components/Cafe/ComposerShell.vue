@@ -38,15 +38,65 @@
  * the composer is left with a magnified page. There is no global input
  * font-size rule to carry this, so the 16px is stated here — the same fix
  * `SearchPill` makes.
+ *
+ * ## ⚠️ `maxlength` COMES FROM THE SCREEN, NOT FROM HERE
+ *
+ * §11 caps a message's text at 2000 characters and `stores/cafe.ts` enforces
+ * that figure in `sendMessage` and `editMessage`, so the field must not carry a
+ * second copy of the number. The thread screen owns the constant it passes down —
+ * and it is the SAME constant the composer hands to the bubble's inline editor, so
+ * the two fields on this screen cannot disagree about how long a message is.
+ *
+ * ## `loading` IS NOT `disabled`
+ *
+ * They are separate props because they mean separate things to a reader: a
+ * disabled field is one this table will not accept writing in (a closed window, a
+ * mute), while a loading field is one whose last send is still in the air. They
+ * both stop the keys — §11's limiter is 30 messages per 60s and a double-tap
+ * spends two of them on one intent — but only `disabled` is described to the
+ * reader by the parent's placeholder.
+ *
+ * ## `focus()` IS EXPOSED, NOT A `focusSignal` PROP
+ *
+ * The parent needs to put the caret in this field (a «پاسخ» from the context
+ * menu has to land somewhere the reader can type). A template ref with
+ * `defineExpose({ focus })` is one typed call; a counter prop that the parent
+ * increments is a second, invisible piece of state describing something the
+ * component could simply be asked to do.
  */
-withDefaults(
+const props = withDefaults(
   defineProps<{
     modelValue: string;
     placeholder?: string;
     disabled?: boolean;
+    /** A send is in the air. Blocks typing and shows `aria-busy`. */
+    loading?: boolean;
+    /** §11's `MESSAGE_TEXT_MAX`, handed down by the thread screen. */
+    maxlength?: number;
   }>(),
-  { placeholder: "پیام بنویسید", disabled: false },
+  { placeholder: "پیام بنویسید", disabled: false, loading: false, maxlength: undefined },
 );
+
+/** One flag for everything the reader can press, so no control can disagree. */
+const inert = computed(() => props.disabled || props.loading);
+
+const input = useTemplateRef<HTMLElement>("bar");
+
+/**
+ * Put the caret in the field. Called by the parent after «پاسخ» opens the
+ * composer on a message — a reply the reader has to tap into is a reply they may
+ * never write.
+ *
+ * ⚠️ IT QUERIES FOR THE NATIVE `<input>` rather than holding a ref to `UInput`:
+ * the primitive exposes its `inputRef`, and depending on how Vue unwraps an
+ * exposed ref would be a guess. The bar owns exactly one text field, so the
+ * query is unambiguous and typed.
+ */
+function focus(): void {
+  input.value?.querySelector<HTMLInputElement>("input")?.focus();
+}
+
+defineExpose({ focus });
 
 const emit = defineEmits<{
   "update:modelValue": [value: string];
@@ -71,9 +121,14 @@ function onUpdate(value: unknown) {
  * **accepts the composed letter**, and submitting on that keystroke would send a
  * half-typed word. `isComposing` is the guard, and Shift+Enter stays a newline
  * for the reader who wants one.
+ *
+ * ⚠️ `inert` is the third guard: a send that is already in the air must not be
+ * started again by the same keystroke, and the composer's own bar is the only
+ * place that can know a send is in the air.
  */
 function onKeydown(event: KeyboardEvent) {
   if (event.key !== "Enter" || event.shiftKey || event.isComposing) return;
+  if (inert.value) return;
 
   event.preventDefault();
   emit("submit");
@@ -82,13 +137,14 @@ function onKeydown(event: KeyboardEvent) {
 
 <template>
   <div
+    ref="bar"
     class="flex items-center gap-2 border-t border-slate-200 bg-x-primary-content-50 px-3 pt-2 pb-[max(0.75rem,env(safe-area-inset-bottom))]"
   >
     <UButton
       type="button"
       variant="ghost"
       icon="solar:add-circle-linear"
-      :disabled="disabled"
+      :disabled="inert"
       aria-label="افزودن پیوست"
       class="shrink-0"
       :ui="{
@@ -102,7 +158,9 @@ function onKeydown(event: KeyboardEvent) {
     <UInput
       :model-value="modelValue"
       :placeholder="placeholder"
-      :disabled="disabled"
+      :disabled="inert"
+      :maxlength="maxlength"
+      :aria-busy="loading ? 'true' : undefined"
       size="xl"
       variant="none"
       enterkeyhint="send"
@@ -122,13 +180,17 @@ function onKeydown(event: KeyboardEvent) {
       the commit gesture, and it should not look like the `+` next to it. Same
       `x-text-title` ink as an outgoing bubble, so the reader's own actions and
       the reader's own words share a colour.
+
+      ⚠️ `aria-label` READS THE STATE while a send is in the air, so a screen-reader
+      user is told the field is busy rather than meeting a field that has simply
+      gone quiet.
     -->
     <UButton
       type="button"
       variant="solid"
       icon="solar:microphone-2-bold"
-      :disabled="disabled"
-      aria-label="ارسال پیام صوتی"
+      :disabled="inert"
+      :aria-label="loading ? 'در حال ارسال پیام' : 'ارسال پیام صوتی'"
       class="shrink-0"
       :ui="{
         base:

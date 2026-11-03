@@ -1,10 +1,27 @@
 <template>
-    <div class="h-dvh fixed w-lg left-1/2 -translate-x-1/2 bg-x-primary-content-200 z-3060!">
-        <div class="loader scale-125"></div>
-        <div class="absolute bottom-11 w-full grid place-items-center">
-            <AppLogo size="md" :type="'typo-colorize'"/>
-        </div>
+  <div
+    class="fixed inset-0 z-[3060] bg-x-primary-content-200"
+    role="status"
+    aria-label="در حال آماده‌سازی منتویا"
+  >
+    <div class="relative mx-auto grid h-dvh w-full max-w-md place-items-center px-6">
+      <!-- The prepared motion asset: centred and a little larger. -->
+      <img
+        src="/images/mentoya-motion.svg"
+        alt="منتویا"
+        width="1527"
+        height="861"
+        class="h-auto w-72 max-w-[82%]"
+      />
+
+      <!-- Loading indicator, pinned to the bottom edge. -->
+      <div
+        class="absolute inset-x-0 bottom-0 grid place-items-center pb-[max(1.75rem,env(safe-area-inset-bottom))]"
+      >
+        <div class="loader scale-125" aria-hidden="true"></div>
+      </div>
     </div>
+  </div>
 </template>
 
 <style lang="css">
@@ -78,9 +95,15 @@
     }
 }
 
-.loader {
-    position: absolute;
-    top: calc(50% - 1.25em);
-    left: calc(50% - 1.25em);
+@media (prefers-reduced-motion: reduce) {
+    .loader:before,
+    .loader:after {
+        animation: none;
+    }
+}
+
+html[data-motion="reduced"] .loader:before,
+html[data-motion="reduced"] .loader:after {
+    animation: none;
 }
 </style>

@@ -5,17 +5,17 @@
  * ## WHY IT IS A NEAR-BLACK PILL AND NOT A WHITE BAR WITH LABELS
  *
  * The design this slice was drawn from (Screen A of `docs/design/cafe-ui.webp`)
- * is an iOS-style messenger: four icons in one rounded-full black pill, floating
+ * is an iOS-style messenger: three icons in one rounded-full black pill, floating
  * above the home indicator with generous side margins, and **no visible labels**.
  * That is not decoration — it is what lets the pill float over a long scrolling
  * list without the list having to reserve 88px of dead space behind it, and it
  * is why `bottom-0` + `inset-x-0` (not a bar in the flow) is correct here.
  *
- * Dropping the labels costs the four links their visible names, so **every link
+ * Dropping the labels costs the links their visible names, so **every link
  * carries both an `aria-label` and an `sr-only` span**. The span is not
  * redundancy: `aria-label` is what a screen reader announces, and the `sr-only`
  * text is what makes the name exist in the accessibility tree for anyone reading
- * the DOM. An icon-only navigation that forgets this is four unlabelled
+ * the DOM. An icon-only navigation that forgets this is a row of unlabelled
  * controls.
  *
  * ## WHY THE ACTIVE STATE IS A CLASS AND NOT A `<style scoped>` RULE
@@ -51,7 +51,13 @@ const items = [
   { label: "تنظیمات", icon: "solar:settings-linear", to: "/cafe/settings" },
   { label: "کافه‌ها", icon: "solar:cup-hot-linear", to: "/cafe" },
   { label: "میزهای پیوسته", icon: "solar:chat-round-linear", to: "/cafe/joined" },
-  { label: "گفتگو", icon: "solar:dialog-2-linear", to: "/cafe/chat" },
+  // ⚠️ «گفتگو» (`/cafe/chat`) WAS HERE AND IS **REMOVED, NOT DISABLED**. The
+  // direct-conversation list is off in this wave — its route survives and
+  // redirects to `/cafe/joined` — and a menu row is a one-tap target, so a
+  // greyed one would still be there to be mis-pressed. Dropping it is the only
+  // state a reader cannot reach by tapping the wrong thing.
+  // ⚠️ `gap-7` is a GAP, not a total: the pill is `w-fit`, so three icons stay
+  // centred and `mx-auto` re-centres them without a width to recompute.
 ] as const;
 
 /**
@@ -82,7 +88,7 @@ const isActive = (to: string): boolean => route.path === to;
       The pill is 44 + 28 = 72px tall and sits 16px + the safe-area inset above
       the edge, so `CafeFabMenu`'s `bottom-24` (96px) clears it on every device.
 
-      `pointer-events-none` on the nav and `auto` on the four links: the nav is a
+      `pointer-events-none` on the nav and `auto` on the links: the nav is a
       full-bleed strip, and a transparent strip that eats taps is a row of the
       list underneath that silently does nothing.
     -->

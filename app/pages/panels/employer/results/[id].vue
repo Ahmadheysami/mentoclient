@@ -43,9 +43,36 @@ const hasError = computed(
   () => !isLoading.value && Boolean(testStore.state.error),
 );
 
+/** The catalogue entry for this attempt's own test (never a stale one). */
+const testConfig = computed(() => {
+  const config = testStore.state.singleTest;
+  return config?.testId === result.value?.testId ? config : null;
+});
+
+const analysisEnabled = computed(
+  () => testConfig.value?.analysisAiEnabled === true,
+);
+
+const analysisPrice = computed(() => {
+  const price = Number(testConfig.value?.analysisAiPrice ?? 0);
+  return Number.isFinite(price) && price > 0 ? price : 0;
+});
+
 const loadResults = async () => {
   await testStore.getTestResults();
 };
+
+/** Reads `analysisAiEnabled` / `analysisAiPrice` for the result's own test. */
+watch(
+  () => result.value?.testId,
+  async (testId) => {
+    if (!testId) return;
+    if (testStore.state.singleTest?.testId === testId) return;
+
+    await testStore.getSingleTest(testId);
+  },
+  { immediate: true },
+);
 
 // Only fetch when the store is cold, so navigating from the list feels instant.
 onMounted(async () => {
@@ -117,6 +144,7 @@ onMounted(async () => {
     <div v-else class="space-y-4 pb-4">
       <!-- Hero: the outcome, readable within a few seconds -->
       <section
+        data-scroll-reveal
         class="reveal grid place-items-center gap-3 rounded-xl bg-white p-4 text-center border border-gray-200 shadow-sm"
       >
         <span
@@ -140,14 +168,29 @@ onMounted(async () => {
       </section>
 
       <!-- Interpretation: plain text, comfortable measure, no v-html -->
-      <section class="rounded-xl bg-white p-4 shadow-sm border border-gray-200">
+      <section
+        data-scroll-reveal
+        class="rounded-xl bg-white p-4 shadow-sm border border-gray-200"
+      >
         <h2 class="font-yekan-bold text-sm text-gray-900">تفسیر نتیجه</h2>
         <p class="mt-3 whitespace-pre-line text-sm leading-8 text-x-text-body content" v-html="result.result.body">
         </p>
       </section>
 
+      <!-- Paid AI analysis: only when this test enables it. -->
+      <TestAiAnalysis
+        :result="result"
+        :enabled="analysisEnabled"
+        :price="analysisPrice"
+        radius="xl"
+      />
+
       <!-- History: a plain list, hidden when there is nothing before this attempt -->
-      <section class="space-y-3" v-if="previousAttempts.length">
+      <section
+        v-if="previousAttempts.length"
+        data-scroll-reveal
+        class="space-y-3"
+      >
         <h2 class="font-yekan-bold text-sm text-gray-900">تلاش‌های پیشین این آزمون</h2>
         <p class="text-xs leading-5 text-gray-500">
           این آزمون را {{ faNumber(attempts.length) }} بار تکمیل کرده‌اید.
@@ -181,7 +224,7 @@ onMounted(async () => {
           :ui="{ base: 'h-11 rounded-lg' }"
         />
         <p class="pt-1 text-center text-xs leading-5 text-gray-500">
-          خروجی PDF و تحلیل هوش مصنوعی به‌زودی فعال می‌شود.
+          خروجی PDF به‌زودی فعال می‌شود.
         </p>
       </section>
     </div>

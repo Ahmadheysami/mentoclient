@@ -60,9 +60,14 @@ onMounted(loadResults);
 </script>
 
 <template>
-  <TestTabItems />
-  <div class="w-11/12 mx-auto">
-    <h1 class="mt-2 mb-1 text-sm inline-block font-bold text-x-text-title">
+  <!-- Single root: the global page transition needs one element to animate. -->
+  <div>
+    <TestTabItems />
+    <div class="w-11/12 mx-auto">
+    <h1
+      data-scroll-reveal
+      class="mt-2 mb-1 text-sm inline-block font-bold text-x-text-title"
+    >
       نتایج آزمون‌های شما
     </h1>
 
@@ -128,7 +133,7 @@ onMounted(loadResults);
           <span
             class="max-w-2/5 shrink-0 truncate rounded-full px-3 py-1.5 text-center text-xs font-medium bg-linear-to-l from-x-secondary-200 to-x-secondary-100 text-x-secondary-900 ring-1 ring-x-secondary-300/60"
           >
-            {{ group.latest.result.title }}
+            {{ group.latest.result.code }}
           </span>
 
           <UIcon
@@ -138,7 +143,8 @@ onMounted(loadResults);
             class="shrink-0 text-x-primary-600"
           />
         </NuxtLink>
-      </li>
-    </ul>
+        </li>
+      </ul>
+    </div>
   </div>
 </template>

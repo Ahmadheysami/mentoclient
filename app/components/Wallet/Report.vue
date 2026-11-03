@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import comma from "comma-number"
+import { faTomanText } from "~/utils/fa"
 
 const wallet = useWallet(),
     limit = ref(10),
@@ -86,7 +86,7 @@ onMounted(async () => {
 
                     <div>
                         <span class="text-xs font-bold ">
-                            {{ comma(log.amount) }} ریــــال
+                            {{ faTomanText(log.amount) }}
                         </span>
                     </div>
 

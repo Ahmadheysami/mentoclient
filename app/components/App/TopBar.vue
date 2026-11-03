@@ -12,9 +12,15 @@ onMounted(async () => {
   <div class="py-4 px-4">
     <div class="flex items-center justify-between">
       <div class="flex gap-3 items-center">
+        <!--
+          No `crossorigin` here (or on the profile page): a remote avatar from
+          the API becomes a CORS request with it, and an origin that does not
+          answer with `Access-Control-Allow-Origin` renders as a BROKEN image.
+          Both pages showed the fresh upload from memory and then lost it once
+          the URL came from the server, which is what the client reported.
+        -->
         <UAvatar
           :src="user.state.user?.avatar"
-          crossorigin="anonymous"
           :ui="{ root: 'w-15 h-15 shadow-inner bg-white' }"
           width="60"
           height="60"

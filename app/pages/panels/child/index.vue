@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { gsap } from "gsap";
 import { faNumber } from "~/utils/fa";
+import type { TestResult } from "~/types/test";
 
 /**
  * The child/teen hub, in the redesign's order: hero, the ONE next action,
@@ -167,6 +168,9 @@ const latestResult = computed(() => {
 });
 
 const resultsLoading = computed(() => testStore.state.loading.getTestsDone);
+
+/** The result card the reader tapped; `null` keeps the sheet closed. */
+const selectedResult = ref<TestResult | null>(null);
 </script>
 
 <template>
@@ -248,7 +252,7 @@ const resultsLoading = computed(() => testStore.state.loading.getTestsDone);
     </NuxtLink>
 
     <!-- 4. Today -->
-    <section aria-label="امروز" class="mt-6">
+    <section data-scroll-reveal aria-label="امروز" class="mt-6">
       <ChildSectionHeader title="امروز" />
       <dl class="mt-3 grid grid-cols-2 gap-2">
         <div
@@ -279,7 +283,7 @@ const resultsLoading = computed(() => testStore.state.loading.getTestsDone);
     </section>
 
     <!-- 5. My journey -->
-    <section aria-label="مسیر من" class="mt-6">
+    <section data-scroll-reveal aria-label="مسیر من" class="mt-6">
       <ChildSectionHeader
         title="مسیر من"
         action-label="همه"
@@ -330,7 +334,7 @@ const resultsLoading = computed(() => testStore.state.loading.getTestsDone);
     </section>
 
     <!-- 6. Activities -->
-    <section aria-label="فعالیت‌ها" class="mt-6">
+    <section data-scroll-reveal aria-label="فعالیت‌ها" class="mt-6">
       <ChildSectionHeader
         title="فعالیت‌ها"
         action-label="همه"
@@ -393,6 +397,7 @@ const resultsLoading = computed(() => testStore.state.loading.getTestsDone);
     <!-- 7. Latest result — hidden entirely when there is none -->
     <section
       v-if="resultsLoading || latestResult !== null"
+      data-scroll-reveal
       aria-label="آخرین نتیجه"
       class="mt-6"
     >
@@ -413,7 +418,14 @@ const resultsLoading = computed(() => testStore.state.loading.getTestsDone);
         :title="latestResult.test.title || 'آزمون'"
         :date="latestResult.createdAt"
         :chip-label="latestResult.result.title"
+        @open="selectedResult = latestResult"
       />
     </section>
+
+    <!-- The tapped result, as a sheet over the hub. -->
+    <ChildResultSheet
+      :result="selectedResult"
+      @close="selectedResult = null"
+    />
   </div>
 </template>

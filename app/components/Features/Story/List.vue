@@ -9,9 +9,15 @@ import type { StoryGroup } from "~/types/story";
 /**
  * The horizontal rail of story rings.
  *
- * `slidesPerView: 'auto'` + fixed-width cards is what makes a long Persian
- * author name TRUNCATE instead of squeezing the ring, and a two-word name not
- * stretch the rail.
+ * `slidesPerView: 'auto'` + fixed-width cards (see `Card.vue`) is what makes a
+ * long Persian title TRUNCATE instead of squeezing the ring, and a two-word
+ * title not stretch the rail. It also keeps the ring at Instagram's 64px on
+ * every phone instead of shrinking it to fit a fixed slide count — the rail now
+ * shows roughly four and a half stories on a small phone and more on a tablet.
+ *
+ * The 16px `spaceBetween` is the client's "stories sit too close" fix: the gap
+ * is now wider than the old 10px while the rings themselves are smaller, so the
+ * rail reads as separated items rather than one crowded band.
  *
  * `momentum: false` and NO `sticky`, so the rail scrolls freely and stops
  * exactly where the finger lifts. `sticky` is Swiper 14's snapping switch:
@@ -25,12 +31,10 @@ import type { StoryGroup } from "~/types/story";
  * `watchOverflow: false` is REQUIRED, not a style preference. Swiper defaults
  * it to `true`, and once the content fits the container it LOCKS the rail —
  * `onTouchStart` returns before a touch ever registers, so the rail is dead.
- * A stories rail is a small fixed set of rings that very often does fit: the
- * rings plus gaps are 350px, and any screen 374px or wider has that to spare
- * once the rail's own `px-3` is subtracted. The larger cards narrow that
- * margin but do not close it, so THIS prop — not the sizing — is what makes
- * the rail scrollable on a 390px phone. The viewer passes the same thing;
- * see `Viewer.vue`.
+ * A stories rail is a small fixed set of rings that very often does fit once
+ * a couple of categories are live, and the rail's own `px-3` only narrows the
+ * margin further — so THIS prop, not the sizing, is what keeps it scrollable.
+ * The viewer passes the same thing; see `Viewer.vue`.
  *
  * No `A11y` module here (unlike the viewer): it attaches an `aria-live` region
  * that announces on every slide change while the reader is merely browsing a
@@ -96,13 +100,25 @@ const visibleGroups = computed(() =>
   <Swiper
     :modules="listModules"
     class="story-rail"
-    :slides-per-view="4.5"
-    :space-between="10"
+    slides-per-view="auto"
+    :space-between="16"
     wrapper-class="!px-3"
     :free-mode="listFreeMode"
     :watch-overflow="false"
   >
-    <SwiperSlide v-for="entry in visibleGroups" :key="entry.group.id">
+    <!--
+      `!w-auto` is what makes `slidesPerView: 'auto'` mean "the card's width":
+      `swiper.css` sets `.swiper-slide { width: 100% }`, so without it Swiper
+      measures every slide as a full container and the rail becomes one huge
+      card per screen. The class must stay IMPORTANT — Swiper writes an inline
+      width after measuring, and an important class is the only thing that keeps
+      the slide sized to its 64px card across resizes.
+    -->
+    <SwiperSlide
+      v-for="entry in visibleGroups"
+      :key="entry.group.id"
+      class="!w-auto"
+    >
       <FeaturesStoryCard
         :group="entry.group"
         :index="entry.railIndex"

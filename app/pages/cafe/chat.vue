@@ -3,13 +3,25 @@ import type { ICafeChannel } from "~/types/cafe";
 import type { ICafeFabMenuItem } from "~/components/Cafe/FabMenu.vue";
 
 /**
- * `/cafe/chat` — the direct-conversation list, which is Screen A of
+ * `/cafe/chat` — the direct-conversation list, which was Screen A of
  * `docs/design/cafe-ui.webp` almost exactly.
  *
- * A tab root, like `/cafe` and `/cafe/joined`: one of the four destinations in
- * `CafeBottomMenu`, with no screen above it, so — as the reference's own
- * Messages screen does — the big title takes the space a chevron would have
- * used.
+ * ## THIS SCREEN IS DISABLED IN THIS WAVE — AND THE ROUTE IS NOT
+ *
+ * `definePageMeta({ redirect: '/cafe/joined' })` below takes every arrival here
+ * to the joined-tables list instead, so **this file never renders**: the router
+ * resolves the redirect off the route record before the component is loaded.
+ * Direct conversations are off for now, and saying so by redirecting is the
+ * only version of "off" that cannot 404 an old link or a bookmark.
+ *
+ * Everything after this paragraph is kept verbatim rather than deleted, because
+ * the next wave needs the screen back exactly as it was and a redirect does not
+ * tell the next author how much of it is still true. Re-enabling it is the
+ * deletion of the `redirect` line.
+ *
+ * The destination list in `CafeBottomMenu` lost its «گفتگو» row for the same
+ * reason, and the two `CafeFabMenu` entries that pointed here are `disabled`
+ * with a «به‌زودی» badge.
  *
  * ## WHY THE REFERENCE'S TWO MARKERS ARE DRAWN THE WAY THEY ARE
  *
@@ -54,6 +66,15 @@ import type { ICafeFabMenuItem } from "~/components/Cafe/FabMenu.vue";
 definePageMeta({
   layout: "cafe",
   middleware: ["auth"],
+  // ⚠️ THE SCREEN IS DISABLED; THE ROUTE IS NOT.
+  //
+  // Vue Router resolves a route record's `redirect` BEFORE the matched component
+  // is ever loaded, so nothing below runs: not this file's setup body, not
+  // `fetchSubscribed()`, not the skeleton. The file is kept whole — for an old
+  // link, a bookmark or a back button there is a destination instead of a 404,
+  // and for the wave that turns conversations back on there is one deletion here
+  // rather than a screen to rebuild.
+  redirect: "/cafe/joined",
 });
 
 useSeoMeta({

@@ -11,7 +11,12 @@ definePageMeta({
 const user = useUser(),
     auth = useAuth(),
     {$toast} = useNuxtApp(),
-    me = user.state.user,
+    /**
+     * A `computed`, NOT `user.state.user` captured once. `refreshUser()` replaces
+     * the whole object after an upload, so a snapshot would keep rendering the
+     * avatar and name the page had at setup.
+     */
+    me = computed(() => user.state.user),
     sidebarOpen = ref<boolean>(false),
     sidebarAction = ref<string | null>(''),
     sidebarToggleAction = (open: boolean, action: string | null) => {
@@ -60,59 +65,86 @@ const user = useUser(),
         {
             icon: 'solar:user-broken',
             title: 'نام و نام خانوادگی',
-            description: `${me?.fullName?.first || 'بدون'} ${me?.fullName?.last || 'نام'}`,
+            description: `${me.value?.fullName?.first || 'بدون'} ${me.value?.fullName?.last || 'نام'}`,
             action: 'edit-fullName'
         },
         {
             icon: 'solar:phone-rounded-linear',
             title: 'شماره موبایل',
-            description: me?.mobile,
+            description: me.value?.mobile,
             action: null
         },
         {
             icon: 'solar:check-read-broken',
             title: 'وضعیت',
-            description: `${me?.isActive ? 'فعال' : 'غیر فعال'}`,
+            description: `${me.value?.isActive ? 'فعال' : 'غیر فعال'}`,
             action: null
         },
         {
             icon: 'material-symbols:alternate-email',
             title: 'ایمیل',
-            description: me?.email || 'وارد نشده',
-            action: me?.emailIsVerification ? null : 'edit-email'
+            description: me.value?.email || 'وارد نشده',
+            action: me.value?.emailIsVerification ? null : 'edit-email'
         },
         {
             icon: 'solar:buildings-outline',
             title: 'موقعیت شغلی',
-            description: me?.position || 'وارد نشده',
+            description: me.value?.position || 'وارد نشده',
             action: 'edit-position'
         },
         {
             icon: 'solar:user-plus-rounded-linear',
             title: 'سن',
-            description: me?.age || 'وارد نشده',
+            description: me.value?.age || 'وارد نشده',
             action: 'edit-age'
         }
     ]),
     formData = reactive({
         fullName: {
-            first: me?.fullName?.first,
-            last: me?.fullName?.last
+            first: me.value?.fullName?.first,
+            last: me.value?.fullName?.last
         },
-        position: me?.position,
-        age: me?.age || +''
+        position: me.value?.position,
+        age: me.value?.age || +''
     }),
     avatar = ref<File | null>(null),
     avatarPreview = ref<string | undefined>(''),
+    /** Mirrors the `<input accept>` and the formats the backend stores. */
+    AVATAR_TYPES = ['image/png', 'image/jpeg', 'image/webp'],
+    /** A phone camera JPEG can pass 5 MB; anything larger is a rejected upload. */
+    AVATAR_MAX_BYTES = 5 * 1024 * 1024,
     changeFileInput = (event: any) => {
-        avatar.value = event.currentTarget?.files[0]
+        const file: File | undefined = event.currentTarget?.files?.[0]
+
+        user.state.errors.avatar = ''
+
+        if (!file) {
+            clearInputFile()
+            return
+        }
+
+        // Checked here as well as in `accept=`: the attribute only filters the
+        // picker, it is bypassed by a camera, a drag-drop or a renamed file.
+        if (!AVATAR_TYPES.includes(file.type)) {
+            user.state.errors.avatar = 'فقط تصویر PNG، JPG یا WebP قابل استفاده است'
+            clearInputFile()
+            return
+        }
+
+        if (file.size > AVATAR_MAX_BYTES) {
+            user.state.errors.avatar = 'حجم عکس نباید بیشتر از ۵ مگابایت باشد'
+            clearInputFile()
+            return
+        }
+
+        avatar.value = file
 
         const reader = new FileReader()
         reader.onload = function (e) {
             avatarPreview.value = e.target?.result as any
         }
 
-        reader.readAsDataURL(avatar.value as any)
+        reader.readAsDataURL(file)
     },
     setAvatar = async () => {
         if (avatar.value === null) {
@@ -122,16 +154,29 @@ const user = useUser(),
         const fd = new FormData()
         fd.append("image", avatar.value)
 
-        const response: any = await user.setUserAvatar(fd)
+        let response: any = null
+
+        try {
+            response = await user.setUserAvatar(fd)
+        } catch {
+            user.state.errors.avatar = 'ارسال عکس انجام نشد. اتصال اینترنت را بررسی کنید.'
+            return
+        }
 
         if (!response?.success) {
-            user.state.errors.avatar = (response?.message as string)
+            user.state.errors.avatar =
+                (response?.message as string) || 'ذخیره عکس انجام نشد'
             return;
         }
 
-        if (user.state.user) {
-            user.state.user.avatar = avatarPreview.value as string
-        }
+        /**
+         * The server, not the local preview, is what the profile shows from now
+         * on. The previous code wrote the base64 `FileReader` result into
+         * `user.avatar`: that URL lives only in memory, so the picture vanished
+         * on the next navigation while the stored one was never read back.
+         */
+        await user.refreshUser()
+
         sidebarOpen.value = false
         sidebarAction.value = null
         clearInputFile()
@@ -283,8 +328,7 @@ const user = useUser(),
         <!-- Profile -->
         <div class="grid place-items-center my-3">
             <!-- Avatar -->
-            <UAvatar :src="me?.avatar" :ui="{ root: 'w-40 h-40' }" size="xl" alt="User Profile Avatar"
-                crossorigin="anonymous" />
+            <UAvatar :src="me?.avatar" :ui="{ root: 'w-40 h-40' }" size="xl" alt="User Profile Avatar" />
             <UButton variant="link" color="x-primary" size="xl" class="font-bold mt-3" block
                 @click="sidebarToggleAction(!sidebarOpen, 'edit-avatar')">
                 ویرایش
@@ -326,7 +370,7 @@ const user = useUser(),
                     <div v-if="sidebarAction === 'edit-avatar'" class=" grid place-items-center">
                         <div class="relative w-40 h-40 rounded-full ">
                             <UAvatar :src="avatarPreview || me?.avatar" loading="lazy" :ui="{ root: 'w-40 h-40' }"
-                                size="xl" alt="User Profile Avatar" crossorigin="anonymous" />
+                                size="xl" alt="User Profile Avatar" />
                             <!-- Preview -->
                             <span v-if="avatarPreview" @click="clearInputFile"
                                 class="absolute -top-2 -right-2 w-9 h-9 grid place-items-center bg-blue-500 rounded-full ">

@@ -137,6 +137,23 @@ function toSentence(value: unknown): string {
  * `middleware/child-panel.ts`, which uses `useRequestFetch()` for exactly the
  * reason `plugins/plan.ts:12-19` documents.
  */
+/**
+ * `$fetch` under a name the compiler can actually finish checking.
+ *
+ * ⚠ Nitro generates one union member per route and `$fetch` resolves a path
+ * against that union through a conditional type; at this project's route count
+ * that comparison recurses past TypeScript's depth limit and every dynamic-path
+ * call raises `TS2321: Excessive stack depth` — a *limit*, not a type error, with
+ * no route actually wrong. Naming the signature means the conditional is never
+ * instantiated. Nothing is lost: the helper below already re-asserts the
+ * envelope per call site, and a route path given at runtime is not in the union
+ * anyway. See the same note on `CafeFetcher` in `stores/cafe.ts`.
+ */
+const plainFetch = $fetch as unknown as (
+  url: string,
+  options?: { method?: string },
+) => Promise<unknown>;
+
 async function readEnvelope<TResponse extends ApiFailureEnvelope>(
   url: string,
 ): Promise<TResponse | null> {
@@ -145,7 +162,7 @@ async function readEnvelope<TResponse extends ApiFailureEnvelope>(
     // is given at runtime resolves to no typed internal route, so the generic is
     // re-asserted once. Each CALL SITE names its own envelope, so the shape the
     // store reads is still declared per route.
-    return (await $fetch(url, { method: "get" })) as TResponse;
+    return (await plainFetch(url, { method: "get" })) as TResponse;
   } catch {
     return null;
   }

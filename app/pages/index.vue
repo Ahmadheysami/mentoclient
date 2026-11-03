@@ -18,7 +18,9 @@
             <HomeServices />
              
              <!-- Ads Carousel -->
-              <FeaturesCarousel :size="'xl'" key="fd" />
+              <div data-scroll-reveal>
+                <FeaturesCarousel :size="'xl'" for="home" />
+              </div>
             <!-- Popups -->
              <PopupPro v-if="route.hash === '#pro'" />
         </div>

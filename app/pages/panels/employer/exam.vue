@@ -126,6 +126,9 @@ const currentOptions = computed(
   () => questions.value?.at(currentQuestion.value)?.options ?? []
 );
 
+/** Four- and five-option tests get tighter rows so every option stays visible. */
+const compactOptions = computed(() => currentOptions.value.length >= 4);
+
 const currentQuestionId = computed(
   () => questions.value?.at(currentQuestion.value)?.questionId ?? ""
 );
@@ -441,7 +444,7 @@ onBeforeMount(async () => {
   <!-- Exam -->
   <div
     v-if="acceptTerms && testStore.state.questions !== null"
-    class="h-dvh relative bg-x-quiz-surface"
+    class="relative h-dvh overflow-hidden bg-x-quiz-surface"
   >
     <!-- decorative glow -->
     <div
@@ -449,7 +452,7 @@ onBeforeMount(async () => {
       aria-hidden="true"
     ></div>
 
-    <div class="relative z-6 min-h-dvh flex flex-col">
+    <div class="relative z-6 flex h-full min-h-0 flex-col">
       <!-- Header -->
       <div
         class="sticky top-0 z-10 bg-x-quiz-surface/90 backdrop-blur-sm border-b border-x-quiz-question-border/60"
@@ -543,8 +546,9 @@ onBeforeMount(async () => {
         </div>
       </div>
 
-      <!-- Question -->
-      <div class="flex-1 px-4 pt-6 pb-40">
+      <!-- Question + options: the only scrollable region, so a long question
+           can never sit on top of the answers or the pinned navigation. -->
+      <div class="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 pt-6 pb-36">
         <div
           class="relative overflow-hidden rounded-3xl border border-x-quiz-question-border bg-x-quiz-question p-5"
         >
@@ -561,15 +565,20 @@ onBeforeMount(async () => {
             ></div>
           </div>
 
-          <p class="relative text-base leading-8 font-bold text-x-text-body">
+          <p
+            class="relative break-words text-base leading-8 font-bold text-x-text-body"
+          >
             {{ questions?.at(currentQuestion)?.text }}
           </p>
         </div>
 
         <!-- Options -->
         <div
-          class="grid gap-2.5 mt-5"
-          :class="currentOptions.length <= 2 ? 'mt-8' : ''"
+          class="grid mt-5"
+          :class="[
+            compactOptions ? 'gap-2' : 'gap-2.5',
+            currentOptions.length <= 2 ? 'mt-8' : '',
+          ]"
           role="radiogroup"
           aria-label="گزینه‌های پاسخ"
         >
@@ -588,40 +597,72 @@ onBeforeMount(async () => {
               type="button"
               role="radio"
               :aria-checked="selectedOptionId === op.optionId"
-              class="flex w-full items-center gap-3 px-3 py-3.5 min-h-14 text-start cursor-pointer rounded-2xl"
+              class="flex w-full cursor-pointer items-center gap-3 rounded-2xl px-3 text-start"
+              :class="compactOptions ? 'min-h-11 py-2.5' : 'min-h-14 py-3.5'"
               @click="selectAnswer(currentQuestionId, op.optionId)"
             >
               <span
-                class="grid size-8 shrink-0 place-items-center rounded-xl bg-white text-sm font-bold text-x-text-subtitle shadow-sm"
+                class="grid shrink-0 place-items-center bg-white font-bold text-x-text-subtitle shadow-sm"
+                :class="
+                  compactOptions
+                    ? 'size-7 rounded-lg text-xs'
+                    : 'size-8 rounded-xl text-sm'
+                "
                 aria-hidden="true"
                 >{{ optionLetter(index) }}</span
               >
-              <span class="text-sm text-x-text-body">{{ op.text }}</span>
+              <span
+                class="text-x-text-body"
+                :class="compactOptions ? 'text-[13px] leading-6' : 'text-sm'"
+                >{{ op.text }}</span
+              >
             </button>
 
-            <div v-else class="flex items-center gap-3 px-3 pt-3.5">
+            <div
+              v-else
+              class="flex items-center gap-3 px-3"
+              :class="compactOptions ? 'pt-2.5' : 'pt-3.5'"
+            >
               <span
-                class="grid size-8 shrink-0 place-items-center rounded-xl bg-white text-sm font-bold text-x-text-subtitle shadow-sm"
+                class="grid shrink-0 place-items-center bg-white font-bold text-x-text-subtitle shadow-sm"
+                :class="
+                  compactOptions
+                    ? 'size-7 rounded-lg text-xs'
+                    : 'size-8 rounded-xl text-sm'
+                "
                 aria-hidden="true"
                 >{{ optionLetter(index) }}</span
               >
-              <p class="text-sm text-x-text-body">{{ op.text }}</p>
+              <p
+                class="text-x-text-body"
+                :class="compactOptions ? 'text-[13px] leading-6' : 'text-sm'"
+              >
+                {{ op.text }}
+              </p>
             </div>
 
             <!-- For DISC Test Options -->
-            <div v-if="isDiscTest" class="text-xs grid grid-cols-2 gap-2 p-3 pt-2">
+            <div
+              v-if="isDiscTest"
+              class="grid grid-cols-2 text-xs"
+              :class="compactOptions ? 'gap-1.5 p-2 pt-1.5' : 'gap-2 p-3 pt-2'"
+            >
               <!-- دکمه کمترین (Least) -->
               <button
                 type="button"
                 :aria-pressed="leastOptionId === op.optionId"
-                :class="{
-                  'bg-red-500! text-white! font-bold shadow-md':
-                    leastOptionId === op.optionId,
-                  'bg-white hover:bg-white text-x-text-title':
-                    leastOptionId !== op.optionId,
-                  'opacity-40 pointer-events-none': mostOptionId === op.optionId,
-                }"
-                class="relative flex items-center transition justify-center h-11 border border-neutral-500/10 rounded-2xl cursor-pointer"
+                :class="[
+                  {
+                    'bg-red-500! text-white! font-bold shadow-md':
+                      leastOptionId === op.optionId,
+                    'bg-white hover:bg-white text-x-text-title':
+                      leastOptionId !== op.optionId,
+                    'pointer-events-none opacity-40':
+                      mostOptionId === op.optionId,
+                  },
+                  compactOptions ? 'h-9 text-[11px]' : 'h-11',
+                ]"
+                class="relative flex cursor-pointer items-center justify-center rounded-2xl border border-neutral-500/10 transition"
                 @click.stop="
                   selectDiscAnswer(
                     currentQuestionId,
@@ -638,14 +679,18 @@ onBeforeMount(async () => {
               <button
                 type="button"
                 :aria-pressed="mostOptionId === op.optionId"
-                :class="{
-                  'bg-emerald-600! text-white! font-bold shadow-md':
-                    mostOptionId === op.optionId,
-                  'bg-white hover:bg-white text-x-text-title':
-                    mostOptionId !== op.optionId,
-                  'opacity-40 pointer-events-none': leastOptionId === op.optionId,
-                }"
-                class="relative flex items-center transition justify-center h-11 border border-neutral-500/10 rounded-2xl cursor-pointer"
+                :class="[
+                  {
+                    'bg-emerald-600! text-white! font-bold shadow-md':
+                      mostOptionId === op.optionId,
+                    'bg-white hover:bg-white text-x-text-title':
+                      mostOptionId !== op.optionId,
+                    'pointer-events-none opacity-40':
+                      leastOptionId === op.optionId,
+                  },
+                  compactOptions ? 'h-9 text-[11px]' : 'h-11',
+                ]"
+                class="relative flex cursor-pointer items-center justify-center rounded-2xl border border-neutral-500/10 transition"
                 @click.stop="
                   selectDiscAnswer(
                     currentQuestionId,
@@ -664,9 +709,9 @@ onBeforeMount(async () => {
 
       <!-- Navigation -->
       <div
-        class="fixed bottom-0 start-0 end-0 z-20 px-4 pt-3 bg-linear-to-t from-x-quiz-surface via-x-quiz-surface to-transparent"
+        class="absolute bottom-0 start-0 end-0 z-20 bg-linear-to-t from-x-quiz-surface via-x-quiz-surface to-transparent px-4 pt-3"
       >
-        <div class="exam__safe-bottom flex items-center gap-3 max-w-md mx-auto">
+        <div class="exam__safe-bottom mx-auto flex max-w-md items-center gap-3">
           <UButton
             icon="solar:arrow-right-linear"
             label="سوال قبلی"
@@ -784,17 +829,6 @@ onBeforeMount(async () => {
           <strong class="block text-x-text-title">{{ resultData.title }}</strong>
           <p class="text-sm p-1 pb-10 text-x-text-body" v-html="resultData.body"></p>
           <div class="flex gap-3 mt-3 absolute bottom-0 bg-white p-2 w-full">
-            <UButton
-              variant="solid"
-              color="x-quiz-primary"
-              block
-              label="دانلود نتیجه کامل"
-              class="mt-3"
-              icon="solar:cloud-download-linear"
-              download="test-result.pdf"
-              size="sm"
-              :ui="{ base: 'h-10 rounded-full' }"
-            />
             <UButton
               variant="solid"
               color="x-secondary"

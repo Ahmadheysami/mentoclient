@@ -7,6 +7,21 @@ import type { StoryGroup } from "~/types/story";
  *
  * The root is a single real `<button>`, so it is reachable, activatable and
  * labelled by the platform — no `role`, no `tabindex`, no key handler.
+ *
+ * ## THE CAPTION IS THE STORY'S TITLE, NOT THE AUTHOR'S
+ *
+ * The client asked for the story TITLE (what the API calls `thread.title` —
+ * «تخفیف‌های روزانه», «برترین مشاوران», …) under each ring. The rail used to
+ * print the author (`thread.description`), which is why the titles never
+ * appeared. `author.title` is still the fallback, so an empty or missing title
+ * degrades to a named ring rather than a blank one — it is never hardcoded.
+ *
+ * ## INSTAGRAM PROPORTIONS
+ *
+ * 64px ring / 56px avatar, the size Instagram itself uses on a phone. The
+ * previous 72px avatar with a 10px gap read as crowded and oversized; the size
+ * lives on the wrapper, so both the ring and the avatar stay proportional and
+ * the caption cannot stretch the card.
  */
 const props = defineProps<{
   group: StoryGroup;
@@ -21,8 +36,7 @@ const emit = defineEmits<{ select: [] }>();
 /**
  * Relative time is clock-dependent, so it cannot be produced on the server —
  * before mount we render the deterministic `faDate`, after mount the relative
- * form. The caption's `text-sm` carries a fixed 1.25rem line-height, so the
- * swap changes the words without changing the box height and nothing shifts.
+ * form. Both are announced, never laid out, so the swap cannot shift the rail.
  */
 const mounted = useMounted();
 const when = computed(() =>
@@ -30,14 +44,17 @@ const when = computed(() =>
     ? faRelative(props.group.items[0]?.publishedAt, Date.now())
     : faDate(props.group.items[0]?.publishedAt),
 );
+
+/** The API's own title, with the author name as the never-blank fallback. */
+const caption = computed(() => props.group.title?.trim() || props.group.author.title);
 </script>
 
 <template>
   <button
     type="button"
-    class="reveal-stagger w-20 shrink-0 rounded-2xl text-center transition-transform duration-150 ease-out active:scale-95 motion-reduce:active:scale-100 [transform-origin:center]"
+    class="reveal-stagger flex w-16 shrink-0 flex-col items-center rounded-2xl text-center transition-transform duration-150 ease-out active:scale-95 motion-reduce:active:scale-100 [transform-origin:center]"
     :style="{ animationDelay: `${Math.min(index * 40, 240)}ms` }"
-    :aria-label="`استوری ${group.author.title}، ${group.title}، ${when}`"
+    :aria-label="`استوری ${group.author.title}، ${caption}، ${when}`"
     @click="emit('select')"
   >
     <!--
@@ -71,22 +88,22 @@ const when = computed(() =>
           `UAvatar` falls back to initials derived from it.
         -->
         <!--
-          `size` is a closed enum (3xs…3xl, max `size-12`), so the 72px ring is a
-          `:ui` root override on top of the largest legal value, not a made-up
-          `size="18"`. 72px + 2×2px inner + 2×2px outer = 80px = `w-20`, so the
+          `size` is a closed enum (3xs…3xl, max `size-12`), so the 56px avatar is
+          a `:ui` root override on top of the largest legal value, not a made-up
+          `size="14"`. 56px + 2×2px inner + 2×2px outer = 64px = `w-16`, so the
           ring, the card and the caption are all exactly the same width.
         -->
         <UAvatar
           size="3xl"
           :src="group.author.avatar"
           :alt="group.author.title"
-          :ui="{ root: 'size-18' }"
+          :ui="{ root: 'size-14' }"
         />
       </span>
     </span>
 
-    <p class="mt-2 w-20 truncate text-sm font-bold text-x-text-title">
-      {{ group.author.title }}
+    <p class="mt-1.5 w-16 truncate text-xs font-bold leading-5 text-x-text-title">
+      {{ caption }}
     </p>
   </button>
 </template>

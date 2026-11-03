@@ -23,6 +23,10 @@ export interface TestItem {
   description: string;
   discount: number;
   duration: number;
+  /**
+   * Cash price of one test, in **ریال** (the wire unit). Displayed prices are
+   * converted to تومان at the display boundary — 1 تومان = 10 ریال.
+   */
   price: number;
   starPrice: number;
   image: string;
@@ -31,6 +35,13 @@ export interface TestItem {
   questionCount: number;
   testType: string;
   metadata: unknown;
+  /** Whether this test offers a paid AI analysis of a finished result. */
+  analysisAiEnabled?: boolean;
+  /**
+   * Price of one AI analysis, in **ریال** (the wire unit). Displayed prices are
+   * converted to تومان at the display boundary — 1 تومان = 10 ریال.
+   */
+  analysisAiPrice?: number;
   lang: string;
   version: number;
   createdAt: string;
@@ -99,8 +110,18 @@ export interface TestResultBody {
   code: string;
   /** Result level label, e.g. «در محدوده متعادل». */
   title: string;
-  /** Plain/HTML interpretation text coming from the backend. */
+  /** Plain/HTML interpretation text coming from the backend — the READER's own
+   *  version, which is what a child/teen panel shows. */
   body: string;
+  /**
+   * The PARENT-facing version of the same interpretation.
+   *
+   * `for` is the upstream key (it is a normal property name, not the keyword);
+   * it is what the parent panel renders beside `body`. Optional because a
+   * result stored before this field existed has none — render it only when it
+   * is a non-empty string.
+   */
+  for?: string;
   status: string;
 }
 
@@ -110,6 +131,16 @@ export interface TestResult {
   version: number;
   result: TestResultBody;
   testId: string;
+  /**
+   * Generated Markdown analysis, or `""` when no analysis exists yet.
+   * Rendered through `renderAiMarkdown` — never inserted raw.
+   */
+  aiAnalysis?: string | null;
+  /**
+   * Raw scoring payload. Only DISC results carry the three graph structures
+   * this app charts; every other test type leaves it as an opaque object.
+   */
+  rawScore?: DiscRawScore | Record<string, unknown> | null;
   userId: string;
   createdAt: string;
   updatedAt: string;
@@ -126,4 +157,52 @@ export interface TestResult {
     title: string;
     description: string;
   };
+}
+
+/** The four DISC dimensions, each scored 0–7. */
+export interface DiscScores {
+  D: number;
+  I: number;
+  S: number;
+  C: number;
+}
+
+/** The three profiles a DISC attempt returns. */
+export interface DiscRawScore {
+  mostGraph: DiscScores;
+  leastGraph: DiscScores;
+  finalProfile: DiscScores;
+}
+
+/** Tokens billed for one AI analysis, as the API reports them. */
+export interface AiAnalysisTokens {
+  input: number;
+  output: number;
+  total: number;
+}
+
+/** Metadata returned beside a generated AI analysis. */
+export interface AiAnalysisMeta {
+  code: string;
+  title: string;
+  rawScore: unknown;
+  questionCount: number;
+  /** Price of one AI analysis in **ریال**, as the API reports it. */
+  analysisAiPrice: number;
+  /** `null` on a cached answer — nothing was charged this time. */
+  chargedFrom: "wallet" | null;
+  /** `null` on a cached answer. */
+  referenceId: string | null;
+}
+
+/** Response of `POST /api/test/result-with-ai`. */
+export interface AiAnalysisResponse {
+  success: boolean;
+  analysis?: string;
+  cached?: boolean;
+  tokens?: AiAnalysisTokens;
+  meta?: Partial<AiAnalysisMeta>;
+  message?: string;
+  reason?: string;
+  statusCode?: number;
 }

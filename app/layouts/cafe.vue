@@ -69,14 +69,19 @@
 const route = useRoute();
 
 /**
+ * ⚠️ READ **INSIDE** THE `computed`, NOT ONCE INTO A VARIABLE. Nuxt keys a layout
+ * INSTANCE BY LAYOUT NAME, so navigating from one `layout: 'cafe'` page to
+ * another (`/cafe` → the thread) reuses this very `setup()` and it never runs
+ * again — a flag captured here would keep the FIRST page's answer for the rest
+ * of the session, which is exactly the bug this was: a cold load of the thread
+ * URL hid the pill (the right answer) while every in-app arrival into it showed
+ * one. `route` is reactive, so the read belongs where the value is consumed.
+ *
  * `route.meta` is an open string map in vue-router, so `cafeMenu` arrives
  * untyped. The cast is what says what the flag actually is — `boolean |
  * undefined` — rather than leaving it an `any` that answers `true` to a typo.
  */
-const menuFlag = route.meta.cafeMenu as boolean | undefined;
-
-/** Absent, `undefined` and `true` all keep the pill; only `false` removes it. */
-const showMenu = computed(() => menuFlag !== false);
+const showMenu = computed(() => (route.meta.cafeMenu as boolean | undefined) !== false);
 </script>
 
 <template>

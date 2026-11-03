@@ -4,3 +4,20 @@ allowBuilds:
   esbuild: true
   sharp: true
   vue-demi: true
+
+# Nuxt 4.6.4 was published less than 24h before this upgrade, so pnpm's default
+# minimumReleaseAge (1440 minutes) rejects these exact versions. Pinned to the
+# versions we resolved; safe to delete once they age past the cutoff.
+minimumReleaseAgeExclude:
+  - nuxt@4.6.4
+  - '@nuxt/cli@4.0.3'
+  - '@nuxt/kit@4.6.4'
+  - '@nuxt/nitro-server@4.6.4'
+  - '@nuxt/schema@4.6.4'
+  - '@nuxt/vite-builder@4.6.4'
+  - '@nuxt/vite-server@4.6.4'
+  - nitropack@2.13.6
+  - unrouting@0.3.2
+  - seroval@1.7.7
+  - baseline-browser-mapping@2.11.35
+  - electron-to-chromium@1.5.473

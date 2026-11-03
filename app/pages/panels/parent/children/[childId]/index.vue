@@ -8,17 +8,25 @@ import {
 } from "~/types/parent-panel";
 
 /**
- * One child's report: identity, the four headline figures, tests, goals, token
- * spending, access details and the account-event log — all from a single
- * `GET /child/{childId}/overview`.
+ * One child's report: identity, the four headline figures, the three decisions a
+ * parent can make, tests, goals, token spending, access details and the
+ * account-event log — all from a single `GET /child/{childId}/overview`.
+ *
+ * ## THE DESIGN
+ *
+ * A native case-file: the child's name on the ivory ground, then white surfaces
+ * split by hairlines. Figures are label over value, numbers are right-aligned in
+ * tabular digits, and nothing is raised above the page except the result sheet
+ * that floats over it. Colour is spent in exactly two places — the test
+ * composition bar and the links that leave the screen — because on this screen
+ * colour means «this needs attention».
  *
  * ## WHY THE THREE DECISIONS ARE STILL ON THIS PAGE
  *
  * The report reads; it does not decide. Assigning a test, creating the access
  * code and its allowed hours, and setting goals each own a screen with their own
  * loading, states and back navigation — and each is reachable by URL. They stay
- * here as the page's decisions nav so the report does not become the only way
- * into them.
+ * here as one grouped list so the report does not become the only way into them.
  *
  * ## WHY THIS PAGE NO LONGER RUNS THREE READS
  *
@@ -167,7 +175,7 @@ watch(childId, (id) => {
 </script>
 
 <template>
-  <div class="mx-auto w-11/12 pb-8 pt-4">
+  <div class="mx-auto px-4 pb-10 pt-3">
     <UiStateMessage
       v-if="notFound"
       icon="solar:user-block-linear"
@@ -186,44 +194,47 @@ watch(childId, (id) => {
       @action="reload"
     />
 
-    <div v-else-if="!report" class="grid gap-3" aria-busy="true">
+    <div v-else-if="!report" class="grid gap-4" aria-busy="true">
       <p class="sr-only" role="status">در حال بارگذاری گزارش</p>
-      <USkeleton class="h-48 rounded-[2rem] bg-white" />
-      <div class="grid grid-cols-2 gap-2">
-        <USkeleton v-for="tile in 4" :key="tile" class="h-20 rounded-2xl bg-white" />
+
+      <div class="flex items-center gap-3.5 px-1">
+        <USkeleton class="size-16 shrink-0 rounded-full bg-white" />
+        <div class="grid flex-1 gap-2">
+          <USkeleton class="h-5 w-2/3 rounded-md bg-white" />
+          <USkeleton class="h-3 w-1/3 rounded-md bg-white" />
+        </div>
       </div>
-      <USkeleton class="h-36 rounded-3xl bg-white" />
-      <USkeleton class="h-32 rounded-3xl bg-white" />
-      <USkeleton class="h-40 rounded-3xl bg-white" />
+
+      <USkeleton class="h-40 rounded-2xl bg-white" />
+      <USkeleton class="h-56 rounded-2xl bg-white" />
+      <USkeleton class="h-24 rounded-2xl bg-white" />
+      <USkeleton class="h-40 rounded-2xl bg-white" />
     </div>
 
     <template v-else>
-      <UAlert
+      <div
         v-if="error"
-        variant="soft"
-        color="error"
-        title="به‌روزرسانی گزارش کامل نشد"
-        class="mb-3 rounded-3xl"
+        class="mb-3 rounded-2xl border border-red-100 bg-red-50 px-4 py-3"
       >
-        <template #description>{{ error }}</template>
-        <template #actions>
-          <UButton
-            type="button"
-            size="sm"
-            icon="solar:refresh-linear"
-            label="تلاش دوباره"
-            variant="outline"
-            color="error"
-            class="min-h-11"
-            @click="reload"
-          />
-        </template>
-      </UAlert>
+        <p class="font-yekan-bold text-xs leading-5 text-red-700">
+          به‌روزرسانی گزارش کامل نشد
+        </p>
+        <p class="mt-1 text-xs leading-6 text-red-700">
+          {{ error }}
+        </p>
+        <button
+          type="button"
+          class="mt-1 inline-flex min-h-11 items-center text-xs font-yekan-bold text-red-700 underline decoration-red-300 underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-x-parent-500"
+          @click="reload"
+        >
+          تلاش دوباره
+        </button>
+      </div>
 
       <p
         v-if="isLoading"
         role="status"
-        class="mb-3 flex items-center gap-1.5 px-1 text-[11px] leading-5 text-x-text-subtitle"
+        class="mb-2 flex items-center gap-1.5 px-1 text-xs leading-5 text-x-text-subtitle"
       >
         <UIcon
           name="solar:refresh-linear"
@@ -234,92 +245,87 @@ watch(childId, (id) => {
         در حال به‌روزرسانی گزارش…
       </p>
 
-      <ParentChildReportHero
-        :report="report"
-        :now="now"
-        data-scroll-reveal
-      />
+      <ParentChildReportHero :report="report" :now="now" />
+
+      <ParentChildReportSummary :report="report" class="mt-5" />
 
       <nav
         :aria-label="`تصمیم‌های مربوط به ${childName}`"
-        class="mt-4 grid gap-2"
-        data-scroll-reveal
+        class="mt-5 overflow-hidden rounded-2xl border border-x-parent-warm-100 bg-white"
       >
         <NuxtLink
           v-for="item in decisions"
           :key="item.to"
           :to="item.to"
-          class="neu-raised flex min-h-14 items-center gap-3 rounded-3xl bg-white p-3 transition-transform duration-150 ease-soft active:scale-[0.99] motion-reduce:transition-none motion-reduce:active:scale-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-x-parent-500"
+          class="flex min-h-14 items-center gap-3 border-b border-x-parent-warm-100 px-4 py-3 transition-colors duration-150 ease-out last:border-b-0 active:bg-x-parent-warm-50 focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-x-parent-500"
         >
-          <span
-            class="grid size-10 shrink-0 place-items-center rounded-2xl bg-x-parent-100 text-x-parent-700"
+          <UIcon
+            :name="item.icon"
+            size="18"
+            class="shrink-0 text-x-text-subtitle"
             aria-hidden="true"
-          >
-            <UIcon :name="item.icon" size="20" />
-          </span>
+          />
+
           <span class="min-w-0 flex-1">
-            <span class="block text-sm font-yekan-bold text-x-text-title">{{ item.title }}</span>
-            <span class="block truncate text-xs text-x-text-subtitle">{{ item.description }}</span>
+            <span class="block text-sm font-yekan-bold text-x-text-title">
+              {{ item.title }}
+            </span>
+            <span class="mt-0.5 block truncate text-xs text-x-text-subtitle">
+              {{ item.description }}
+            </span>
           </span>
+
           <UIcon
             name="solar:alt-arrow-left-linear"
-            size="18"
+            size="16"
             class="shrink-0 text-x-parent-300"
             aria-hidden="true"
           />
         </NuxtLink>
       </nav>
 
-      <ParentChildReportSummary
-        :report="report"
-        class="mt-4"
-        data-scroll-reveal
-      />
-
       <ParentChildReportTests
         :tests="report.tests"
         :child-id="childId"
         :child-name="childName"
-        class="mt-6"
-        data-scroll-reveal
+        class="mt-7"
         @open="selectedResult = $event"
       />
 
       <ParentChildReportGoals
         :goals="report.goals"
         :child-id="childId"
-        class="mt-6"
-        data-scroll-reveal
+        class="mt-7"
       />
 
       <ParentChildReportTokens
         :tokens="report.tokens"
         :balances="report.balances"
         :now="now"
-        class="mt-6"
-        data-scroll-reveal
+        class="mt-7"
       />
 
       <ParentChildReportProfile
         :general="report.general"
         :child="report.child"
         :now="now"
-        class="mt-6"
-        data-scroll-reveal
+        class="mt-7"
       />
 
       <section
         id="report-activities"
         aria-labelledby="report-activities-title"
-        class="mt-6 scroll-mt-20"
-        data-scroll-reveal
+        class="mt-7 scroll-mt-20"
       >
-        <div class="flex items-start justify-between gap-3">
+        <div class="flex items-baseline justify-between gap-3 px-1">
           <div class="min-w-0">
-            <h2 id="report-activities-title" class="text-sm font-yekan-bold text-x-text-title">
+            <h2
+              id="report-activities-title"
+              class="font-yekan-bold text-sm text-x-text-title"
+            >
               رویدادهای حساب
             </h2>
-            <p v-if="lastActivity" class="mt-1 text-xs leading-6 text-x-text-subtitle">
+            <p v-if="lastActivity" class="mt-1 text-xs leading-5 text-x-text-subtitle">
               آخرین رویداد {{ lastActivity }}
             </p>
           </div>
@@ -327,20 +333,13 @@ watch(childId, (id) => {
           <NuxtLink
             to="/panels/parent/activity"
             aria-label="همه رویدادهای حساب"
-            class="inline-flex min-h-11 shrink-0 items-center rounded-full px-2 text-xs text-x-parent-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-x-parent-500"
+            class="inline-flex min-h-11 shrink-0 items-center text-xs text-x-parent-700 underline decoration-x-parent-200 underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-x-parent-500"
           >
             همه
           </NuxtLink>
         </div>
 
-        <ParentChildActivityList
-          :items="activityItems"
-          :loading="false"
-          :error="null"
-          :now="now"
-          compact-empty
-          class="mt-3"
-        />
+        <ParentChildReportActivity :items="activityItems" :now="now" class="mt-2" />
       </section>
 
       <ParentChildReportTestSheet

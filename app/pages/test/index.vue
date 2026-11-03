@@ -38,8 +38,10 @@ onMounted(loadTests);
 </script>
 
 <template>
+  <!-- Single root: the global page transition needs one element to animate. -->
+  <div>
   <TestTabItems />
-  <div class="grid gap-y-4 mt-2 w-11/12 mx-auto">
+  <div data-scroll-reveal class="grid gap-y-4 mt-2 w-11/12 mx-auto">
     <h1 class="my-1 text-sm inline-block font-bold text-x-text-title">آزمون‌ها</h1>
 
     <!-- Loading -->
@@ -92,7 +94,7 @@ onMounted(loadTests);
   <!-- Pagination. In RTL, "previous" points right, so it comes first. -->
   <nav
     v-if="canPaginate && hasTests"
-    class="mt-5 flex items-center justify-center gap-4"
+    class="mt-5 flex flex-wrap items-center justify-center gap-4"
     aria-label="صفحه‌بندی آزمون‌ها"
   >
     <UButton
@@ -119,4 +121,5 @@ onMounted(loadTests);
   </nav>
 
   <TestSingle test-id="" />
+  </div>
 </template>

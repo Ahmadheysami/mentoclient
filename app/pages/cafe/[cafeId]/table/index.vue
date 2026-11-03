@@ -26,13 +26,13 @@ import type { ICafeFabMenuItem } from "~/components/Cafe/FabMenu.vue";
  * ## WHERE THE ROWS COME FROM
  *
  * `GET /:id/single` for the header card, `GET /table/:cafeId/tables` for the
- * rows and `GET /table/subscribed` for «میزهای من» and the unread badges — the
- * three awaited in the setup body rather than in `onMounted`, so the server's
- * HTML carries the rows and the Pinia payload carries them to the client's first
- * paint. A list that renders empty for a frame and then fills is a list the
- * reader has already read. `GET /table/q` is the fourth and is NOT one of them:
- * a search is a question the reader asks, not state this route arrives with, so
- * it waits for a keystroke — see `runSearch`.
+ * rows and `GET /table/subscribed` for the unread badges — the three awaited in
+ * the setup body rather than in `onMounted`, so the server's HTML carries the
+ * rows and the Pinia payload carries them to the client's first paint. A list
+ * that renders empty for a frame and then fills is a list the reader has already
+ * read. `GET /table/q` is the fourth and is NOT one of them: a search is a
+ * question the reader asks, not state this route arrives with, so it waits for a
+ * keystroke — see `runSearch`.
  */
 
 definePageMeta({
@@ -89,9 +89,13 @@ const TABLES_PAGE_LIMIT = 100;
  * in parallel still carries the incoming request's cookies during SSR.
  *
  * `fetchSubscribed()` is not this screen's list — it is the reader's own
- * membership, which is what «میزهای من» filters on and what the unread badges
- * count from. A reader who is in no table gets `[]`, not an error, so its refusal
- * costs this screen nothing and `errors.joined` is deliberately never read here.
+ * membership, and the unread badges count from it. ⚠️ It is still called even
+ * though the «میزهای من» segment is gone (see `TABS`): the badge is the one thing
+ * on this screen that is about the reader rather than about the café, and it is
+ * answered from `joined` — a list that drew «۰» on tables the reader is in would
+ * be the wrong answer. A reader who is in no table gets `[]`, not an error, so
+ * its refusal costs this screen nothing and `errors.joined` is deliberately never
+ * read here.
  */
 async function loadCafe() {
   await Promise.all([
@@ -175,26 +179,31 @@ onMounted(() => {
 /* ------------------------------------------------------------- café summary -- */
 
 /**
- * ## THE THREE TILES, AND WHY TWO OF THEM PRINT AN EM DASH
+ * ## THE THREE TILES, AND WHY EACH ONE IS BACKED BY THE PAGE IN HAND
  *
  * `value` is `string | null` and `null` draws `UNKNOWN_COUNT`. A number this
  * screen cannot back up must not be printed, and `0` is the worst of the
  * substitutes precisely because it is the one a reader cannot tell from a real
- * count of nothing.
+ * count of nothing. All three therefore count `cafe.tables` — the one page this
+ * screen already asked for — behind `loaded.tables`, so the header does not print
+ * «۰» for the frame between the header arriving and the table list arriving.
  *
- * - **تعداد میزها** — `cafe.tables.length`, behind `loaded.tables` so the header
- *   does not print «۰» for the frame between the header arriving and the table
- *   list arriving. See `TABLES_PAGE_LIMIT` for the one thing this count cannot
- *   be.
- * - **اعضای فعال** — the roster with presence is `GET /table/:tableId/users`,
- *   which the store does not read and the thread wave owns.
- * - **پیام‌های امروز** — message history, that same wave. A count of today's
- *   messages is a claim about data this screen must not go and read.
+ * - **تعداد میزها** — `cafe.tables.length`, and see `TABLES_PAGE_LIMIT` for the
+ *   one thing this count cannot be.
+ * - **میزهای عمومی** — the `public` half of the same list. `status` is the café's
+ *   own split (`public` / `privite`, the backend's misspelling — see
+ *   `app/types/cafe.ts`), which is the same axis the cafés list's own category rail
+ *   draws, so the two screens agree about what a café table can be.
+ * - **پیام‌های کافه** — the sum of `messageSecunce` over the same list. ⚠️ This is
+ *   the tables' **lifetime** count and it is labelled as the café's messages
+ *   rather than «today's»: the payload carries a total and no date, so «پیام‌های
+ *   امروز» would have been a claim this screen cannot make — the same reason the
+ *   tile used to print an em dash.
  *
  * ⚠️ `fetchStats()` IS **NOT** CALLED, and that is a decision rather than an
  * omission. `docs/Cafe-Api-Docs.md` §15 lists `GET /stats` as «not for the end
  * user», so a reader's token has no answer to get — one refused request per
- * screen visit for a number that is never drawn. And none of its three fields
+ * screen visit for numbers that are never drawn. And none of its three fields
  * counts anything about **this** café: `cafesActive` and `cafesByStatus` are
  * `$group` rows over the WHOLE catalogue and must be read as
  * `stats.cafesByStatus?.find((row) => row._id === "public")?.count ?? null` —
@@ -210,43 +219,85 @@ const stats = computed(() => [
     label: "تعداد میزها",
     value: cafe.loaded.tables ? faNumber(cafe.tables.length) : null,
   },
-  { label: "اعضای فعال", value: null },
-  { label: "پیام‌های امروز", value: null },
+  {
+    label: "میزهای عمومی",
+    value: cafe.loaded.tables
+      ? faNumber(cafe.tables.filter((table) => table.status === "public").length)
+      : null,
+  },
+  {
+    label: "پیام‌های کافه",
+    value: cafe.loaded.tables
+      ? faNumber(
+          cafe.tables.reduce((total, table) => total + (table.messageSecunce ?? 0), 0),
+        )
+      : null,
+  },
 ]);
 
 /* -------------------------------------------------------------- tab filters -- */
 
 /**
- * The three segments of the café's table list.
+ * The café's table list, as segments: everything, and the voice rooms.
  *
- * `mine` asks whether the reader is a member rather than reading a flag on the
- * table, because membership is not a property of a table: the same table is
- * "mine" for one reader and a stranger's for another, and `GET /table/subscribed`
- * says so by listing it rather than by stamping it — which is exactly what
- * `subscribedTableIds` is.
+ * ⚠️ **«میزهای من» WAS A SEGMENT ON THIS SCREEN AND IS NOT ANY MORE.** The
+ * reader asked for it gone, so `TabKey` and this array no longer name it. That
+ * deletes a filter, not the membership read: `fetchSubscribed()` still runs (see
+ * `loadCafe`) because `unreadFor` answers every badge on this screen from
+ * `joined`, and a list that drew «۰» badges for tables the reader is in would be
+ * the wrong answer. Nothing else in the feature reads that resource on this
+ * route, and `subscribedTableIds` is untouched.
+ *
+ * ⚠️ `voice` is **`disabled`**: voice rooms are not built in this wave, so the
+ * segment is DRAWN, NAMED and DISABLED rather than deleted. A one-item tablist
+ * would read as an oversight and say nothing about what is coming; a locked
+ * segment says it in the tab's own place, and the lock icon is what makes «not
+ * yet» legible at a glance rather than only to a screen reader.
+ *
+ * `disabled` on the descriptor rather than a hard-coded check on the key, so a
+ * segment that ships can be flipped by removing one property — and so
+ * `onTabKeydown` and the click handler cannot disagree about which tabs are
+ * reachable.
  */
-type TabKey = "all" | "mine" | "voice";
+type TabKey = "all" | "voice";
 
-const TABS: { key: TabKey; label: string; match: (table: ICafeTable) => boolean }[] = [
+interface TabDescriptor {
+  key: TabKey;
+  label: string;
+  /** A segment this wave does not build: drawn, named, and refusing every press. */
+  disabled?: boolean;
+  match: (table: ICafeTable) => boolean;
+}
+
+const TABS: TabDescriptor[] = [
   { key: "all", label: "همه میزها", match: () => true },
-  {
-    key: "mine",
-    label: "میزهای من",
-    /**
-     * ⚠️ ON `table.id` AND NOT ON `table.tableId`. The two are the SAME table's
-     * two identifiers and they are not interchangeable (`app/types/cafe.ts`,
-     * rule 3): `id` is the uniqid the socket rooms and `subscribedTableIds` are
-     * built from, `tableId` is the public `ch_…` / `cv_…` / `tb_…` handle a URL
-     * can carry. `subscribedTableIds` holds the uniqid, and so does every row of
-     * `GET /table/:cafeId/tables`, so `id` is the side the two answers share.
-     */
-    match: (table) => cafe.subscribedTableIds.has(table.id),
-  },
   // ⚠️ `club-voice` is one of three real `tableType` values; see `app/types/cafe.ts`.
-  { key: "voice", label: "میزهای صوتی", match: (table) => table.tableType === "club-voice" },
+  {
+    key: "voice",
+    label: "میزهای صوتی",
+    disabled: true,
+    match: (table) => table.tableType === "club-voice",
+  },
 ];
 
 const activeTab = ref<TabKey>("all");
+
+/**
+ * A named handler rather than an inline `@click="activeTab = tab.key"`: an inline
+ * assignment is an *expression* that evaluates to the assigned string, and Vue
+ * types a template listener as `(event) => void`.
+ *
+ * The `disabled` arm is a second reason and not the only one: `disabled` on a
+ * `<button>` already stops the click, so this is what keeps the **one remaining
+ * way in** safe. `activeTab` IS the list filter, and a locked segment becoming
+ * active would filter the whole list down to nothing behind a tab that says
+ * «not yet».
+ */
+function selectTab(tab: TabDescriptor) {
+  if (tab.disabled) return;
+
+  activeTab.value = tab.key;
+}
 
 const query = ref("");
 
@@ -437,6 +488,14 @@ const unreadFor = (table: ICafeTable): number => cafe.unreadFor(table.id);
  * a list this café is not even in. And `isSearchEmpty` is false while the search
  * is in flight, for the reason `searchSettled` exists: an empty-state verdict
  * about a question the server has not answered yet is the screen guessing.
+ *
+ * ⚠️ `isTabEmpty` AND `activeTabLabel` ARE **UNREACHABLE WHILE «میزهای صوتی» IS
+ * LOCKED**, and they are kept. `activeTab` can only ever be `"all"` — `all`
+ * matches everything, so an empty `visibleTables` is always `isSourceEmpty` or
+ * `isSearchEmpty` — which makes the third block dead code today. It stays
+ * because it is the state the screen needs the moment a second real segment
+ * exists (or the voice one is unlocked), and deleting a correct empty state to
+ * save eight lines would be the worse trade.
  */
 const isSourceEmpty = computed(() => !isSearchActive.value && cafe.tables.length === 0);
 const isSearchEmpty = computed(
@@ -460,12 +519,35 @@ const activeTabLabel = computed(
 const tablist = useTemplateRef<HTMLElement>("tablist");
 
 /**
+ * The next tab a key press may land on, walking in `step` and wrapping around.
+ *
+ * ⚠️ A `disabled` SEGMENT MUST BE SKIPPED IN **BOTH** DIRECTIONS. `disabled`
+ * takes the tab out of the tab order, so an arrow that landed on one would set
+ * `activeTab` to a segment the reader cannot press again — and on a two-tab
+ * tablist that also means every `ArrowLeft` press would walk the highlight onto
+ * the locked tab and stop. The walk is a loop rather than a `+ 1` because the
+ * number of locked segments in front of the current one is not a constant.
+ *
+ * `-1` when every segment is locked: the caller then does nothing at all, rather
+ * than selecting a tab it was told not to select.
+ */
+function nextEnabled(from: number, step: 1 | -1): number {
+  for (let offset = 1; offset <= TABS.length; offset += 1) {
+    const index = (((from + step * offset) % TABS.length) + TABS.length) % TABS.length;
+
+    if (!TABS[index]!.disabled) return index;
+  }
+
+  return -1;
+}
+
+/**
  * ## THE ARROWS, AND WHY THEY ARE MIRRORED
  *
  * A horizontal tablist takes arrow keys, and which arrow means "next" follows
  * the *visual* order, not the array order. This app is hard-coded
- * `dir="rtl"` (see `nuxt.config.ts`), so the visually next tab is the one to
- * the **left**: `ArrowLeft` advances and `ArrowRight` goes back. Writing it the
+ * `dir="rtl"` (see `nuxt.config.ts`), so the visually next tab is the one to the
+ * **left**: `ArrowLeft` advances and `ArrowRight` goes back. Writing it the
  * other way round would move the highlight against the direction the caret is
  * travelling, which on a screen whose every other row mirrors is the single
  * most disorienting bug this control could have.
@@ -473,22 +555,22 @@ const tablist = useTemplateRef<HTMLElement>("tablist");
  * `Home`/`End` are included because they are the only way a keyboard reader can
  * reach the last segment without pressing `ArrowLeft` N times — and the list is
  * filtered by that segment, so "the end of the list" is also "the end of the
- * results".
+ * results". Both name the first and last **enabled** segment for the reason
+ * `nextEnabled` exists: neither may land on the locked voice tab.
  *
  * Roving `tabindex` (below) means the tablist is **one** stop in the tab order
  * and the arrows move within it, which is what `role="tablist"` promises; a
- * plain row of buttons would put three stops on a control that reads as one.
+ * plain row of buttons would put two stops on a control that reads as one.
  */
 function onTabKeydown(event: KeyboardEvent) {
-  const count = TABS.length;
   const current = TABS.findIndex((tab) => tab.key === activeTab.value);
 
   let next = -1;
 
-  if (event.key === "ArrowLeft") next = (current + 1) % count;
-  else if (event.key === "ArrowRight") next = (current - 1 + count) % count;
-  else if (event.key === "Home") next = 0;
-  else if (event.key === "End") next = count - 1;
+  if (event.key === "ArrowLeft") next = nextEnabled(current, 1);
+  else if (event.key === "ArrowRight") next = nextEnabled(current, -1);
+  else if (event.key === "Home") next = TABS.findIndex((tab) => !tab.disabled);
+  else if (event.key === "End") next = TABS.findLastIndex((tab) => !tab.disabled);
 
   if (next < 0) return;
 
@@ -546,33 +628,19 @@ const panelId = (key: TabKey) => `cafe-table-panel-${key}`;
         />
       </template>
 
-      <template #actions>
-        <!--
-          ⚠️ STILL `disabled`, AND STILL NOT BECAUSE OF THE GRANTS.
-          `managedCafeIds` / `managedTableIds` are readable now — `GET /me/my-ct`
-          is the store's `myAccess` — but the management SCREENS were deleted in
-          the design wave, and there is no route to send this to. Enabling the
-          button for a reader who *does* hold a grant would produce the exact
-          thing `CafeFabMenu`'s own header refuses to build: a live-looking
-          control that goes nowhere, and this one carries an icon that promises a
-          menu. So it is disabled for everybody — which is also the only state
-          that is true for everybody, since a permission is not a destination.
-          `fetchMyAccess()` is deliberately NOT called on this screen: it would be
-          a request whose answer changes nothing that is drawn.
-
-          `disabled` and not `hidden`, either way: an inert button that still
-          carries its Persian `aria-label` tells a screen-reader user the control
-          exists and is not yet available, which is more than hiding it would.
-        -->
-        <button
-          type="button"
-          disabled
-          aria-label="گزینه‌های کافه"
-          class="grid size-11 shrink-0 place-items-center rounded-full text-x-text-title transition-colors disabled:cursor-not-allowed disabled:opacity-40"
-        >
-          <UIcon name="solar:menu-dots-linear" size="22" aria-hidden="true" />
-        </button>
-      </template>
+      <!--
+        ⚠️ NO `#actions` SLOT ON THIS SCREEN, AND NONE IS PLANNED.
+        It used to hold the café's `⋯` menu, permanently `disabled` — the
+        management screens it would have opened were deleted in the design wave,
+        so enabling it would have built the one control `CafeFabMenu`'s header
+        refuses to build: a live-looking button that goes nowhere, carrying an
+        icon that promises a menu. It is **removed** rather than left greyed,
+        because the reader asked for a header that is only the back button — and
+        `disabled` and not `hidden` was only ever right while the control was
+        telling a screen-reader user that the screen exists and is not yet
+        available. `#leading` (the café avatar) and the title stay: neither is a
+        control.
+      -->
 
       <template #below>
         <div v-if="currentCafe" class="px-4 pt-3 pb-4">
@@ -663,6 +731,31 @@ const panelId = (key: TabKey) => `cafe-table-panel-${key}`;
           four Yekan cuts ship the same vertical metrics (ascent 1000, descent
           −550, lineGap 0 per em, `USE_TYPO_METRICS` set), so the active and
           inactive labels share one baseline to the hundredth of a pixel.
+
+          ## THE LOCKED SEGMENT
+          `min-h-11` is still the touch target on a tab nobody may press — a
+          segmented control whose two halves are different heights is the same
+          bug the centring above fixed, in a new place.
+
+          `gap-1` puts the lock off the label, and `min-w-0` + `truncate` on the
+          span keep «میزهای صوتی» inside a third of a 360px column once the icon
+          has taken its 14px: a tab that overflows would push the pill's own
+          padding out of the row rather than ellipsise.
+
+          `text-x-text-subtitle/80`, and NOT `/60`: #404040 at 60% over this
+          pill's #f2f6fa measures 3.3:1, which is under AA at this 14px and reads
+          as a rendering fault rather than as «locked». At 80% it is 5.4:1 — the
+          label stays legible, and the lock icon is what carries the meaning. It
+          is written as a whole branch rather than as a `disabled:` utility
+          layered over `text-x-text-subtitle`, because two colour utilities on one
+          element are resolved by stylesheet order, not by the order they are
+          written in, and a disabled label must not be able to win that race.
+
+          ⚠️ `aria-controls` is **dropped** on a locked tab, not left pointing at
+          `cafe-table-panel-voice`: only `panelId(activeTab)` is ever in the DOM,
+          so a locked tab keeping the attribute would be a reference to an element
+          that does not exist — the one dangling ARIA reference this change would
+          otherwise add.
         -->
         <button
               v-for="tab in TABS"
@@ -671,17 +764,37 @@ const panelId = (key: TabKey) => `cafe-table-panel-${key}`;
               type="button"
               role="tab"
               :aria-selected="activeTab === tab.key"
-              :aria-controls="panelId(tab.key)"
+              :aria-controls="tab.disabled ? undefined : panelId(tab.key)"
               :tabindex="activeTab === tab.key ? 0 : -1"
-              class="focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-x-primary-500 flex min-h-11 min-w-0 flex-1 items-center justify-center rounded-full text-sm transition-colors"
+              :disabled="tab.disabled"
+              :aria-disabled="tab.disabled ? 'true' : undefined"
+              class="focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-x-primary-500 flex min-h-11 min-w-0 flex-1 items-center justify-center gap-1 rounded-full text-sm transition-colors"
               :class="
-                activeTab === tab.key
-                  ? 'bg-x-primary-content-50 font-bold text-x-text-title'
-                  : 'text-x-text-subtitle hover:text-x-text-title'
+                tab.disabled
+                  ? 'cursor-not-allowed text-x-text-subtitle/80'
+                  : activeTab === tab.key
+                    ? 'bg-x-primary-content-50 font-bold text-x-text-title'
+                    : 'text-x-text-subtitle hover:text-x-text-title'
               "
-              @click="activeTab = tab.key"
+              @click="selectTab(tab)"
             >
-              {{ tab.label }}
+              <UIcon
+                v-if="tab.disabled"
+                name="solar:lock-linear"
+                size="14"
+                aria-hidden="true"
+                class="shrink-0"
+              />
+
+              <span class="min-w-0 truncate">{{ tab.label }}</span>
+
+              <!--
+                The lock is a glyph; this is the sentence. A screen reader
+                announces «میزهای صوتی, disabled» and nothing about what disabled
+                means here, so the reason goes in the tab itself rather than being
+                left to the fact that the list will not change.
+              -->
+              <span v-if="tab.disabled" class="sr-only">به‌زودی</span>
             </button>
           </div>
         </div>

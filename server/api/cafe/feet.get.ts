@@ -27,7 +27,7 @@
  *
  * The same allowlist decision is repeated per route in `my-ct.ts`,
  * `table/q.get.ts`, `table/subscribed.get.ts` and
- * `table/[cafeId]/tables.get.ts`; this is where the reasoning is written once.
+ * `table/[resourceId]/index.get.ts`; this is where the reasoning is written once.
  */
 export default defineEventHandler(async (event) => {
   try {

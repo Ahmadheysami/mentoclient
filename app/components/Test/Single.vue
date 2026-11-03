@@ -1,6 +1,7 @@
 <script setup lang="ts">
 const props = withDefaults(defineProps<{ testId: string }>(), {});
 import comma from "comma-number";
+import { faToman } from "~/utils/fa";
 const testStore = useTest(),
   route = useRoute(),
   {$toast} = useNuxtApp(),
@@ -40,6 +41,31 @@ const testStore = useTest(),
       return final.toFixed();
     }
   }),
+  analysisAiPrice = computed(() => {
+    // The backend quotes `analysisAiPrice` in **ریال**; the reader is shown
+    // **تومان** (1 تومان = 10 ریال), matching how every other price is quoted.
+    const rial = Number(testStore.state.singleTest?.analysisAiPrice ?? 0);
+    return Number.isFinite(rial) && rial > 0 ? Math.round(rial / 10) : 0;
+  }),
+  /**
+   * The cash price as the server quotes it (**ریال**), split for display in
+   * **تومان** through `faToman` — the same conversion every other price in
+   * this app uses. This is the figure struck when there is a discount.
+   */
+  cashPriceToman = computed(() =>
+    faToman(Number(testStore.state.singleTest?.price ?? 0)),
+  ),
+  /**
+   * The payable cash price: the advertised price less the discount, rounded in
+   * ریال (no sub-unit) before `faToman` splits it — so a float tail can never
+   * print as «۸۵٬۰۰۰.۰۰۰۰۰۰۰۲ تومان».
+   */
+  cashPriceFinalToman = computed(() => {
+    const price = Number(testStore.state.singleTest?.price ?? 0);
+    const discount = Number(testStore.state.singleTest?.discount ?? 0);
+
+    return faToman(Math.round(price - (price * discount) / 100));
+  }),
   error = ref<string | null>(),
   t = useToast(),
   buyTest = async (testId: string, buyByStar: boolean = false) => {
@@ -76,8 +102,18 @@ const testStore = useTest(),
 watch(
   () => route.query?.s,
   async (newQuery) => {
-    if (newQuery) {
-      loadTest(newQuery as string);
+    if (
+      typeof newQuery === "string" &&
+      newQuery &&
+      newQuery !== "undefined" &&
+      newQuery !== "null"
+    ) {
+      loadTest(newQuery);
+    } else if (newQuery) {
+      // Truthy but invalid id (e.g. "undefined", "null", or a string[] like
+      // ?s=a&s=b): the modal stays open via v-if, so route back to /test to
+      // strip the bad query instead of leaving an infinite loading spinner.
+      await navigateTo("/test");
     }
   },
   { immediate: true },
@@ -109,13 +145,13 @@ watch(
       </div>
       <div
         class="w-full relative pb-3 h-full overflow-y-auto"
-        v-else="!testStore.state.loading.getSingleTest"
+        v-else-if="testStore.state.singleTest"
       >
         <!-- Content -->
         <div class="py-5">
           <div class="grid gap-4">
             <NuxtImg
-              v-if="testImageIsloaded"
+              v-if="testImageIsloaded && testStore.state.singleTest?.image"
               :src="testStore.state.singleTest?.image"
               class="bg-slate-50 h-44 w-full object-cover rounded-3xl"
               :alt="testStore.state.singleTest?.title"
@@ -141,6 +177,29 @@ watch(
                 >{{ testStore.state.singleTest?.questionCount }} سوال</span
               >
             </div>
+            <!-- AI analysis availability, from the test configuration. -->
+            <div
+              v-if="testStore.state.singleTest?.analysisAiEnabled"
+              class="flex items-center justify-between gap-2 rounded-2xl bg-emerald-50 px-3 py-2.5 ring-1 ring-emerald-200/70"
+            >
+              <span
+                class="flex min-w-0 items-center gap-1.5 text-xs font-bold text-emerald-700"
+              >
+                <UIcon
+                  name="solar:magic-stick-3-bold-duotone"
+                  size="17"
+                  aria-hidden="true"
+                />
+                تحلیل با هوش مصنوعی فعال است
+              </span>
+              <span
+                v-if="analysisAiPrice > 0"
+                class="shrink-0 rounded-full bg-white px-2 py-1 text-[10px] font-bold text-emerald-800"
+              >
+                {{ comma(analysisAiPrice) }} تومان
+              </span>
+            </div>
+
             <div
               class="relative overflow-hidden rounded-3xl bg-linear-60 from-x-secondary-400 to-x-secondary-800 p-6 text-white shadow-lg"
             >
@@ -175,7 +234,7 @@ watch(
                     class="text-sm line-through opacity-60"
                     v-if="(testStore.state.singleTest?.discount as number) > 0"
                   >
-                    {{ comma(testStore.state.singleTest?.price as number) }}
+                    {{ cashPriceToman.value }} {{ cashPriceToman.unit }}
                   </p>
 
                   <br
@@ -183,18 +242,12 @@ watch(
                   />
                   <div class="grid place-items-center gap-2">
                     <span class="text-xl font-black">
-                      {{
-                        comma(
-                          (testStore.state.singleTest?.price as number) -
-                            ((testStore.state.singleTest?.price as number) *
-                              (testStore.state.singleTest
-                                ?.discount as number)) /
-                              100,
-                        )
-                      }}
+                      {{ cashPriceFinalToman.value }}
                     </span>
 
-                    <span class="mb-1 text-sm"> تومان </span>
+                    <span class="mb-1 text-sm">
+                      {{ cashPriceFinalToman.unit }}
+                    </span>
                   </div>
                 </div>
 
@@ -250,7 +303,7 @@ watch(
       </div>
       <div
         class="flex items-center justify-between w-full"
-        v-if="!testStore.state.loading.getSingleTest"
+        v-if="!testStore.state.loading.getSingleTest && testStore.state.singleTest"
       >
         <div></div>
         <div class="flex gap-2">

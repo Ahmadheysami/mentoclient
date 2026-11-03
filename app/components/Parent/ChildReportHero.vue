@@ -3,12 +3,26 @@ import { faNumber, faRelative } from "~/utils/fa";
 import { stageOfAge, type ChildOverviewDto } from "~/types/parent-panel";
 
 /**
- * The report's identity card: who the report is about, which experience they
- * use, and the three facts a parent checks before reading any number below.
+ * The report's identity: who the report is about, which stage they are in and
+ * whether they are in the app right now.
+ *
+ * ## WHY THIS IS NOT A CARD
+ *
+ * The child's name is the screen's subject, not one item among cards. It sits
+ * directly on the ivory ground so the first thing read on the page is a name at
+ * title size, and every white surface below it belongs to a section rather than
+ * competing with the identity.
+ *
+ * ## WHY THE STAGE IS A WORD AND NOT A COLOURED CHIP
+ *
+ * «کودک» / «نوجوان» is a fact about an age the server stored, not a state that
+ * changes something. A coloured pill here would be decoration on the one line a
+ * parent reads first, and the panel's kid/teen accents belong to the children's
+ * own panels.
  *
  * `disable` is the ACCOUNT flag, never the accessibility switch, so its warning
- * says «حساب» explicitly and its link goes to the screen that owns the account
- * and schedule controls.
+ * says «حساب» explicitly and links to the screen that owns the account and the
+ * schedule.
  */
 const props = defineProps<{
   report: ChildOverviewDto;
@@ -52,49 +66,29 @@ const stageLabel = computed<string>(() =>
   stage.value === "child" ? "کودک" : "نوجوان",
 );
 
-const stageTone = computed<string>(() =>
-  stage.value === "child"
-    ? "bg-x-kid-sun-100 text-x-kid-900"
-    : "bg-x-teen-100 text-x-teen-700",
-);
-
-const status = computed<{ label: string; icon: string; tone: string }>(() => {
-  if (general.value.disable) {
-    return {
-      label: "حساب غیرفعال",
-      icon: "solar:danger-triangle-linear",
-      tone: "bg-red-50 text-red-600",
-    };
-  }
-
+/**
+ * Presence as one quiet line: a 6px dot and words.
+ *
+ * The dot is the only colour and it is never the only signal — «آنلاین» and the
+ * minutes «۳ دقیقه پیش» are in the text, so the state survives a reader who
+ * cannot tell green from grey.
+ */
+const presence = computed<{ dot: string; label: string }>(() => {
   if (general.value.isOnline) {
-    return {
-      label: "آنلاین",
-      icon: "solar:record-circle-linear",
-      tone: "bg-emerald-50 text-emerald-700",
-    };
+    return { dot: "bg-emerald-500", label: "همین حالا آنلاین است" };
   }
 
   const lastSeen = general.value.lastSeen;
 
   if (lastSeen !== null && Number.isFinite(lastSeen) && lastSeen > 0) {
     return {
+      dot: "bg-x-parent-300",
       label: `آخرین حضور ${faRelative(lastSeen, props.now)}`,
-      icon: "solar:clock-circle-linear",
-      tone: "bg-x-parent-warm-100 text-x-text-subtitle",
     };
   }
 
-  return {
-    label: "وضعیت حضور نامشخص",
-    icon: "solar:info-circle-linear",
-    tone: "bg-x-parent-warm-100 text-x-text-subtitle",
-  };
+  return { dot: "bg-x-parent-300", label: "وضعیت حضور نامشخص" };
 });
-
-const accessLabel = computed<string>(() =>
-  general.value.hasAccessCode ? "کد دسترسی فعال" : "بدون کد دسترسی",
-);
 
 const accessHref = computed<string>(() =>
   `/panels/parent/children/${child.value.userId}/access`,
@@ -102,21 +96,13 @@ const accessHref = computed<string>(() =>
 </script>
 
 <template>
-  <section
-    aria-labelledby="report-hero-name"
-    class="neu-raised-lg relative overflow-hidden rounded-[2rem] bg-white p-5 text-start"
-  >
-    <div
-      aria-hidden="true"
-      class="pointer-events-none absolute -top-10 -end-10 size-36 rounded-full bg-x-parent-100/60 blur-2xl"
-    />
-
-    <div class="relative flex items-start gap-3">
+  <section aria-labelledby="report-identity-name" class="px-1">
+    <div class="flex items-center gap-3.5">
       <img
         v-if="avatar"
         :src="avatar"
         :alt="`تصویر ${name}`"
-        class="size-16 shrink-0 rounded-2xl bg-x-parent-50 object-cover"
+        class="size-16 shrink-0 rounded-full bg-x-parent-50 object-cover"
         width="64"
         height="64"
       >
@@ -125,68 +111,49 @@ const accessHref = computed<string>(() =>
         :src="fallbackAvatar"
         alt=""
         aria-hidden="true"
-        class="size-16 shrink-0 rounded-2xl bg-x-parent-50"
+        class="size-16 shrink-0 rounded-full bg-x-parent-50"
         width="64"
         height="64"
       >
 
       <div class="min-w-0 flex-1">
         <h2
-          id="report-hero-name"
-          class="break-words font-yekan-extra text-lg leading-7 text-x-text-title"
+          id="report-identity-name"
+          class="break-words font-yekan-extra text-xl leading-7 text-x-text-title"
         >
           {{ name }}
         </h2>
+
         <p class="mt-1 text-xs leading-5 text-x-text-subtitle">
-          <template v-if="age !== null">{{ faNumber(age) }} ساله</template>
-          <template v-else>سن ثبت نشده</template>
+          <template v-if="age !== null">
+            {{ faNumber(age) }} ساله
+          </template>
+          <template v-else>
+            سن ثبت نشده
+          </template>
+          <span aria-hidden="true"> · </span>
+          {{ stageLabel }}
+        </p>
+
+        <p class="mt-1 flex items-center gap-1.5 text-xs leading-5 text-x-text-subtitle">
+          <span
+            aria-hidden="true"
+            class="size-1.5 shrink-0 rounded-full"
+            :class="presence.dot"
+          />
+          <span class="truncate">{{ presence.label }}</span>
         </p>
       </div>
     </div>
 
-    <div class="relative mt-4 flex flex-wrap items-center gap-2">
-      <span
-        class="inline-flex min-h-8 items-center rounded-full px-2.5 py-1 text-[11px] font-yekan-bold"
-        :class="stageTone"
-      >
-        {{ stageLabel }}
-      </span>
-
-      <span
-        class="inline-flex max-w-full items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-yekan-bold"
-        :class="status.tone"
-      >
-        <UIcon :name="status.icon" size="14" aria-hidden="true" />
-        <span class="break-words">{{ status.label }}</span>
-      </span>
-
-      <span
-        class="inline-flex min-h-8 items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-yekan-bold"
-        :class="
-          general.hasAccessCode
-            ? 'bg-x-parent-50 text-x-parent-700'
-            : 'bg-x-parent-warm-100 text-x-text-subtitle'
-        "
-      >
-        <UIcon name="solar:key-minimalistic-linear" size="14" aria-hidden="true" />
-        {{ accessLabel }}
-      </span>
-    </div>
-
     <div
       v-if="general.disable"
-      class="relative mt-3 flex flex-wrap items-center gap-x-2 gap-y-1 rounded-2xl bg-red-50 px-3 py-2 text-[11px] leading-5 text-red-600"
+      class="mt-3 rounded-2xl bg-red-50 px-3.5 py-3 text-xs leading-6 text-red-700"
     >
-      <UIcon
-        name="solar:danger-triangle-linear"
-        size="14"
-        class="shrink-0"
-        aria-hidden="true"
-      />
-      <span>حساب این فرزند غیرفعال است.</span>
+      حساب این فرزند غیرفعال است.
       <NuxtLink
         :to="accessHref"
-        class="inline-flex min-h-11 items-center font-yekan-bold underline decoration-red-300 underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-x-parent-500"
+        class="ms-1 inline-flex min-h-11 items-center font-yekan-bold underline decoration-red-300 underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-x-parent-500"
       >
         مدیریت دسترسی
       </NuxtLink>

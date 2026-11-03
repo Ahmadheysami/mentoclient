@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import comma from "comma-number"
 import { DrawerContent, DrawerOverlay, DrawerPortal, DrawerRoot, DrawerTrigger } from 'vaul-vue'
 import { formatCoins } from "~/utils/coin"
+import { faToman } from "~/utils/fa"
 const walletOptions = [
     {
         label: 'شارژ',
@@ -62,7 +62,15 @@ const walletOptions = [
     endConvertHandler = () => {
         sheetAction.value = ''
         sheetOpen.value = false
-    }
+    },
+    /**
+     * The spending balance, as the server quotes it (**ریال**), split for
+     * display in **تومان** — 1 تومان = 10 ریال, the same conversion every
+     * other price in this app uses (`faToman`).
+     */
+    balanceToman = computed(() =>
+        faToman((wallet.state.wallet.spending?.balance as number) || 0),
+    )
 
 // fetch default data when onmpunt component
 onMounted(async () => {
@@ -97,12 +105,14 @@ onMounted(async () => {
                 <UIcon name="duo-icons:coin-stack" size="29" class="text-yellow-400" />
             </div>
 
-            <!-- Balance -->
+            <!-- Balance: the server quotes ریال, the reader is quoted تومان (faToman) -->
             <span class="text-x-white text-5xl font-extrabold"
                 :class="{ 'text-lg text-center': wallet.state.errors.balance }" v-if="!wallet.state.loading.getBalance">
-                {{ !wallet.state.errors.balance ? comma(((wallet.state.wallet.spending?.balance as number)) || 0) :
-                    wallet.state.errors.balance }}
-                <p class="text-sm text-center" v-if="!wallet.state.errors.balance">ریال</p>
+                <template v-if="!wallet.state.errors.balance">
+                    {{ balanceToman.value }}
+                    <p class="text-sm text-center">{{ balanceToman.unit }}</p>
+                </template>
+                <template v-else>{{ wallet.state.errors.balance }}</template>
             </span>
             <!-- Skeleton -->
             <USkeleton class="h-10 w-44 bg-x-primary-500/30 rounded-xl" v-if="wallet.state.loading.getBalance" />

@@ -78,7 +78,11 @@ async function reload(): Promise<void> {
     </UAlert>
 
     <template v-else>
-      <section v-if="childPanel.availableTests.length > 0" class="mt-6">
+      <section
+        v-if="childPanel.availableTests.length > 0"
+        data-scroll-reveal
+        class="mt-6"
+      >
         <ChildSectionHeader
           :title="childPanel.variant === 'child' ? 'ماجراهای تازه' : 'آمادهٔ انجام'"
         />
@@ -89,7 +93,7 @@ async function reload(): Promise<void> {
         </ul>
       </section>
 
-      <section v-if="closedOut.length > 0" class="mt-6">
+      <section v-if="closedOut.length > 0" data-scroll-reveal class="mt-6">
         <ChildSectionHeader
           :title="childPanel.variant === 'child' ? 'دیگه تموم شدن' : 'پایان‌یافته'"
         />
@@ -100,7 +104,11 @@ async function reload(): Promise<void> {
         </ul>
       </section>
 
-      <section v-if="childPanel.state.consumed.length > 0" class="mt-6">
+      <section
+        v-if="childPanel.state.consumed.length > 0"
+        data-scroll-reveal
+        class="mt-6"
+      >
         <ChildSectionHeader title="انجام‌شده‌ها" />
         <ul class="mt-3 grid gap-3">
           <li v-for="asset in childPanel.state.consumed" :key="asset.id">

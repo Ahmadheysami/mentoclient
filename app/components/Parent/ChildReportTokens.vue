@@ -13,6 +13,13 @@ import type {
  * server; dividing by `base` here would double-convert and print a number that
  * belongs to no currency. `remaining` is deliberately not rendered: it is the
  * most recent log row's remaining figure, not the current balance.
+ *
+ * ## WHY THE BALANCE IS THE BIGGEST NUMBER ON THE SCREEN
+ *
+ * «موجودی توکن» is the one figure a parent acts on — it decides whether the
+ * child can take the next test or use the assistant. The spend and the cost are
+ * its context, so they sit beside it at body size instead of competing with it
+ * at the same weight, and the breakdown below explains where the spend went.
  */
 const props = defineProps<{
   tokens: ChildOverviewTokensDto;
@@ -76,67 +83,81 @@ const recentUsage = computed(() =>
 </script>
 
 <template>
-  <section
-    id="report-tokens"
-    aria-labelledby="report-tokens-title"
-    class="scroll-mt-20"
-  >
-    <h2 id="report-tokens-title" class="text-sm font-yekan-bold text-x-text-title">
-      مصرف و موجودی
+  <section id="report-tokens" aria-labelledby="report-tokens-title" class="scroll-mt-20">
+    <h2 id="report-tokens-title" class="px-1 font-yekan-bold text-sm text-x-text-title">
+      توکن و مصرف
     </h2>
 
-    <div class="neu-raised-lg mt-2 rounded-3xl bg-white p-3">
-      <div class="grid grid-cols-3 gap-1.5">
-        <div class="neu-inset flex min-h-20 min-w-0 flex-col justify-between rounded-2xl bg-x-parent-warm-100 p-2.5">
-          <span class="block text-[10px] leading-4 text-x-text-subtitle">موجودی</span>
-          <span class="mt-1 block font-yekan-extra text-base leading-6 text-x-parent-600 tabular-nums">
-            {{ faNumber(tokens.balanceTokens) }}
-          </span>
-        </div>
+    <div class="mt-2 overflow-hidden rounded-2xl border border-x-parent-warm-100 bg-white">
+      <div class="px-4 py-4">
+        <p class="text-xs leading-5 text-x-text-subtitle">موجودی توکن</p>
+        <p class="mt-1 font-yekan-extra text-3xl leading-10 text-x-text-title tabular-nums">
+          {{ faNumber(tokens.balanceTokens) }}
+        </p>
 
-        <div class="neu-inset flex min-h-20 min-w-0 flex-col justify-between rounded-2xl bg-x-parent-warm-100 p-2.5">
-          <span class="block text-[10px] leading-4 text-x-text-subtitle">مصرف</span>
-          <span class="mt-1 block font-yekan-extra text-base leading-6 text-x-text-title tabular-nums">
-            {{ faNumber(tokens.usedTokens) }}
-          </span>
-        </div>
+        <dl class="mt-3 flex flex-wrap gap-x-6 gap-y-2">
+          <div class="min-w-0">
+            <dt class="text-xs leading-5 text-x-text-subtitle">مصرف‌شده</dt>
+            <dd class="font-yekan-bold text-base leading-6 text-x-text-title tabular-nums">
+              {{ faNumber(tokens.usedTokens) }}
+            </dd>
+          </div>
 
-        <div class="neu-inset flex min-h-20 min-w-0 flex-col justify-between rounded-2xl bg-x-parent-warm-100 p-2.5">
-          <span class="block text-[10px] leading-4 text-x-text-subtitle">هزینهٔ تقریبی</span>
-          <span class="mt-1 block break-words font-yekan-extra text-base leading-6 text-x-text-title tabular-nums">
-            {{ faNumber(tokens.estimatedCost) }}
-            <span v-if="currency" class="text-[11px] font-yekan-bold">{{ currency }}</span>
-          </span>
-        </div>
+          <div class="min-w-0">
+            <dt class="text-xs leading-5 text-x-text-subtitle">هزینهٔ تقریبی</dt>
+            <dd class="font-yekan-bold text-base leading-6 text-x-text-title tabular-nums">
+              {{ faNumber(tokens.estimatedCost) }}
+              <span v-if="currency" class="text-xs font-yekan-regular text-x-text-subtitle">
+                {{ currency }}
+              </span>
+            </dd>
+          </div>
+        </dl>
       </div>
 
-      <ul
+      <dl
         v-if="nonTokenBalances.length > 0"
-        class="mt-2 flex flex-wrap gap-1.5"
+        class="divide-y divide-x-parent-warm-100 border-t border-x-parent-warm-100"
         aria-label="اعتبارهای دیگر"
       >
-        <li
+        <div
           v-for="(balance, index) in nonTokenBalances"
           :key="`${balance.type}-${index}`"
-          class="rounded-full bg-x-parent-50 px-2.5 py-1 text-[11px] leading-5 text-x-parent-700"
+          class="flex min-h-12 items-center justify-between gap-3 px-4 py-2.5"
         >
-          {{ faNumber(balance.balance) }} {{ balance.label }}
-        </li>
-      </ul>
+          <dt class="min-w-0 text-xs leading-5 text-x-text-subtitle">
+            {{ balance.label }}
+          </dt>
+          <dd class="shrink-0 font-yekan-bold text-sm text-x-text-title tabular-nums">
+            {{ faNumber(balance.balance) }}
+          </dd>
+        </div>
+      </dl>
     </div>
 
-    <div class="neu-raised-lg mt-2 rounded-3xl bg-white p-4">
-      <h3 class="text-xs font-yekan-bold text-x-text-title">مصرف به تفکیک</h3>
+    <div class="mt-3 overflow-hidden rounded-2xl border border-x-parent-warm-100 bg-white">
+      <h3 class="px-4 pb-2 pt-4 font-yekan-bold text-sm text-x-text-title">
+        مصرف به تفکیک
+      </h3>
 
-      <ul v-if="breakdown.length > 0" class="mt-3 space-y-3">
-        <li v-for="entry in breakdown" :key="entry.key">
-          <div class="flex items-center justify-between gap-2 text-[11px] leading-5">
-            <span class="min-w-0 break-words text-x-text-subtitle">{{ entry.label }}</span>
-            <span class="shrink-0 font-yekan-bold text-x-text-title tabular-nums">
+      <ul v-if="breakdown.length > 0" class="divide-y divide-x-parent-warm-100">
+        <li
+          v-for="entry in breakdown"
+          :key="entry.key"
+          class="px-4 py-3"
+        >
+          <div class="flex items-baseline justify-between gap-3">
+            <span class="min-w-0 break-words text-xs leading-5 text-x-text-subtitle">
+              {{ entry.label }}
+            </span>
+            <span class="shrink-0 font-yekan-bold text-sm text-x-text-title tabular-nums">
               {{ faNumber(entry.usedTokens) }}
             </span>
           </div>
-          <div class="mt-1.5 h-2 overflow-hidden rounded-full bg-x-parent-warm-100">
+          <div
+            aria-hidden="true"
+            class="mt-2 h-1.5 overflow-hidden rounded-full bg-x-parent-warm-100"
+          >
             <span
               class="block h-full rounded-full bg-x-parent-500"
               :style="{ width: entry.width }"
@@ -144,36 +165,40 @@ const recentUsage = computed(() =>
           </div>
         </li>
       </ul>
-      <p v-else class="mt-2 text-xs leading-6 text-x-text-subtitle">
+      <p v-else class="px-4 pb-4 text-xs leading-6 text-x-text-subtitle">
         هنوز مصرفی ثبت نشده است.
       </p>
+    </div>
 
-      <h3 class="mt-4 text-xs font-yekan-bold text-x-text-title">آخرین مصرف‌ها</h3>
+    <div class="mt-3 overflow-hidden rounded-2xl border border-x-parent-warm-100 bg-white">
+      <h3 class="px-4 pb-2 pt-4 font-yekan-bold text-sm text-x-text-title">
+        آخرین مصرف‌ها
+      </h3>
 
-      <ul v-if="recentUsage.length > 0" class="mt-2 divide-y divide-x-parent-warm-100">
+      <ul v-if="recentUsage.length > 0" class="divide-y divide-x-parent-warm-100 border-t border-x-parent-warm-100">
         <li
           v-for="entry in recentUsage"
           :key="entry.id"
-          class="flex min-h-11 items-center justify-between gap-3 py-2"
+          class="flex min-h-12 items-center justify-between gap-3 px-4 py-2.5"
         >
           <span class="min-w-0">
-            <span class="block break-words text-xs leading-5 text-x-text-title">
+            <span class="block break-words text-sm leading-6 text-x-text-title">
               {{ entry.label }}
             </span>
             <time
               v-if="entry.when"
               :datetime="entry.createdAt"
-              class="mt-0.5 block text-[10px] leading-4 text-x-text-subtitle"
+              class="block text-xs leading-5 text-x-text-subtitle"
             >
               {{ entry.when }}
             </time>
           </span>
-          <span class="shrink-0 text-xs font-yekan-bold text-x-parent-600 tabular-nums">
+          <span class="shrink-0 font-yekan-bold text-sm text-x-parent-700 tabular-nums">
             {{ faNumber(entry.usedTokens) }}
           </span>
         </li>
       </ul>
-      <p v-else class="mt-2 text-xs leading-6 text-x-text-subtitle">
+      <p v-else class="border-t border-x-parent-warm-100 px-4 py-3 text-xs leading-6 text-x-text-subtitle">
         هنوز مصرفی ثبت نشده است.
       </p>
     </div>

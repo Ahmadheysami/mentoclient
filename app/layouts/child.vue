@@ -6,6 +6,21 @@ import ChildClosedScreen from "~/components/Child/ClosedScreen.vue";
 const childPanel = useChildPanel();
 const settings = useSettings();
 const route = useRoute();
+const mainEl = ref<HTMLElement | null>(null);
+
+/**
+ * Native panels open a new screen at its top. The panel scrolls inside
+ * `<main>`, not the window, so the router's own scroll restoration cannot do
+ * this for us.
+ */
+watch(
+  () => route.fullPath,
+  () => {
+    nextTick(() => {
+      if (mainEl.value) mainEl.value.scrollTop = 0;
+    });
+  },
+);
 
 /** Fullscreen flows hide the fixed chrome, so they do not need the nav clearance. */
 const hidesChrome = computed(
@@ -94,6 +109,7 @@ async function goToEnter(): Promise<void> {
            content block needs room to scroll clear of it. Fullscreen routes
            render no fixed chrome and get no extra clearance. -->
       <main
+        ref="mainEl"
         class="flex-1 overflow-y-auto overscroll-contain"
         :class="hidesChrome ? 'pb-0' : 'pb-28'"
       >

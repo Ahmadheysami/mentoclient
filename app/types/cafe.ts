@@ -4,8 +4,9 @@
  * `GET /table/:cafeId/:tableId/single`, `GET /table/q`, `GET /me/my-ct`,
  * `POST /table/subscribe`, `GET /table/subscribed`, `POST /table/:tableId/left`,
  * `GET /table/:tableId/users`, `GET /table/:tableId/messages`,
+ * `POST /table/:tableId/messages`, `PUT` / `DELETE /table/messages/:tableId/:messageId`,
  * `POST /table/messages/:tableId/seen`,
- * `POST /table/messages/:tableId/:messageId/like` and
+ * `POST /table/messages/:tableId/:messageId/like`,
  * `POST /table/create-report` — plus the `/cafe` Socket.IO namespace.
  *
  * ## THE RULES THAT SHAPE EVERY INTERFACE BELOW
@@ -15,7 +16,7 @@
  *    what is inspected — never the status. `success === true` is the only
  *    success signal, with ONE exception (message history, below).
  * 2. **THE MISSPELLINGS ARE THE CONTRACT.** `privite`, `messageSecunce`,
- *    `thubmnail`, `reaplayTo` / `reaplyToMessageId`, `chennels`, `recieve` and
+ *    `thubmnail`, `reaplayTo` / `reaplayToMessageId`, `chennels`, `recieve` and
  *    `nikname` are misspelled **in the backend** and correcting any of them here
  *    would silently read `undefined` forever. They are reproduced verbatim and
  *    must not be "tidied up"; only the Persian label in the UI is corrected.
@@ -104,6 +105,33 @@ export const CAFE_SORTS: readonly CafeSort[] = ["asc", "desc"];
 export const CAFE_BOOLEAN_FILTERS: readonly CafeBooleanFilter[] = ["yes", "no"];
 
 /**
+ * `CafeMessagesDirection`'s two values, as a runtime list. See `CAFE_SORTS`.
+ *
+ * A `direction` is not a filter but the **branch a history read takes** —
+ * `old` prepends the page before the `cursor`, `new` appends the page after it —
+ * so a value outside the pair is not «the default, probably», it is the
+ * opposite of what the caller asked for and would be indistinguishable from a
+ * backend bug.
+ */
+export const CAFE_MESSAGES_DIRECTIONS: readonly CafeMessagesDirection[] = [
+  "old",
+  "new",
+];
+
+/**
+ * `CafeReportTarget`'s two values, as a runtime list. See `CAFE_SORTS`.
+ *
+ * ⚠️ NOT A PREFERENCE, IT IS WHICH DOCUMENT IS WRITTEN: `report-for` selects
+ * between two different stored reports — a `message` report captures the
+ * message's text and its sender, a `table` report captures none of it — so an
+ * unvalidated value cannot be forwarded as «close enough».
+ */
+export const CAFE_REPORT_TARGETS: readonly CafeReportTarget[] = [
+  "message",
+  "table",
+];
+
+/**
  * Narrows an untrusted query value to a `CafeSort`, or `false` so a proxy can
  * DROP it rather than forward something the upstream has no meaning for.
  *
@@ -117,12 +145,47 @@ export function isCafeSort(value: unknown): value is CafeSort {
 
 /**
  * Narrows an untrusted query value to a `CafeBooleanFilter` — see
- * `isCafeBooleanFilter`'s caller, `server/api/cafe/table/[cafeId]/tables.get.ts`.
+ * `isCafeBooleanFilter`'s caller, `server/api/cafe/table/[resourceId]/index.get.ts`.
  */
 export function isCafeBooleanFilter(value: unknown): value is CafeBooleanFilter {
   return (
     typeof value === "string" &&
     CAFE_BOOLEAN_FILTERS.some((filter) => filter === value)
+  );
+}
+
+/**
+ * Narrows an untrusted query value to a `CafeMessagesDirection` — see
+ * `isCafeBooleanFilter`'s caller, for the same reason: the value that arrives is
+ * whatever was typed into the URL, so the check has to happen again where the
+ * request is built.
+ *
+ * A value that fails is **DROPPED by the proxy**, not refused: upstream's own
+ * default for `direction` is `old`, so an unreadable value reads as «the first
+ * window» rather than as a failure of a screen that is otherwise fine.
+ */
+export function isCafeMessagesDirection(
+  value: unknown,
+): value is CafeMessagesDirection {
+  return (
+    typeof value === "string" &&
+    CAFE_MESSAGES_DIRECTIONS.some((direction) => direction === value)
+  );
+}
+
+/**
+ * Narrows an untrusted `report-for` to a `CafeReportTarget`.
+ *
+ * ⚠️ Unlike the two above, a value that fails here must be **REFUSED** by the
+ * caller and not dropped: `report-for` has no default — it is `required`, and
+ * omitting it answers `ERR_VALIDATION` — so "dropped" would be a 400 the reader
+ * sees as a broken form, while refusing here keeps the refusal ours and never
+ * spends an upstream request on a document whose level we could not prove.
+ */
+export function isCafeReportTarget(value: unknown): value is CafeReportTarget {
+  return (
+    typeof value === "string" &&
+    CAFE_REPORT_TARGETS.some((target) => target === value)
   );
 }
 
@@ -322,6 +385,150 @@ export interface ICafeTableMessage {
 }
 
 /**
+ * The soft-moderation block that rides along with a sent or broadcast message —
+ * §11's `report`, and §14.1's same key on the live broadcast.
+ *
+ * ⚠️ IT RIDES ALONG **ONLY** WHEN GENERAL BAD WORDS MATCHED, and it is a SUCCESS:
+ * a `submitted-for-review` message was STORED, held for a moderator, and its body
+ * is the server's censored one. So `censoredText` is the text to render — the
+ * backend already censored it and the client is not going to keep a word list of
+ * its own — and `usedWordCount` is a fact about the message rather than a headline
+ * to put next to somebody's bad words.
+ */
+export interface ICafeMessageReport {
+  usedWordCount?: number;
+  censoredText?: string;
+}
+
+/**
+ * One row of a thread as the client can ACTUALLY hold it.
+ *
+ * ## ⚠️ IT IS NOT `ICafeTableMessage`, FOR THREE REASONS, AND NONE OF THEM IS COSMETIC
+ *
+ * 1. **`sequence` IS OPTIONAL AND MAY BE `null`.** A live broadcast carries no
+ *    `sequence` at all (§14.1: «same fields as send-response `data`» is the
+ *    backend's own summary, and `sequence` is written later by the save job), and
+ *    an optimistic row has to exist before the 201 that carries one. So a row with
+ *    `sequence === null` is a real state, not a gap in the data: **the sequence
+ *    comes from a history read and from nowhere else.** A page is paged by it, and
+ *    `seen` is posted as it, so inventing one would corrupt both.
+ * 2. **`senderId` MAY BE `null`** — a broadcast is drawn the moment it lands, and one
+ *    that arrives without a `senderId` leaves the catch-up to fill it. ⚠️ **One
+ *    consequence for every reader of this type:**
+ *    `members[message.senderId]` does not compile against a nullable key, so a
+ *    component that resolves a sender name must write `members[message.senderId ?? ""]`
+ *    (which answers `undefined` and renders no name — the correct picture for a
+ *    message whose sender this client has not learned yet).
+ * 3. **`report` EXISTS ONLY ON A SEND ANSWER / BROADCAST**, never on a history
+ *    read, so a re-read of history loses it. `localId` / `sending` / `failed` /
+ *    `provisional` are CLIENT-ONLY and answer one question: has this row been
+ *    persisted yet?
+ *
+ * ## WHY IT LIVES HERE AND NOT IN THE STORE
+ *
+ * `MessageList` / `MessageBubble` must be able to import the shape of a row from
+ * the module they already import from, rather than depending on a store to know
+ * it. (The mirror case is the store's own `CafeSingleTableWire`: a WIRE
+ * normalisation the store owns, for a field only the wire has.)
+ */
+export interface ICafeThreadMessage
+  extends Omit<
+    ICafeTableMessage,
+    "sequence" | "senderId" | "roomId" | "type" | "status"
+  > {
+  /** ⚠️ `null` until a HISTORY READ has filled it in. See the header. */
+  sequence?: number | null;
+  /** ⚠️ `null` until a history read, a send answer or a moderator has filled it. */
+  senderId?: string | null;
+  /** The table's `id`. Absent on a live broadcast — the room already names it. */
+  roomId?: string;
+  type?: MessageType;
+  status?: MessageStatus;
+  /** Client-only. The `local:` id of the not-yet-answered send this row is. */
+  localId?: string;
+  /** Client-only. The REST answer has not landed. */
+  sending?: boolean;
+  /** Client-only. The send was refused; the bubble offers a retry. */
+  failed?: boolean;
+  /** Client-only. A broadcast no history read has reconciled yet. */
+  provisional?: boolean;
+  /** The server's own moderation block. `null`/absent = not soft-moderated. */
+  report?: ICafeMessageReport | null;
+}
+
+/**
+ * One table's transcript and everything needed to page it, keyed by the table's
+ * **INTERNAL** id (`ICafeTable.id`) — never by the `ch_` / `cv_` / `tb_` handle a
+ * `/cafe/…/table/…` URL carries.
+ *
+ * ## ⚠️ THE PAGE STATE IS **THE SERVER'S**, NEVER RECOMPUTED
+ *
+ * `hasOlder` / `hasNewer` / `olderCursor` / `newerCursor` are `hasMore` and
+ * `nextCursor` as §15 answered them, per direction. They are never derived from
+ * `messages.length === 15`: the page size is 15 by default and 500 under
+ * `loadAll`, the server may change it, and a client that infers «there is nothing
+ * older» from a row count is one constant away from permanently hiding history.
+ *
+ * ## WHY A CACHE AND NOT ONE REF
+ *
+ * Two requirements, and only a keyed cache satisfies both: a transcript must
+ * SURVIVE navigating away and back (a reader returning to a conversation expects
+ * it there), and two tables must not CONTAMINATE each other (one flat ref plus a
+ * reset satisfies the second by throwing the first away).
+ */
+export interface ICafeThread {
+  /** Ascending, oldest first, deduped by `id`. */
+  messages: ICafeThreadMessage[];
+  /** `direction:"old"` has more behind it. See the header. */
+  hasOlder: boolean;
+  /** The `direction:"old"` cursor — the server's `nextCursor` for that direction. */
+  olderCursor: number | null;
+  /** `direction:"new"` has more after it. See the header. */
+  hasNewer: boolean;
+  /** The `direction:"new"` cursor — the server's `nextCursor` for that direction. */
+  newerCursor: number | null;
+  /** A read-older request is in the air (drives the top spinner). */
+  loadingOlder: boolean;
+  /** A read-newer request is in the air (drives the bottom spinner). */
+  loadingNewer: boolean;
+  /**
+   * This client's read frontier for the table — the highest `sequence` it has
+   * DECIDED is read. ⚠️ It is a local value: §8 carries no per-message read state
+   * at all, so `unread = table.messageSecunce - lastReadSequence` (§8) is the only
+   * unread figure this client can honestly compute.
+   */
+  lastReadSequence: number;
+  /**
+   * ⚠️ The high-water mark of what has actually been POSTed to `/seen`, and the
+   * ONLY reason a trailing throttle is not enough: a number already sent is never
+   * sent twice, so scrolling a thread of two hundred messages costs one request
+   * per new maximum rather than one per scroll tick.
+   */
+  lastSeenSent: number;
+  /**
+   * ⚠️ LIVE OVERRIDE of `messageSendingEnabled.enabled`, from
+   * `cafe:table:message-sending-status`. `null` means «follow the `/single`
+   * payload» — and it is stored HERE rather than written onto `cafe.table`
+   * because mutating the REST answer would make a later re-read of `/single`
+   * unable to restore the truth.
+   */
+  sendingOverride: ICafeWindowBroadcast | null;
+  /** ⚠️ Same, for `secureChat` / `cafe:table:secure-chat-status`. */
+  secureOverride: ICafeWindowBroadcast | null;
+  /**
+   * Whether a payload this client holds says the reader is an ACTIVE participant
+   * of this table.
+   *
+   * ⚠️ It is **not** a gate on reading, on joining the socket room, or on the
+   * transcript — §18.4 is explicit that «am I a member?» is not answerable from
+   * `GET …/single`'s `subscribe`, so this stays `false` for a reader the endpoint
+   * cannot vouch for. It answers exactly one question: «should the screen offer
+   * a join control?», which it must not for a reader who is already in.
+   */
+  joined: boolean;
+}
+
+/**
  * A member as `GET /table/:tableId/users` lists them.
  *
  * ⚠️ An EMPTY ARRAY IS NOT AN ERROR: a reader who is not a member gets
@@ -511,6 +718,19 @@ export type CafeFailureReason =
    */
   | "INFO_TABLE_NOT_FOUND"
   /**
+   * ⚠️ THE ONLY CAFÉ REFUSAL THAT **REJECTS** INSTEAD OF ANSWERING. HTTP 429 is
+   * the one status the café error middleware sets for real, so `$fetch` throws
+   * rather than resolving with an envelope — and the message routes' own limiter
+   * answers a body of exactly two keys (`{ success: false, reason }`), with no
+   * `message` and no `statusCode` to fall back on. Without this name in the union
+   * it narrows to `null` and a throttled reader is shown whatever the caller
+   * guessed, which is «اتصال اینترنت را بررسی کنید» on a perfectly good
+   * connection. See `parseCafeError` / `isCafeThrottle` in `~/utils/cafe-response`.
+   */
+  | "ERR_TOO_MANY_REQUESTS"
+  /** The global limiter's 429, which — unlike the message routes' — does carry `message`. */
+  | "ERR_RATE_LIMIT"
+  /**
    * ⚠️ CLIENT-SIDE ONLY — the backend never sends this. The backend's refusals
    * are the `ERR_*` names above; this one is minted by `stores/cafe.ts` for a
    * request that lost the generation race (`superseded()`), so a caller that
@@ -557,6 +777,8 @@ const CAFE_FAILURE_REASONS: readonly CafeFailureReason[] = [
   "ERR_TOKEN_INVALID",
   "ERR_TOKEN_UNDEFINED",
   "INFO_TABLE_NOT_FOUND",
+  "ERR_TOO_MANY_REQUESTS",
+  "ERR_RATE_LIMIT",
   "ERR_SUPERSEDED",
 ];
 
@@ -708,12 +930,85 @@ export interface ICafeActionResponse extends ICafeEnvelope {
   result?: unknown;
 }
 
-/** `POST /table/messages/:tableId/:messageId/like` — a TOGGLE, so it returns the new state. */
+/**
+ * `POST /table/:tableId/messages` — HTTP **201**, and ⚠️ `data` is the **FULL
+ * STORED MESSAGE**, not an echo of what was sent.
+ *
+ * This is the single fact that makes optimistic sending tractable: the answer
+ * carries `id`, `sequence`, `senderId`, `createdAt` and `status`, so the row the
+ * reader is already looking at can be completed by the RESPONSE and does not have
+ * to wait for the broadcast (which carries none of those five). `report` rides
+ * along only when soft bad words matched — see `ICafeMessageReport`.
+ *
+ * `data` is typed as `ICafeThreadMessage` rather than `ICafeTableMessage` on
+ * purpose: it is a real, persisted message (so it has a sequence), but the store
+ * still owns the client-only flags, and typing the answer as the client row lets
+ * the optimistic reconciliation carry them across in one assignment.
+ */
+export interface ICafeSendMessageResponse extends ICafeEnvelope {
+  data?: ICafeThreadMessage | null;
+}
+
+/**
+ * `POST /table/messages/:tableId/:messageId/like` — a TOGGLE, so it returns the new state.
+ *
+ * ⚠ §9's answer also carries `message` (the full updated document), and it is
+ * **deliberately not declared here**: `ICafeEnvelope` already gives every café answer
+ * a `message?: string` — the Persian sentence — so a second `message` of a different
+ * type on the same interface is a type error, and widening the envelope's field to
+ * `string | ICafeTableMessage` would make every reader in this file guess which of the
+ * two it has. Nothing in this client needs the document: the four values below are the
+ * whole answer, and the row's `like` array is what gets written.
+ */
 export interface ICafeLikeResponse extends ICafeEnvelope {
   liked?: boolean;
   likeCount?: number;
   likes?: string[];
   messageId?: string;
+}
+
+/**
+ * What one toggle ACTUALLY changed — the four values `ICafeLikeResponse` can be
+ * read into, already narrowed, and nothing else.
+ *
+ * A function and not a computed: the answer belongs to one message and is handed
+ * to one caller, and §9's `likes` array is **the authoritative list** (there is no
+ * count to recompute and no second endpoint to disagree with), so the outcome is
+ * carried as-is rather than re-derived by whoever reads it.
+ */
+export interface ICafeLikeOutcome {
+  messageId: string;
+  /** The state AFTER the toggle. There is no separate dislike. */
+  liked: boolean;
+  /** `likes.length`, carried because the answer states it. */
+  likeCount: number;
+  /** The full flat user-id list. ⚠️ NOT a reaction map — §7 and §18.5. */
+  likes: string[];
+}
+
+/**
+ * The optional `metadata` object of `POST /table/create-report`.
+ *
+ * ⚠️ **THERE IS NO ENUM FOR `reason`, AND THAT IS DELIBERATE.** The endpoint
+ * stores this object verbatim on the moderation report and never reads it back,
+ * so the documented values are three unrelated words — `spam`, `harassment`,
+ * `impersonation` — with no enumeration in the backend to check them against. A
+ * `CafeReportReason` union would therefore be a list this client invented, and
+ * the one place it is enforced (the proxy that rebuilds the body) would start
+ * refusing reports with a reason the moderation queue accepts perfectly well.
+ * `string` is the honest type; the label the reader picks comes from the report
+ * modal, which is a UI concern and not part of this contract.
+ *
+ * `note` is the reader's own free text and is capped at 500 characters by the
+ * proxy (`REPORT_NOTE_MAX`) — a report is a moderation queue entry, not a
+ * message thread, and nothing reads a longer one.
+ */
+export interface ICafeReportMetadata {
+  reason: string;
+  /** Free text from the reader. Capped at 500 characters; dropped when longer. */
+  note?: string;
+  /** Where in the UI the report was raised from — reporter context, free-form. */
+  source?: string;
 }
 
 /** `POST /table/create-report` — the report document is undocumented, so it stays opaque. */
@@ -785,6 +1080,16 @@ export interface ICafeMyAccessQuery {
  * The history's paging is by SEQUENCE, not by offset: `cursor` is the
  * `sequence` of the message to walk away from, and `loadAll` swaps the server's
  * 15-item page for a 500-item one.
+ *
+ * ⚠️ `cursor` is OPTIONAL AND NOT A DEFAULT: §15 says omitting it starts the walk
+ * from **the reader's own `lastReadMessageId`**, so an absent cursor on a «load
+ * older» request silently becomes a read-receipt-relative one. Send the page's
+ * `nextCursor` explicitly.
+ *
+ * ⚠️ `loadAll` reaches the wire as the STRING `"true"` (that is what this boolean
+ * serialises to) and the proxy matches it, together with a literal `"1"` — see
+ * `server/api/cafe/table/[resourceId]/messages.get.ts`, which is why either spelling
+ * works and a truthiness test does not.
  */
 export interface ICafeMessagesQuery {
   direction?: CafeMessagesDirection;
@@ -795,10 +1100,10 @@ export interface ICafeMessagesQuery {
 /* ---------------------------------------------------------------- resources -- */
 
 /**
- * The eight independent things a café screen can know, and therefore the keys of
- * the store's `loaded` / `pending` / `errors` records.
+ * The ten independent things a café screen can know, and therefore the keys of the
+ * store's `loaded` / `pending` / `errors` records.
  *
- * ⚠️ PER-RESOURCE, NOT ONE `loading` FLAG, and the reason is that two café
+ * ⚠ PER-RESOURCE, NOT ONE `loading` FLAG, and the reason is that two café
  * screens are legitimately in flight at the same time: `/cafe/[cafeId]/table`
  * holds its table list while its header still wants that café's detail, and
  * `/cafe/[cafeId]/table/[tableId]` holds a table while the bottom menu wants
@@ -807,10 +1112,24 @@ export interface ICafeMessagesQuery {
  * «loading» over a refusal it already has. One key per resource also makes
  * `reset(key)` possible, which is what the empty states' `#action` retry needs.
  *
- * Four of the eight are SCOPED — `cafe` and `table` by their ids, `tables` by
- * its café, `search` by its term and page — so an answer held for `/cafe/A` must
- * never be handed back for `/cafe/B`. The other four describe the reader's own
- * whole list and are scoped only by the filter they were asked for.
+ * ⚠ **THE MESSAGING PAIR IS THE SECOND HALF OF THE SAME ARGUMENT, AND IT IS WHY THE
+ * LIST IS PER-RESOURCE AT ALL.** A thread screen holds its transcript AND its roster
+ * AND the single-table answer at once, and a `messages` flag must not blank the
+ * header or the composer while the roster loads, nor a `users` flag may leave the
+ * transcript claiming messages have not arrived.
+ *
+ * ⚠ **AND EVERY MUTATION BYPASSES THIS MACHINERY ENTIRELY.** `messages` and `users` are
+ * COLD READS, and they go through `run()` exactly like the other eight — which clears
+ * the resource on a refusal. A mutation must NOT: `run()` calling `CLEARED.messages()`
+ * over a refused like toggle would empty a perfectly good transcript. So `send`,
+ * `edit`, `delete`, `like`, `seen`, `report` and the membership writes are not in this
+ * union at all, because they are not resources — see `app/stores/cafe.ts`.
+ *
+ * Six of the ten are SCOPED — `cafe` and `table` by their ids, `tables` by
+ * its café, `search` by its term and page, and `messages` by its direction and
+ * cursor — so an answer held for one table must never be handed back for another.
+ * The other four describe the reader's own whole list and are scoped only by the
+ * filter they were asked for.
  */
 export type CafeResource =
   | "feet"
@@ -820,7 +1139,9 @@ export type CafeResource =
   | "myAccess"
   | "stats"
   | "search"
-  | "joined";
+  | "joined"
+  | "messages"
+  | "users";
 
 /* ------------------------------------------------------------ socket shapes -- */
 
@@ -829,20 +1150,78 @@ export interface ICafeRoomJoinPayload {
   roomId: string;
 }
 
-/** `cafe:table:send-message` — `reaplyToMessageId` is misspelled on the wire. */
+/**
+ * The `POST /table/:tableId/messages` body — the WHOLE call.
+ *
+ * ⚠️ **SEND IS REST-ONLY AND NEVER A SOCKET EMIT.** It used to be typed as the
+ * `cafe:table:send-message` emit, which the backend does not have: the API doc is
+ * explicit that send/edit/delete moved from the socket to REST, and that the only
+ * socket traffic for a message is the `cafe:table:send-message:recieve`
+ * **broadcast** the other members receive. An emit the server does not listen
+ * for is a message that silently never arrives — the composer appears to work and
+ * the conversation never grows — so this is the REST shape.
+ *
+ * ⚠️ `tableId` is **NOT a body key**: it is the path segment the proxy reads from
+ * the route, and it is declared here only so one object can describe the whole
+ * call. Forwarding it in the body is what the upstream's strict zod refuses
+ * (`Unknown properties → ERR_VALIDATION`), and the proxy
+ * (`server/api/cafe/table/[resourceId]/messages.post.ts`) rebuilds the body from an
+ * allowlist that does not include it.
+ *
+ * ⚠️ `reaplayToMessageId` — with the `lay` — is the load-bearing wire typo; the
+ * response reads it back as `reaplayTo`. `ICafeLiveMessage` and
+ * `ICafeTableMessage` both carry the RESPONSE spelling, which is a different key
+ * on a different object.
+ */
 export interface ICafeSendMessagePayload {
   tableId: string;
   text?: string;
   file?: { mainFile?: string; thumbnailFile?: string };
   poll?: unknown;
-  reaplyToMessageId?: string;
+  reaplayToMessageId?: string;
 }
 
+/**
+ * The `POST /table/:tableId/messages` body AS THE CALLER WRITES IT — i.e.
+ * `ICafeSendMessagePayload` minus the one key that is a path segment rather than
+ * a body field, with `mainFile` **required** inside `file`.
+ *
+ * ⚠️ Two things it exists to make impossible at the call site, both of which §11's
+ * strict zod turns into `ERR_VALIDATION`: forwarding `tableId` in the body, and
+ * forwarding a `file` with nothing in it — `{}` counts towards «at least one of
+ * `text` / `file` / `poll`», so a file-less "attachment" would pass as a real one.
+ *
+ * ⚠️ `reaplayToMessageId` — with the `lay` — is the load-bearing wire typo. See
+ * `ICafeSendMessagePayload`.
+ */
+export type ICafeSendMessageBody = Omit<
+  ICafeSendMessagePayload,
+  "tableId" | "file"
+> & {
+  file?: { mainFile: string; thumbnailFile?: string };
+};
+
+/**
+ * A message named by its two ids.
+ *
+ * Both are the call's identity rather than its body — a REST path is built from
+ * them, and `PUT` / `DELETE` carry no `id` of their own — so one object can
+ * describe the call and the proxy still refuses anything that is not an id before
+ * it becomes a path segment.
+ */
 export interface ICafeMessageRefPayload {
   tableId: string;
   messageId: string;
 }
 
+/**
+ * The `PUT /table/messages/:tableId/:messageId` call — `ICafeMessageRefPayload`
+ * plus the ONE field its body accepts.
+ *
+ * ⚠️ Edit is REST-only for the same reason send is: see
+ * `ICafeSendMessagePayload`. `text` is required and the only key upstream's strict
+ * body allows, so the proxy rebuilds `{ text }` and nothing else.
+ */
 export interface ICafeEditMessagePayload extends ICafeMessageRefPayload {
   text: string;
 }
@@ -850,21 +1229,70 @@ export interface ICafeEditMessagePayload extends ICafeMessageRefPayload {
 /**
  * The message a room receives the INSTANT it is sent.
  *
- * ⚠️ It has NO `senderId`, NO `sequence` and NO `createdAt`. Those are written
- * later by the `save-message` BullMQ job and only ever come back through
- * `GET /table/:tableId/messages`. So this is deliberately NOT `ICafeTableMessage`:
- * an optimistic message has to be recognised by its own client id until a
- * history read replaces it with the persisted one.
+ * §14.1 documents it as «Full message object (**same fields as send-response `data`»)»,
+ * and that `data` carries `senderId` and `createdAt` (§11's 201) — so both are declared
+ * here and read when they arrive, which is what puts a name and a time on a bubble
+ * immediately instead of after the catch-up. `sequence` is the one field that
+ * description covers which this type deliberately does **not** declare: the note at the
+ * position it would occupy says why.
+ *
+ * So this is deliberately NOT `ICafeTableMessage`: an optimistic message has to be
+ * recognised by its own client id until a history read replaces it with the persisted
+ * one, and a broadcast may reach this client before the row is persisted at all.
  */
 export interface ICafeLiveMessage {
   id?: string;
   roomId?: string;
   text?: string;
+  /** ⚠️ §14.1's «same fields as send-response `data`». Read when present; without it a
+   * live row — including the READER'S OWN — has no author until the catch-up fills it. */
+  senderId?: string | null;
+  /** ⚠️ Same §14.1 line. Read when present, so the bubble has a timestamp on arrival. */
+  createdAt?: string;
+  // ⚠ NO `sequence` KEY HERE, AND NONE MAY BE ADDED. The catch-up owns sequences: one
+  // read off a socket would sit inside the `newestSequence` window `direction:"new"`
+  // pages from and inside the value POSTed to `/seen`, so a broadcast-supplied
+  // `sequence` corrupts both paging AND the read receipt.
   type?: MessageType;
   status?: MessageStatus;
   poll?: ICafeTableMessagePoll | null;
   reaplayTo?: ICafeTableMessageReply | null;
-  file?: { fileType?: string | null; thumbnail?: string | null; mainUrl?: string | null } | null;
+  /**
+   * ⚠️ BOTH SPELLINGS ARE DECLARED, AND THE READER MUST TRY BOTH. §14.1 describes
+   * this payload as «same fields as send-response `data`» — whose `file` is
+   * `{ fileType, thubmnail, mainUrl }`, misspelled — while this interface already
+   * carried the correctly spelled `thumbnail`. Which one a broadcast actually
+   * sends is not documented anywhere, so the store reads `thubmnail ?? thumbnail`
+   * and neither half is dropped for being wrong.
+   */
+  file?:
+    | {
+        fileType?: string | null;
+        thumbnail?: string | null;
+        thubmnail?: string | null;
+        mainUrl?: string | null;
+      }
+    | null;
+  /** §14.1: rides along only when soft bad words matched. See `ICafeMessageReport`. */
+  report?: ICafeMessageReport | null;
+}
+
+/**
+ * One member's presence as the socket reported it, kept per `userId`.
+ *
+ * ⚠️ IT IS **NOT** A ROSTER AND IT DOES NOT REPLACE ONE. `GET /table/:tableId/users`
+ * returns USER documents and `cafe:table:join-new-user` returns a PRESENCE — two
+ * different facts about the same people, and a presence event for somebody the
+ * roster has never heard of is recorded rather than dropped, because a nameless
+ * bubble is worse than a thinner roster.
+ */
+export interface ICafePresence {
+  userId: string;
+  /** The event carries it, which is how a presence-only member gets a name. */
+  fullName?: string;
+  isOnline: boolean;
+  lastSeen?: number;
+  role?: TableUserRole;
 }
 
 export interface ICafeLikeBroadcast {
@@ -896,16 +1324,33 @@ export interface ICafeSocketError {
   data?: ICafeErrorData | null;
 }
 
-/** Everything the client sends on `/cafe`. */
+/**
+ * Everything the client sends on `/cafe`.
+ *
+ * ## ⚠️ AND NOTHING ELSE — THERE ARE NO MESSAGE WRITES HERE, ON PURPOSE
+ *
+ * Send, edit and delete are **REST-only**. The API doc moved all three off the
+ * socket and says so twice (§10.3's footnote, and §18's trap 12): the server does
+ * not listen for those emits, and the only socket traffic a message produces is
+ * the BROADCAST the room receives afterwards
+ * (`cafe:table:send-message:recieve`, `…edit-message:response`,
+ * `…delete-message:response`).
+ *
+ * `cafe:table:send-message`, `cafe:table:edit-message` and
+ * `cafe:table:delete-message` were typed here until Phase 2 and are now gone,
+ * because an emit the server ignores is not a harmless extra: the composer looks
+ * like it sent, the optimistic bubble stays pending forever, and the conversation
+ * never grows — a failure with nothing on screen to point at it. What is left is
+ * exactly the seven §10.3 documents: room membership and the unread-badge
+ * subscription. **Do not add a message write back here.** The REST shapes are
+ * `ICafeSendMessagePayload` and `ICafeEditMessagePayload`.
+ */
 export interface ICafeClientToServerEvents {
   "cafe:table:join-room": (
     payload: ICafeRoomJoinPayload,
     ack?: (ok: boolean) => void,
   ) => void;
   "cafe:table:leave-room": () => void;
-  "cafe:table:send-message": (payload: ICafeSendMessagePayload) => void;
-  "cafe:table:delete-message": (payload: ICafeMessageRefPayload) => void;
-  "cafe:table:edit-message": (payload: ICafeEditMessagePayload) => void;
   "cafe:join-room": (
     payload: ICafeRoomJoinPayload,
     ack?: (ok: boolean) => void,

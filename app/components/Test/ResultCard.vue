@@ -33,7 +33,7 @@ defineProps<{
 
     <span class="min-w-0 flex-1">
       <span v-if="heading" class="block text-xs text-x-text-subtitle">
-        {{ heading }}
+        <!-- {{ heading }} -->
       </span>
       <strong class="block truncate text-x-text-title">{{ item.test.title }}</strong>
       <time
@@ -43,8 +43,8 @@ defineProps<{
         {{ faDate(item.createdAt) }}
       </time>
     </span>
-
-    <!-- <span
+<!-- 
+    <span
       class="shrink-0 truncate rounded-full px-3 py-1.5 text-xs font-medium bg-linear-to-l from-x-secondary-200 to-x-secondary-100 text-x-secondary-900 ring-1 ring-x-secondary-300/60 max-w-1/2"
     >
       {{ item.result.title }}

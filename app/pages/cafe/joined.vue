@@ -5,8 +5,8 @@ import type { ICafeFabMenuItem } from "~/components/Cafe/FabMenu.vue";
 /**
  * `/cafe/joined` — the tables the reader is already a member of.
  *
- * A tab root, like `/cafe` and `/cafe/chat`: it is one of the four destinations
- * in `CafeBottomMenu`, so there is no screen above it to go back to, and the
+ * A tab root, like `/cafe`: it is one of the three destinations in
+ * `CafeBottomMenu`, so there is no screen above it to go back to, and the
  * reference draws its big title with no arrow for the same reason.
  *
  * ## WHY THESE ARE `CafeTableCard` ROWS AND NOT `CafeChatRow` ONES
@@ -236,7 +236,10 @@ const channelTo = (channel: ICafeChannel) =>
  */
 const FAB_ITEMS: ICafeFabMenuItem[] = [
   { label: "همه کافه‌ها", icon: "solar:cup-hot-linear", to: "/cafe" },
-  { label: "گفتگوها", icon: "solar:dialog-2-linear", to: "/cafe/chat" },
+  // ⚠️ `disabled` and **no `to`**, because `/cafe/chat` redirects to this very
+  // list: leaving the row navigable would send the reader to the screen they
+  // are already on. See `/cafe/index`'s copy of this note.
+  { label: "گفتگوها", icon: "solar:dialog-2-linear", disabled: true, badge: "به‌زودی" },
   { label: "میز تازه", icon: "solar:add-circle-linear", disabled: true, badge: "به‌زودی" },
 ];
 </script>

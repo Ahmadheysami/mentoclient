@@ -34,7 +34,10 @@ interface GoalAwardWriteResult {
  * members are assignable to it, so the bare global `$fetch` default below keeps
  * every client-only call site working untouched.
  */
-type GoalAwardFetcher = ReturnType<typeof useRequestFetch>;
+type GoalAwardFetcher = (
+  url: string,
+  options?: { method?: string; body?: unknown; query?: unknown },
+) => Promise<unknown>;
 
 interface GoalAwardState {
   /** Whether the view is the parent's list for one child, or the child's own. */
@@ -80,9 +83,17 @@ function toSentence(value: unknown): string {
   return typeof value === "string" ? value : "";
 }
 
+/**
+ * `$fetch` under a name the compiler can actually finish checking — the same
+ * `TS2321` recursion-limit escape as `plainFetch` in `stores/childPanel.ts` and
+ * `CafeFetcher` in `stores/cafe.ts`. A runtime-supplied route path is not in
+ * Nitro's generated union, so resolving it against that union proves nothing.
+ */
+const plainFetch = $fetch as unknown as GoalAwardFetcher;
+
 async function readEnvelope<TResponse extends ApiFailureEnvelope>(
   url: string,
-  fetcher: GoalAwardFetcher = $fetch,
+  fetcher: GoalAwardFetcher = plainFetch,
 ): Promise<TResponse | null> {
   try {
     return (await fetcher(url, { method: "get" })) as TResponse;
@@ -108,7 +119,7 @@ async function writeEnvelope(
   netFallback: string,
 ): Promise<GoalAwardWriteResult> {
   try {
-    const response = (await $fetch(url, {
+    const response = (await plainFetch(url, {
       method,
       body: body as Record<string, unknown> | undefined,
     })) as GoalAwardWriteResponse;

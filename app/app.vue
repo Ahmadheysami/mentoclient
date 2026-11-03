@@ -2,13 +2,38 @@
 // Hooks
 const nuxtApp = useNuxtApp(),
   splashState = ref<boolean>(true),
-  loadPageHandler = () => {
-    setTimeout(() => {
-      splashState.value = false;
-    }, 2250);
-  };
-nuxtApp.hooks.hook("app:mounted", loadPageHandler);
-nuxtApp.hooks.hook("page:loading:end", loadPageHandler);
+  /** The motion asset runs ~5.5s; the splash never leaves before it ends. */
+  splashDurationElapsed = ref<boolean>(false),
+  /** The initial page (or its first navigation) has finished loading. */
+  pageLoaded = ref<boolean>(false);
+
+let splashTimer: ReturnType<typeof setTimeout> | undefined;
+
+/** Both conditions, and neither alone, dismiss the splash. */
+const dismissSplashWhenReady = () => {
+  if (splashDurationElapsed.value && pageLoaded.value) {
+    splashState.value = false;
+  }
+};
+
+const markPageLoaded = () => {
+  pageLoaded.value = true;
+  dismissSplashWhenReady();
+};
+
+onMounted(() => {
+  splashTimer = setTimeout(() => {
+    splashDurationElapsed.value = true;
+    dismissSplashWhenReady();
+  }, 5500);
+});
+
+onBeforeUnmount(() => {
+  if (splashTimer) clearTimeout(splashTimer);
+});
+
+nuxtApp.hooks.hook("app:mounted", markPageLoaded);
+nuxtApp.hooks.hook("page:loading:end", markPageLoaded);
 
 /**
  * The reader's text size and motion preference, as attributes on `<html>`.

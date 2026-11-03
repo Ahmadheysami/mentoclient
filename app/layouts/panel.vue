@@ -68,6 +68,18 @@ const isEmployerPanel = computed(() => route.meta.panel === 'employer');
 const isAssistantRoute = computed(
   () => route.meta.hideBottomBar === true,
 );
+
+const mainEl = ref<HTMLElement | null>(null);
+
+/** Every panel screen opens at the top, like a native push. */
+watch(
+  () => route.fullPath,
+  () => {
+    nextTick(() => {
+      if (mainEl.value) mainEl.value.scrollTop = 0;
+    });
+  },
+);
 </script>
 
 <template>
@@ -87,6 +99,7 @@ const isAssistantRoute = computed(
             route, which renders no pill, takes `pb-0` instead.
         -->
         <main
+            ref="mainEl"
             class="flex-1 overflow-y-auto overscroll-contain"
             :class="isAssistantRoute ? 'pb-0' : 'pb-23'">
             <slot />

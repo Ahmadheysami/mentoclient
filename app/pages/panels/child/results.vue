@@ -6,9 +6,10 @@ import type { TestResult } from "~/types/test";
  * child session: `?scope=child` makes the proxy read the child cookie
  * (`server/utils/session.ts`).
  *
- * Cards are display-only on purpose: the adult detail page
- * (`/test/done/[id]`) re-reads the results with the PARENT cookie, so sending
- * the child there would show them nothing.
+ * Each card opens the result SHEET (`Child/ResultSheet.vue`) right on the list;
+ * the sheet links to `/panels/child/results/[id]` for the full page, which
+ * reads this same child-scoped list — the adult detail page (`/test/done/[id]`)
+ * re-reads with the PARENT cookie, so it can never show a child their result.
  */
 definePageMeta({
   layout: "child",
@@ -21,6 +22,9 @@ const childPanel = useChildPanel();
 const testStore = useTest();
 
 const isLoading = computed(() => testStore.state.loading.getTestsDone);
+
+/** The card the reader tapped; `null` keeps the sheet closed. */
+const selectedResult = ref<TestResult | null>(null);
 
 const hasError = computed(() => !isLoading.value && Boolean(testStore.state.error));
 
@@ -112,7 +116,7 @@ onMounted(loadResults);
     />
 
     <!-- Success -->
-    <ul v-else class="mt-5 grid gap-3">
+    <ul v-else data-scroll-reveal class="mt-5 grid gap-3">
       <li
         v-for="(group, index) in groups"
         :key="group.testId"
@@ -122,9 +126,16 @@ onMounted(loadResults);
         <ChildResultCard
           :title="group.title"
           :date="group.latest.createdAt"
-          :chip-label="group.latest.result.title"
+          chip-label="انجام شده"
+          @open="selectedResult = group.latest"
         />
       </li>
     </ul>
+
+    <!-- The tapped result, as a sheet over the list. -->
+    <ChildResultSheet
+      :result="selectedResult"
+      @close="selectedResult = null"
+    />
   </div>
 </template>

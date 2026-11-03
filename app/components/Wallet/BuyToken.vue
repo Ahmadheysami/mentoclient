@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import comma from "comma-number"
+import { faTomanText } from "~/utils/fa"
 
 const emit = defineEmits(['request-end'])
 const wallet = useWallet(),
@@ -62,8 +62,9 @@ onBeforeMount(() => {
             </template>
         </UInputNumber>
         <div class="flex items-center justify-between font-bold my-3">
-            <span>محاسبه به ریال</span>
-            <span>{{ comma(wallet.state.coins?.toFixed() as any) || 0 }} {{ wallet.state.coins ? 'ریال' : '' }}</span>
+            <!-- `irrToCoins('token-to-irr')` answers in ریال; the reader is quoted تومان -->
+            <span>محاسبه به تومان</span>
+            <span>{{ wallet.state.coins ? faTomanText(wallet.state.coins) : '' }}</span>
         </div>
 
         <!-- Submit -->

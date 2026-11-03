@@ -149,7 +149,11 @@ onMounted(async () => {
 
     <!-- ① The tests this reader can still start. Its button and the result cards
          below lead OUT of the panel on purpose — see the note in the header. -->
-    <section aria-labelledby="panel-employee-tests-active" class="mt-6">
+    <section
+      aria-labelledby="panel-employee-tests-active"
+      data-scroll-reveal
+      class="mt-6"
+    >
       <div class="flex items-center gap-3">
         <h2
           id="panel-employee-tests-active"
@@ -259,7 +263,11 @@ onMounted(async () => {
 
     <!-- ② What is already done. Every attempt is one row, newest first, and the
          row is `Test/ResultCard`'s existing link to that attempt's own page. -->
-    <section aria-labelledby="panel-employee-tests-done" class="mt-6">
+    <section
+      aria-labelledby="panel-employee-tests-done"
+      data-scroll-reveal
+      class="mt-6"
+    >
       <div class="flex items-center gap-3">
         <h2
           id="panel-employee-tests-done"
