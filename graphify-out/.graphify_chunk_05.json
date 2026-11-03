@@ -1,0 +1,235 @@
+{
+  "nodes": [
+    {
+      "id": "cafe_ui_webp",
+      "label": "cafe-ui.webp",
+      "type": "image",
+      "source_file": "/Users/ahmad/DEV/Mentoya/Client/docs/design/cafe-ui.webp",
+      "file_type": "image"
+    },
+    {
+      "id": "cafe_ui_design_mockup",
+      "label": "Cafe Messaging UI Design Mockup",
+      "type": "concept",
+      "source_file": "/Users/ahmad/DEV/Mentoya/Client/docs/design/cafe-ui.webp",
+      "file_type": "image"
+    },
+    {
+      "id": "cafe_ui_purpose",
+      "label": "Purpose: reference design for the cafe messaging feature",
+      "type": "concept",
+      "source_file": "/Users/ahmad/DEV/Mentoya/Client/docs/design/cafe-ui.webp",
+      "file_type": "image"
+    },
+    {
+      "id": "cafe_ui_screen_a",
+      "label": "Screen A — Cafés / Conversations List",
+      "type": "concept",
+      "source_file": "/Users/ahmad/DEV/Mentoya/Client/docs/design/cafe-ui.webp",
+      "file_type": "image"
+    },
+    {
+      "id": "cafe_ui_screen_b",
+      "label": "Screen B — Conversation Thread",
+      "type": "concept",
+      "source_file": "/Users/ahmad/DEV/Mentoya/Client/docs/design/cafe-ui.webp",
+      "file_type": "image"
+    },
+    {
+      "id": "cafe_ui_ios_messenger",
+      "label": "iOS-style messenger aesthetic (black pill nav, floating FAB)",
+      "type": "concept",
+      "source_file": "/Users/ahmad/DEV/Mentoya/Client/docs/design/cafe-ui.webp",
+      "file_type": "image"
+    },
+    {
+      "id": "cafe_ui_large_title",
+      "label": "Large title header (root screen, no back chevron)",
+      "type": "concept",
+      "source_file": "/Users/ahmad/DEV/Mentoya/Client/docs/design/cafe-ui.webp",
+      "file_type": "image"
+    },
+    {
+      "id": "cafe_ui_pill_search",
+      "label": "Pill search field",
+      "type": "concept",
+      "source_file": "/Users/ahmad/DEV/Mentoya/Client/docs/design/cafe-ui.webp",
+      "file_type": "image"
+    },
+    {
+      "id": "cafe_ui_hairline_rows",
+      "label": "Hairline-divided list rows",
+      "type": "concept",
+      "source_file": "/Users/ahmad/DEV/Mentoya/Client/docs/design/cafe-ui.webp",
+      "file_type": "image"
+    },
+    {
+      "id": "cafe_ui_fab",
+      "label": "Floating action button (FAB) with popup menu",
+      "type": "concept",
+      "source_file": "/Users/ahmad/DEV/Mentoya/Client/docs/design/cafe-ui.webp",
+      "file_type": "image"
+    },
+    {
+      "id": "cafe_ui_bottom_nav",
+      "label": "Bottom navigation pill (icon-only, 3 items)",
+      "type": "concept",
+      "source_file": "/Users/ahmad/DEV/Mentoya/Client/docs/design/cafe-ui.webp",
+      "file_type": "image"
+    },
+    {
+      "id": "cafe_ui_chat_header",
+      "label": "Chat header identity (avatar, name, subtitle, overflow)",
+      "type": "concept",
+      "source_file": "/Users/ahmad/DEV/Mentoya/Client/docs/design/cafe-ui.webp",
+      "file_type": "image"
+    },
+    {
+      "id": "cafe_ui_membership_bands",
+      "label": "Membership / status bands pinned under header",
+      "type": "concept",
+      "source_file": "/Users/ahmad/DEV/Mentoya/Client/docs/design/cafe-ui.webp",
+      "file_type": "image"
+    },
+    {
+      "id": "cafe_ui_message_list",
+      "label": "Message list (thread transcript)",
+      "type": "concept",
+      "source_file": "/Users/ahmad/DEV/Mentoya/Client/docs/design/cafe-ui.webp",
+      "file_type": "image"
+    },
+    {
+      "id": "cafe_ui_composer",
+      "label": "Composer bar (attach +, pill input, mic)",
+      "type": "concept",
+      "source_file": "/Users/ahmad/DEV/Mentoya/Client/docs/design/cafe-ui.webp",
+      "file_type": "image"
+    },
+    {
+      "id": "cafe_ui_join_bar",
+      "label": "Join bar (replaces composer when not a member)",
+      "type": "concept",
+      "source_file": "/Users/ahmad/DEV/Mentoya/Client/docs/design/cafe-ui.webp",
+      "file_type": "image"
+    },
+    {
+      "id": "cafe_ui_reply_strip",
+      "label": "Reply strip above composer",
+      "type": "concept",
+      "source_file": "/Users/ahmad/DEV/Mentoya/Client/docs/design/cafe-ui.webp",
+      "file_type": "image"
+    },
+    {
+      "id": "cafe_ui_ltr_to_rtl",
+      "label": "LTR mockup mirrored to RTL (chevron first DOM node)",
+      "type": "concept",
+      "source_file": "/Users/ahmad/DEV/Mentoya/Client/docs/design/cafe-ui.webp",
+      "file_type": "image"
+    },
+    {
+      "id": "cafe_ui_mobile_frame",
+      "label": "Mobile-first phone frame (max-w-md column)",
+      "type": "concept",
+      "source_file": "/Users/ahmad/DEV/Mentoya/Client/docs/design/cafe-ui.webp",
+      "file_type": "image"
+    },
+    {
+      "id": "cafe_ui_safe_area",
+      "label": "Safe-area insets (home indicator clearance)",
+      "type": "concept",
+      "source_file": "/Users/ahmad/DEV/Mentoya/Client/docs/design/cafe-ui.webp",
+      "file_type": "image"
+    },
+    {
+      "id": "cafe_ui_empty_states",
+      "label": "Empty / loading / error states",
+      "type": "concept",
+      "source_file": "/Users/ahmad/DEV/Mentoya/Client/docs/design/cafe-ui.webp",
+      "file_type": "image"
+    },
+    {
+      "id": "cafe_ui_avatar",
+      "label": "Avatar with presence dot",
+      "type": "concept",
+      "source_file": "/Users/ahmad/DEV/Mentoya/Client/docs/design/cafe-ui.webp",
+      "file_type": "image"
+    },
+    {
+      "id": "cafe_ui_search_pill",
+      "label": "Search pill (gray field on white)",
+      "type": "concept",
+      "source_file": "/Users/ahmad/DEV/Mentoya/Client/docs/design/cafe-ui.webp",
+      "file_type": "image"
+    }
+  ],
+  "edges": [
+    { "source": "cafe_ui_webp", "target": "cafe_ui_design_mockup", "relation": "depicts", "confidence": "EXTRACTED", "confidence_score": 1.0 },
+    { "source": "cafe_ui_webp", "target": "cafe_ui_purpose", "relation": "documents", "confidence": "EXTRACTED", "confidence_score": 1.0 },
+    { "source": "cafe_ui_design_mockup", "target": "cafe_ui_screen_a", "relation": "contains", "confidence": "EXTRACTED", "confidence_score": 1.0 },
+    { "source": "cafe_ui_design_mockup", "target": "cafe_ui_screen_b", "relation": "contains", "confidence": "EXTRACTED", "confidence_score": 1.0 },
+    { "source": "cafe_ui_screen_a", "target": "cafe_ui_large_title", "relation": "uses", "confidence": "EXTRACTED", "confidence_score": 1.0 },
+    { "source": "cafe_ui_screen_a", "target": "cafe_ui_pill_search", "relation": "uses", "confidence": "EXTRACTED", "confidence_score": 1.0 },
+    { "source": "cafe_ui_screen_a", "target": "cafe_ui_hairline_rows", "relation": "uses", "confidence": "EXTRACTED", "confidence_score": 1.0 },
+    { "source": "cafe_ui_screen_a", "target": "cafe_ui_fab", "relation": "uses", "confidence": "EXTRACTED", "confidence_score": 1.0 },
+    { "source": "cafe_ui_screen_a", "target": "cafe_ui_bottom_nav", "relation": "uses", "confidence": "EXTRACTED", "confidence_score": 1.0 },
+    { "source": "cafe_ui_screen_a", "target": "cafe_ui_empty_states", "relation": "uses", "confidence": "EXTRACTED", "confidence_score": 1.0 },
+    { "source": "cafe_ui_screen_b", "target": "cafe_ui_chat_header", "relation": "uses", "confidence": "EXTRACTED", "confidence_score": 1.0 },
+    { "source": "cafe_ui_screen_b", "target": "cafe_ui_membership_bands", "relation": "uses", "confidence": "EXTRACTED", "confidence_score": 1.0 },
+    { "source": "cafe_ui_screen_b", "target": "cafe_ui_message_list", "relation": "uses", "confidence": "EXTRACTED", "confidence_score": 1.0 },
+    { "source": "cafe_ui_screen_b", "target": "cafe_ui_composer", "relation": "uses", "confidence": "EXTRACTED", "confidence_score": 1.0 },
+    { "source": "cafe_ui_screen_b", "target": "cafe_ui_join_bar", "relation": "uses", "confidence": "EXTRACTED", "confidence_score": 1.0 },
+    { "source": "cafe_ui_screen_b", "target": "cafe_ui_reply_strip", "relation": "uses", "confidence": "EXTRACTED", "confidence_score": 1.0 },
+    { "source": "cafe_ui_chat_header", "target": "cafe_ui_avatar", "relation": "contains", "confidence": "EXTRACTED", "confidence_score": 1.0 },
+    { "source": "cafe_ui_ios_messenger", "target": "cafe_ui_fab", "relation": "influences", "confidence": "INFERRED", "confidence_score": 0.9 },
+    { "source": "cafe_ui_ios_messenger", "target": "cafe_ui_bottom_nav", "relation": "influences", "confidence": "INFERRED", "confidence_score": 0.9 },
+    { "source": "cafe_ui_ltr_to_rtl", "target": "cafe_ui_chat_header", "relation": "applies_to", "confidence": "EXTRACTED", "confidence_score": 1.0 },
+    { "source": "cafe_ui_ltr_to_rtl", "target": "cafe_ui_large_title", "relation": "applies_to", "confidence": "EXTRACTED", "confidence_score": 1.0 },
+    { "source": "cafe_ui_mobile_frame", "target": "cafe_ui_screen_a", "relation": "frames", "confidence": "EXTRACTED", "confidence_score": 1.0 },
+    { "source": "cafe_ui_mobile_frame", "target": "cafe_ui_screen_b", "relation": "frames", "confidence": "EXTRACTED", "confidence_score": 1.0 },
+    { "source": "cafe_ui_safe_area", "target": "cafe_ui_bottom_nav", "relation": "affects", "confidence": "EXTRACTED", "confidence_score": 1.0 },
+    { "source": "cafe_ui_safe_area", "target": "cafe_ui_composer", "relation": "affects", "confidence": "EXTRACTED", "confidence_score": 1.0 },
+    { "source": "cafe_ui_pill_search", "target": "cafe_ui_search_pill", "relation": "same_as", "confidence": "EXTRACTED", "confidence_score": 1.0 }
+  ],
+  "hyperedges": [
+    {
+      "id": "screen_a_elements",
+      "label": "Screen A element set",
+      "nodes": [
+        "cafe_ui_screen_a",
+        "cafe_ui_large_title",
+        "cafe_ui_pill_search",
+        "cafe_ui_hairline_rows",
+        "cafe_ui_fab",
+        "cafe_ui_bottom_nav",
+        "cafe_ui_empty_states"
+      ],
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "id": "screen_b_elements",
+      "label": "Screen B element set",
+      "nodes": [
+        "cafe_ui_screen_b",
+        "cafe_ui_chat_header",
+        "cafe_ui_membership_bands",
+        "cafe_ui_message_list",
+        "cafe_ui_composer",
+        "cafe_ui_join_bar",
+        "cafe_ui_reply_strip"
+      ],
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    }
+  ],
+  "input_tokens": 0,
+  "output_tokens": 0,
+  "coverage": {
+    "/Users/ahmad/DEV/Mentoya/Client/docs/design/cafe-ui.webp": {
+      "status": "ok",
+      "chars": 67376,
+      "dimensions": "2048x1536",
+      "file_type": "image"
+    }
+  }
+}

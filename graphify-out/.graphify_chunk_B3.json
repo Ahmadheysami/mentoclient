@@ -1,0 +1,663 @@
+{
+  "nodes": [
+    {
+      "id": "public_images_panels_child_avatar_child_avatar",
+      "label": "Child Avatar Badge",
+      "file_type": "image",
+      "source_file": "/Users/ahmad/DEV/Mentoya/Client/public/images/panels/child-avatar.svg",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "rationale": "Minimal flat SVG avatar: a peach rounded-square (rx=60) as the circular badge, an orange head circle, two cream eye dots, a smiling arc and a pink hair arc. No gradients, no shading — pure flat shapes so it survives at list/tile sizes."
+    },
+    {
+      "id": "public_images_panels_child_avatar_flat_avatar_badge",
+      "label": "Flat Avatar Badge Pattern",
+      "file_type": "concept",
+      "source_file": "/Users/ahmad/DEV/Mentoya/Client/public/images/panels/child-avatar.svg",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "rationale": "A rounded-rect-as-circle avatar with a flat hue head and cream facial marks. Chosen over the shaded hero art where a small, crisp identity chip is sufficient and gradients would muddy."
+    },
+    {
+      "id": "public_images_panels_kid_3d_boy_hero_art",
+      "label": "Kid Hero Art — Boy",
+      "file_type": "image",
+      "source_file": "/Users/ahmad/DEV/Mentoya/Client/public/images/panels/kid-3d-boy.svg",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "rationale": "Front-facing cropped bust of a boy: mint-green tee, peach skin, deep-brown hair, cream sclera with ink irises, a 23px tooth band across the smile. Built on a 240x240 square canvas with the torso path clipped off at the bottom edge."
+    },
+    {
+      "id": "public_images_panels_kid_3d_boy_volume_recipe",
+      "label": "The Volume Recipe",
+      "file_type": "concept",
+      "source_file": "/Users/ahmad/DEV/Mentoya/Client/public/images/panels/kid-3d-boy.svg",
+      "source_location": "lines 6-12",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "rationale": "Applied to every round form: a hue base, a radialGradient whose focal point sits top-LEFT so the modelling agrees with the panel's own neumorphic lighting (main.css §18: -6px -6px light, 6px 6px dark), a rim gradient for the terminator because falloff toward the edge is what reads as a sphere and not a disc, warm occlusion where forms meet, and small speculars."
+    },
+    {
+      "id": "public_images_panels_kid_3d_boy_top_left_focal_gradient",
+      "label": "Top-Left Focal Point Gradient",
+      "file_type": "concept",
+      "source_file": "/Users/ahmad/DEV/Mentoya/Client/public/images/panels/kid-3d-boy.svg",
+      "source_location": "lines 28-33",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "rationale": "The b-skin radialGradient uses fx=.33 fy=.29 while the geometry centre is .5/.5, deliberately offsetting the highlight up-left so all forms share one light direction."
+    },
+    {
+      "id": "public_images_panels_kid_3d_boy_rim_gradient_terminator",
+      "label": "Rim Gradient Terminator",
+      "file_type": "concept",
+      "source_file": "/Users/ahmad/DEV/Mentoya/Client/public/images/panels/kid-3d-boy.svg",
+      "source_location": "lines 27-33",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "rationale": "The last two stops of the skin ramp ARE the terminator (coral at .92 alpha, then deep ink at .34 alpha) — edge falloff is what distinguishes a sphere from a flat disc."
+    },
+    {
+      "id": "public_images_panels_kid_3d_boy_warm_occlusion",
+      "label": "Warm Blurred Occlusion (AO)",
+      "file_type": "concept",
+      "source_file": "/Users/ahmad/DEV/Mentoya/Client/public/images/panels/kid-3d-boy.svg",
+      "source_location": "lines 75-92",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "rationale": "Warm ink-tinted ellipses with feGaussianBlur sit where forms meet (head onto neck, hairline) and are clipped to the skull so no occlusion spills onto the hero. Kept tight deliberately — loose AO reads as a stain."
+    },
+    {
+      "id": "public_images_panels_kid_3d_boy_no_pure_black_white_palette",
+      "label": "No Pure Black, No Pure White Palette",
+      "file_type": "concept",
+      "source_file": "/Users/ahmad/DEV/Mentoya/Client/public/images/panels/kid-3d-boy.svg",
+      "source_location": "lines 11-12",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "rationale": "Shadows are the deep kid ink #8a3d10 at partial alpha and highlights the cream #fff4ec, using only the seven existing kid tokens — so the art stays inside the established palette instead of inventing new colours."
+    },
+    {
+      "id": "public_images_panels_kid_3d_boy_square_canvas_cropped_bust",
+      "label": "Square Canvas Cropped Bust",
+      "file_type": "concept",
+      "source_file": "/Users/ahmad/DEV/Mentoya/Client/public/images/panels/kid-3d-boy.svg",
+      "source_location": "lines 14-17",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "rationale": "The hero renders at a fixed square box, so a non-square viewBox would be stretched by the default object-fit: fill. The bust is cropped at the bottom, so there is no floor and the grounding shadow is a CAST one thrown down-right, opposite the light, rather than a contact ellipse."
+    },
+    {
+      "id": "public_images_panels_kid_3d_boy_cast_shadow",
+      "label": "Cast Silhouette Shadow",
+      "file_type": "concept",
+      "source_file": "/Users/ahmad/DEV/Mentoya/Client/public/images/panels/kid-3d-boy.svg",
+      "source_location": "lines 51-57",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "rationale": "The figure's own torso, skull and hair re-used as an ink copy at 11% opacity, blurred and translated (7,9) down-right. It is explicitly what stops a cropped bust from reading as a sticker."
+    },
+    {
+      "id": "public_images_panels_kid_3d_boy_silhouette_rule",
+      "label": "Bust Silhouette Rule",
+      "file_type": "concept",
+      "source_file": "/Users/ahmad/DEV/Mentoya/Client/public/images/panels/kid-3d-boy.svg",
+      "source_location": "lines 19-21",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "rationale": "The silhouette is treated as the whole fight: a smooth curve from neck to bottom corner reads as a hill however wide, so shoulders are kept as STRAIGHT segments and the skull stays under 45% of the canvas so the body still reads as a body."
+    },
+    {
+      "id": "public_images_panels_kid_3d_girl_hero_art",
+      "label": "Kid Hero Art — Girl",
+      "file_type": "image",
+      "source_file": "/Users/ahmad/DEV/Mentoya/Client/public/images/panels/kid-3d-girl.svg",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "rationale": "The same bust construction as the boy: pink (f25c9e) tee, twin shoulder tails over a collar, two hair buns, a yellow hair clip, lashes, and a slight smile — differentiated only by hair, top and accessories."
+    },
+    {
+      "id": "public_images_panels_kid_3d_girl_separate_hair_masses",
+      "label": "Separate Hair Masses",
+      "file_type": "concept",
+      "source_file": "/Users/ahmad/DEV/Mentoya/Client/public/images/panels/kid-3d-girl.svg",
+      "source_location": "lines 9-13",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "rationale": "Hair is built as separate masses — tails, then buns, then the cap — because one path flattens the head into a plane. The cap is drawn LAST to close the seams, and the tails fall IN FRONT of the shoulders as hair does over a collar. They take the sheen ramp because, against the peach hero, a tail that only darkens reads as a brown slab beside the face."
+    },
+    {
+      "id": "public_images_panels_kid_3d_girl_character_system",
+      "label": "Kid Character System",
+      "file_type": "concept",
+      "source_file": "/Users/ahmad/DEV/Mentoya/Client/public/images/panels/kid-3d-girl.svg",
+      "source_location": "lines 3-7",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "rationale": "The boy build is the single reference implementation carrying the documentation; the girl reuses the identical torso path, gradients and face, which is what makes the pair one character system rather than two drawings."
+    },
+    {
+      "id": "public_images_panels_kid_3d_mascot_mascot_art",
+      "label": "Kid Hero Art — Mascot",
+      "file_type": "image",
+      "source_file": "/Users/ahmad/DEV/Mentoya/Client/public/images/panels/kid-3d-mascot.svg",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "rationale": "A single egg-shaped mint blob creature on a 120x120 canvas: round ears with coral inners, two feet, cream sclera eyes, an ink smile, pink blush, a forehead specular and a coral sun-disc emblem on the belly."
+    },
+    {
+      "id": "public_images_panels_kid_3d_mascot_subordinate_companion_accent",
+      "label": "Subordinate Companion Accent",
+      "file_type": "concept",
+      "source_file": "/Users/ahmad/DEV/Mentoya/Client/public/images/panels/kid-3d-mascot.svg",
+      "source_location": "lines 3-6",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "rationale": "The mascot is a deliberate second-class citizen: it renders at size-12 (48px), a third of the character's own box, and is drawn behind the greeting row so it never becomes a second focal point."
+    },
+    {
+      "id": "public_images_panels_kid_3d_mascot_small_size_legibility_budget",
+      "label": "Small-Size Legibility Budget",
+      "file_type": "concept",
+      "source_file": "/Users/ahmad/DEV/Mentoya/Client/public/images/panels/kid-3d-mascot.svg",
+      "source_location": "lines 9-13",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "rationale": "Everything that only survives above ~120px is dropped on purpose — no brows, no rim light, no hands — because at 48px those are grey smudges, and a smudge reads as dirt."
+    },
+    {
+      "id": "public_images_panels_kid_3d_mascot_face_emblem_separation",
+      "label": "Face and Emblem Separation",
+      "file_type": "concept",
+      "source_file": "/Users/ahmad/DEV/Mentoya/Client/public/images/panels/kid-3d-mascot.svg",
+      "source_location": "lines 15-17",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "rationale": "The first draft put the sun disc at y=76 and the smile at y=78 and the two merged into a nose-and-mouth on a face. The face now occupies y 36-70 and the belly sits at y=88, so the emblem is unambiguously on the body."
+    },
+    {
+      "id": "public_images_panels_kid_3d_mascot_contact_shadow",
+      "label": "Contact Shadow for Grounded Figures",
+      "file_type": "concept",
+      "source_file": "/Users/ahmad/DEV/Mentoya/Client/public/images/panels/kid-3d-mascot.svg",
+      "source_location": "lines 46-48",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "rationale": "A real contact ellipse under the feet, justified because this figure has feet and a floor to stand on, which the cropped busts do not — those get a cast shadow instead."
+    },
+    {
+      "id": "public_images_panels_kid_blob_kid_decorative_blob",
+      "label": "Kid Decorative Blob",
+      "file_type": "image",
+      "source_file": "/Users/ahmad/DEV/Mentoya/Client/public/images/panels/kid-blob.svg",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "rationale": "A 220x220 flat decorative composition: a translucent mint amorphous blob (55% opacity) plus a yellow dot, a pink dot and a rotated orange rounded square scattered around it — backdrop texture, not a character."
+    },
+    {
+      "id": "public_images_panels_kid_blob_pastel_blob_backdrop",
+      "label": "Pastel Blob Backdrop Motif",
+      "file_type": "concept",
+      "source_file": "/Users/ahmad/DEV/Mentoya/Client/public/images/panels/kid-blob.svg",
+      "source_location": "lines 2-5",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "rationale": "Low-opacity organic path with three small solid confetti shapes in the kid palette; no gradients or shading, so it can sit behind panel content without competing with the hero art."
+    },
+    {
+      "id": "public_images_panels_parent_avatar_parent_avatar",
+      "label": "Parent Avatar Badge",
+      "file_type": "image",
+      "source_file": "/Users/ahmad/DEV/Mentoya/Client/public/images/panels/parent-avatar.svg",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "rationale": "Indigo identity chip: a pale blue-lavender rounded square (e3e7fb), an indigo head circle and shoulders arc in #4f52c4, ringed by a darker #2f3273 stroke — head-and-shoulders silhouette read instantly as 'adult/guardian'."
+    },
+    {
+      "id": "public_images_panels_parent_avatar_guardian_identity_chip",
+      "label": "Guardian Identity Chip",
+      "file_type": "concept",
+      "source_file": "/Users/ahmad/DEV/Mentoya/Client/public/images/panels/parent-avatar.svg",
+      "source_location": "lines 2-5",
+      "source_url": null,
+      "author": null,
+      "contributor": null,
+      "rationale": "Faceless bust in a distinct indigo family separates the parent role from the kid and teen accent families at a glance, keeping role recognition independent of illustration detail."
+    },
+    {
+      "id": "public_images_panels_teen_avatar_teen_avatar",
+      "label": "Teen Avatar Badge",
+      "file_type": "image",
+      "source_file": "/Users/ahmad/DEV/Mentoya/Client/public/images/panels/teen-avatar.svg",
+      "source_location": null,
+      "source_url": null,
+      "author": null,
+      "contributor": null,
+      "rationale": "Dark-mode avatar: near-black #1c2230 rounded square, a grey-white head circle, magenta-pink fringe (#f1358b), two sky-blue rectangles at ear level reading as headphones, and a small neutral smile."
+    },
+    {
+      "id": "public_images_panels_teen_avatar_headphones_dark_badge",
+      "label": "Headphones Dark Teen Badge",
+      "file_type": "concept",
+      "source_file": "/Users/ahmad/DEV/Mentoya/Client/public/images/panels/teen-avatar.svg",
+      "source_location": "lines 2-7",
+      "source_url": null,
+      "author": null,
+      "contributor": null,
+      "rationale": "Headphones plus pink-on-dark styling signal the teen persona and let the badge sit on the dark teen panel background (#1c2230) without a visible tile edge."
+    },
+    {
+      "id": "public_images_panels_teen_blob_teen_decorative_blob",
+      "label": "Teen Decorative Blob",
+      "file_type": "image",
+      "source_file": "/Users/ahmad/DEV/Mentoya/Client/public/images/panels/teen-blob.svg",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "rationale": "A 220x220 violet-to-teal gradient blob (85% opacity) with a single pale mint dot — the teen panel's backdrop wash rather than a character."
+    },
+    {
+      "id": "public_images_panels_teen_blob_teen_palette_migration",
+      "label": "Teen Blob Palette Migration",
+      "file_type": "concept",
+      "source_file": "/Users/ahmad/DEV/Mentoya/Client/public/images/panels/teen-blob.svg",
+      "source_location": "lines 2-11",
+      "source_url": null,
+      "author": null,
+      "contributor": null,
+      "rationale": "Stops are pinned to the teen palette's accent families in main.css @theme, NOT to the retired values: the gradient was #f1358b to #4da3f5 (hot pink into sky blue) which only ever read correctly against the dark hero. It is now #c7bcf7 violet into #a9e6de teal so it belongs to the same light gradient wash the hero sits on."
+    }
+  ],
+  "edges": [
+    {
+      "source": "public_images_panels_child_avatar_child_avatar",
+      "target": "public_images_panels_child_avatar_flat_avatar_badge",
+      "relation": "implements",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/Users/ahmad/DEV/Mentoya/Client/public/images/panels/child-avatar.svg",
+      "source_location": "lines 2-7",
+      "weight": 1.0
+    },
+    {
+      "source": "public_images_panels_kid_3d_boy_hero_art",
+      "target": "public_images_panels_kid_3d_boy_volume_recipe",
+      "relation": "implements",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/Users/ahmad/DEV/Mentoya/Client/public/images/panels/kid-3d-boy.svg",
+      "source_location": "lines 6-12",
+      "weight": 1.0
+    },
+    {
+      "source": "public_images_panels_kid_3d_boy_volume_recipe",
+      "target": "public_images_panels_kid_3d_boy_top_left_focal_gradient",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/Users/ahmad/DEV/Mentoya/Client/public/images/panels/kid-3d-boy.svg",
+      "source_location": "lines 6-9",
+      "weight": 1.0
+    },
+    {
+      "source": "public_images_panels_kid_3d_boy_volume_recipe",
+      "target": "public_images_panels_kid_3d_boy_rim_gradient_terminator",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/Users/ahmad/DEV/Mentoya/Client/public/images/panels/kid-3d-boy.svg",
+      "source_location": "lines 8-10",
+      "weight": 1.0
+    },
+    {
+      "source": "public_images_panels_kid_3d_boy_volume_recipe",
+      "target": "public_images_panels_kid_3d_boy_warm_occlusion",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/Users/ahmad/DEV/Mentoya/Client/public/images/panels/kid-3d-boy.svg",
+      "source_location": "line 10",
+      "weight": 1.0
+    },
+    {
+      "source": "public_images_panels_kid_3d_boy_hero_art",
+      "target": "public_images_panels_kid_3d_boy_no_pure_black_white_palette",
+      "relation": "implements",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/Users/ahmad/DEV/Mentoya/Client/public/images/panels/kid-3d-boy.svg",
+      "source_location": "lines 11-12",
+      "weight": 1.0
+    },
+    {
+      "source": "public_images_panels_kid_3d_boy_hero_art",
+      "target": "public_images_panels_kid_3d_boy_square_canvas_cropped_bust",
+      "relation": "implements",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/Users/ahmad/DEV/Mentoya/Client/public/images/panels/kid-3d-boy.svg",
+      "source_location": "lines 14-17",
+      "weight": 1.0
+    },
+    {
+      "source": "public_images_panels_kid_3d_boy_square_canvas_cropped_bust",
+      "target": "public_images_panels_kid_3d_boy_cast_shadow",
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/Users/ahmad/DEV/Mentoya/Client/public/images/panels/kid-3d-boy.svg",
+      "source_location": "lines 14-17",
+      "weight": 1.0
+    },
+    {
+      "source": "public_images_panels_kid_3d_boy_hero_art",
+      "target": "public_images_panels_kid_3d_boy_cast_shadow",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/Users/ahmad/DEV/Mentoya/Client/public/images/panels/kid-3d-boy.svg",
+      "source_location": "lines 51-57",
+      "weight": 1.0
+    },
+    {
+      "source": "public_images_panels_kid_3d_boy_hero_art",
+      "target": "public_images_panels_kid_3d_boy_silhouette_rule",
+      "relation": "implements",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/Users/ahmad/DEV/Mentoya/Client/public/images/panels/kid-3d-boy.svg",
+      "source_location": "lines 19-21",
+      "weight": 1.0
+    },
+    {
+      "source": "public_images_panels_kid_3d_girl_hero_art",
+      "target": "public_images_panels_kid_3d_boy_hero_art",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/Users/ahmad/DEV/Mentoya/Client/public/images/panels/kid-3d-girl.svg",
+      "source_location": "lines 3-7",
+      "weight": 1.0
+    },
+    {
+      "source": "public_images_panels_kid_3d_girl_hero_art",
+      "target": "public_images_panels_kid_3d_boy_volume_recipe",
+      "relation": "implements",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/Users/ahmad/DEV/Mentoya/Client/public/images/panels/kid-3d-girl.svg",
+      "source_location": "lines 5-7",
+      "weight": 1.0
+    },
+    {
+      "source": "public_images_panels_kid_3d_girl_hero_art",
+      "target": "public_images_panels_kid_3d_girl_separate_hair_masses",
+      "relation": "implements",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/Users/ahmad/DEV/Mentoya/Client/public/images/panels/kid-3d-girl.svg",
+      "source_location": "lines 9-13",
+      "weight": 1.0
+    },
+    {
+      "source": "public_images_panels_kid_3d_girl_character_system",
+      "target": "public_images_panels_kid_3d_boy_hero_art",
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/Users/ahmad/DEV/Mentoya/Client/public/images/panels/kid-3d-girl.svg",
+      "source_location": "lines 3-7",
+      "weight": 1.0
+    },
+    {
+      "source": "public_images_panels_kid_3d_mascot_mascot_art",
+      "target": "public_images_panels_kid_3d_boy_volume_recipe",
+      "relation": "implements",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/Users/ahmad/DEV/Mentoya/Client/public/images/panels/kid-3d-mascot.svg",
+      "source_location": "lines 8-11",
+      "weight": 1.0
+    },
+    {
+      "source": "public_images_panels_kid_3d_mascot_mascot_art",
+      "target": "public_images_panels_kid_3d_mascot_subordinate_companion_accent",
+      "relation": "implements",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/Users/ahmad/DEV/Mentoya/Client/public/images/panels/kid-3d-mascot.svg",
+      "source_location": "lines 3-6",
+      "weight": 1.0
+    },
+    {
+      "source": "public_images_panels_kid_3d_mascot_subordinate_companion_accent",
+      "target": "public_images_panels_kid_3d_mascot_small_size_legibility_budget",
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/Users/ahmad/DEV/Mentoya/Client/public/images/panels/kid-3d-mascot.svg",
+      "source_location": "lines 9-13",
+      "weight": 1.0
+    },
+    {
+      "source": "public_images_panels_kid_3d_mascot_mascot_art",
+      "target": "public_images_panels_kid_3d_mascot_face_emblem_separation",
+      "relation": "implements",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/Users/ahmad/DEV/Mentoya/Client/public/images/panels/kid-3d-mascot.svg",
+      "source_location": "lines 15-17",
+      "weight": 1.0
+    },
+    {
+      "source": "public_images_panels_kid_3d_mascot_mascot_art",
+      "target": "public_images_panels_kid_3d_mascot_contact_shadow",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/Users/ahmad/DEV/Mentoya/Client/public/images/panels/kid-3d-mascot.svg",
+      "source_location": "lines 46-48",
+      "weight": 1.0
+    },
+    {
+      "source": "public_images_panels_kid_3d_mascot_contact_shadow",
+      "target": "public_images_panels_kid_3d_boy_cast_shadow",
+      "relation": "conceptually_related_to",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/Users/ahmad/DEV/Mentoya/Client/public/images/panels/kid-3d-mascot.svg",
+      "source_location": "lines 46-48",
+      "weight": 1.0
+    },
+    {
+      "source": "public_images_panels_kid_blob_kid_decorative_blob",
+      "target": "public_images_panels_kid_blob_pastel_blob_backdrop",
+      "relation": "implements",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/Users/ahmad/DEV/Mentoya/Client/public/images/panels/kid-blob.svg",
+      "source_location": "lines 2-5",
+      "weight": 1.0
+    },
+    {
+      "source": "public_images_panels_parent_avatar_parent_avatar",
+      "target": "public_images_panels_parent_avatar_guardian_identity_chip",
+      "relation": "implements",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/Users/ahmad/DEV/Mentoya/Client/public/images/panels/parent-avatar.svg",
+      "source_location": "lines 2-5",
+      "weight": 1.0
+    },
+    {
+      "source": "public_images_panels_teen_avatar_teen_avatar",
+      "target": "public_images_panels_teen_avatar_headphones_dark_badge",
+      "relation": "implements",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/Users/ahmad/DEV/Mentoya/Client/public/images/panels/teen-avatar.svg",
+      "source_location": "lines 2-7",
+      "weight": 1.0
+    },
+    {
+      "source": "public_images_panels_teen_blob_teen_decorative_blob",
+      "target": "public_images_panels_teen_blob_teen_palette_migration",
+      "relation": "implements",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/Users/ahmad/DEV/Mentoya/Client/public/images/panels/teen-blob.svg",
+      "source_location": "lines 2-11",
+      "weight": 1.0
+    },
+    {
+      "source": "public_images_panels_teen_blob_teen_palette_migration",
+      "target": "public_images_panels_teen_avatar_headphones_dark_badge",
+      "relation": "conceptually_related_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.75,
+      "source_file": "/Users/ahmad/DEV/Mentoya/Client/public/images/panels/teen-blob.svg",
+      "source_location": "lines 3-6",
+      "weight": 0.75
+    },
+    {
+      "source": "public_images_panels_kid_blob_pastel_blob_backdrop",
+      "target": "public_images_panels_teen_blob_teen_palette_migration",
+      "relation": "semantically_similar_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "source_file": "/Users/ahmad/DEV/Mentoya/Client/public/images/panels/teen-blob.svg",
+      "source_location": null,
+      "weight": 0.85
+    },
+    {
+      "source": "public_images_panels_child_avatar_flat_avatar_badge",
+      "target": "public_images_panels_kid_3d_mascot_small_size_legibility_budget",
+      "relation": "semantically_similar_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.75,
+      "source_file": "/Users/ahmad/DEV/Mentoya/Client/public/images/panels/child-avatar.svg",
+      "source_location": null,
+      "weight": 0.75
+    },
+    {
+      "source": "public_images_panels_parent_avatar_guardian_identity_chip",
+      "target": "public_images_panels_child_avatar_flat_avatar_badge",
+      "relation": "semantically_similar_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.65,
+      "source_file": "/Users/ahmad/DEV/Mentoya/Client/public/images/panels/parent-avatar.svg",
+      "source_location": null,
+      "weight": 0.65
+    }
+  ],
+  "hyperedges": [
+    {
+      "id": "kid_hero_art_volume_system",
+      "label": "Kid Hero Art Volume System",
+      "nodes": [
+        "public_images_panels_kid_3d_boy_hero_art",
+        "public_images_panels_kid_3d_girl_hero_art",
+        "public_images_panels_kid_3d_mascot_mascot_art",
+        "public_images_panels_kid_3d_boy_volume_recipe",
+        "public_images_panels_kid_3d_girl_character_system"
+      ],
+      "relation": "form",
+      "confidence": "INFERRED",
+      "confidence_score": 0.95,
+      "source_file": "/Users/ahmad/DEV/Mentoya/Client/public/images/panels/kid-3d-boy.svg"
+    },
+    {
+      "id": "panel_decorative_blob_motif",
+      "label": "Panel Decorative Blob Motif",
+      "nodes": [
+        "public_images_panels_kid_blob_kid_decorative_blob",
+        "public_images_panels_teen_blob_teen_decorative_blob",
+        "public_images_panels_kid_blob_pastel_blob_backdrop",
+        "public_images_panels_teen_blob_teen_palette_migration"
+      ],
+      "relation": "form",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "source_file": "/Users/ahmad/DEV/Mentoya/Client/public/images/panels/teen-blob.svg"
+    },
+    {
+      "id": "role_avatar_badge_family",
+      "label": "Role Avatar Badge Family",
+      "nodes": [
+        "public_images_panels_child_avatar_child_avatar",
+        "public_images_panels_parent_avatar_parent_avatar",
+        "public_images_panels_teen_avatar_teen_avatar",
+        "public_images_panels_child_avatar_flat_avatar_badge"
+      ],
+      "relation": "form",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "source_file": "/Users/ahmad/DEV/Mentoya/Client/public/images/panels/parent-avatar.svg"
+    }
+  ],
+  "input_tokens": 0,
+  "output_tokens": 0,
+  "coverage": {
+    "/Users/ahmad/DEV/Mentoya/Client/public/images/panels/child-avatar.svg": 8,
+    "/Users/ahmad/DEV/Mentoya/Client/public/images/panels/kid-3d-boy.svg": 114,
+    "/Users/ahmad/DEV/Mentoya/Client/public/images/panels/kid-3d-girl.svg": 133,
+    "/Users/ahmad/DEV/Mentoya/Client/public/images/panels/kid-3d-mascot.svg": 106,
+    "/Users/ahmad/DEV/Mentoya/Client/public/images/panels/kid-blob.svg": 6,
+    "/Users/ahmad/DEV/Mentoya/Client/public/images/panels/parent-avatar.svg": 6,
+    "/Users/ahmad/DEV/Mentoya/Client/public/images/panels/teen-avatar.svg": 8,
+    "/Users/ahmad/DEV/Mentoya/Client/public/images/panels/teen-blob.svg": 15
+  }
+}

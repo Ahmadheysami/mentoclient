@@ -1,0 +1,152 @@
+{
+  "nodes": [
+    {"id": "docs_design_child_panel_redesign_child_teen_panel_redesign", "label": "Child/Teen Panel Redesign Specification", "file_type": "document", "source_file": "docs/design/child-panel-redesign.md", "source_location": null, "rationale": "Redesign spec for child/teen panel: 4-tab nav, home composition, variants, GSAP motion, states.", "confidence_score": 1.0},
+    {"id": "docs_design_child_panel_redesign_nav_4_tabs", "label": "4-tab bottom nav (Home/Goals/Activities/Me)", "file_type": "document", "source_file": "docs/design/child-panel-redesign.md", "source_location": null, "rationale": "Nav reduced from 6 to 4 tabs; chatbot and results leave nav.", "confidence_score": 1.0},
+    {"id": "docs_design_child_panel_redesign_home_composition", "label": "Home composition (9 sections)", "file_type": "document", "source_file": "docs/design/child-panel-redesign.md", "source_location": null, "rationale": "Greeting, hero, primary CTA, chatbot strip, progress, journey, upcoming, achievements, discovery.", "confidence_score": 1.0},
+    {"id": "docs_design_child_panel_redesign_variants", "label": "neu-kid / neu-teen variants", "file_type": "document", "source_file": "docs/design/child-panel-redesign.md", "source_location": null, "rationale": "One component system, personality via variant class derived from stageOfAge.", "confidence_score": 1.0},
+    {"id": "docs_design_child_panel_redesign_gsap", "label": "GSAP motion (entrance stagger, progress fill, celebration)", "file_type": "document", "source_file": "docs/design/child-panel-redesign.md", "source_location": null, "rationale": "GSAP used only for hero entrance, progress bar, step pulse, exam celebration; guarded by reduced-motion.", "confidence_score": 1.0},
+
+    {"id": "docs_tasks_big_panel_task_1_astrology", "label": "Adult Panel Astrology feature", "file_type": "document", "source_file": "docs/tasks/Big-Panel/Task-1.md", "source_location": null, "rationale": "Astrological chart calculation: form, city data API, endpoints, one-time activation, restart, token balance.", "confidence_score": 1.0},
+    {"id": "docs_tasks_big_panel_task_1_city_api", "label": "Iran Locations city data API", "file_type": "document", "source_file": "docs/tasks/Big-Panel/Task-1.md", "source_location": null, "rationale": "External API https://iran-locations-api.ir/api/v1/fa/cities for city names and lat/long.", "confidence_score": 1.0},
+    {"id": "docs_tasks_big_panel_task_1_astrology_endpoints", "label": "Astrology endpoints (start/results/single/restart)", "file_type": "document", "source_file": "docs/tasks/Big-Panel/Task-1.md", "source_location": null, "rationale": "POST/GET astrology, results list, single by id, restart when coins <= 8.", "confidence_score": 1.0},
+
+    {"id": "docs_tasks_big_panel_task_2_my_goals", "label": "My Goals feature (6 domains)", "file_type": "document", "source_file": "docs/tasks/Big-Panel/Task-2.md", "source_location": null, "rationale": "Goal setting across business/financial/academic/relation/health/sprituality domains.", "confidence_score": 1.0},
+    {"id": "docs_tasks_big_panel_task_2_goal_lifecycle", "label": "Goal lifecycle (create/list/start/messages/review/progress)", "file_type": "document", "source_file": "docs/tasks/Big-Panel/Task-2.md", "source_location": null, "rationale": "Create, retrieve, start, messages, weekly review, progress chart, expiration.", "confidence_score": 1.0},
+    {"id": "docs_tasks_big_panel_task_2_radar_chart", "label": "Goal progress radar chart", "file_type": "document", "source_file": "docs/tasks/Big-Panel/Task-2.md", "source_location": null, "rationale": "Radar/spider chart 0-10 across six categories.", "confidence_score": 1.0},
+
+    {"id": "docs_tasks_big_panel_task_3_pro_chatbot", "label": "Pro Chatbot (reuse /mentobot)", "file_type": "document", "source_file": "docs/tasks/Big-Panel/Task-3.md", "source_location": null, "rationale": "Reimplement mentobot with Pro endpoints bot/new and bot/{chatId}/chat; improved UI.", "confidence_score": 1.0},
+
+    {"id": "docs_tasks_task_1_plans_page", "label": "Plans page /plans", "file_type": "document", "source_file": "docs/tasks/Task-1.md", "source_location": null, "rationale": "Subscription plans purchase: active-plans, purchase-check, purchase; one plan per account.", "confidence_score": 1.0},
+    {"id": "docs_tasks_task_1_plan_purchase", "label": "Plan purchase flow", "file_type": "document", "source_file": "docs/tasks/Task-1.md", "source_location": null, "rationale": "purchase-check then purchase via Nuxt server; post-purchase panel indicator in TopBar.", "confidence_score": 1.0},
+
+    {"id": "docs_tasks_task_2_stories_ui", "label": "Stories section UI (Instagram-style)", "file_type": "document", "source_file": "docs/tasks/Task-2.md", "source_location": null, "rationale": "Story viewer components, pause/stop, Swiper navigation, dark mode viewer, two link types.", "confidence_score": 1.0},
+    {"id": "docs_tasks_task_2_story_components", "label": "Story components (List/Card/Viewer/...)", "file_type": "document", "source_file": "docs/tasks/Task-2.md", "source_location": null, "rationale": "Features/Story/* reusable components and types/story.ts.", "confidence_score": 1.0},
+
+    {"id": "docs_tasks_task_3_settings_page", "label": "Settings page (Telegram-like)", "file_type": "document", "source_file": "docs/tasks/Task-3.md", "source_location": null, "rationale": "Settings with profile card, session panel, activity timeline; http-only cookies via Nuxt server.", "confidence_score": 1.0},
+
+    {"id": "docs_tasks_task_4_adult_panel", "label": "Adult Panel Design (big)", "file_type": "document", "source_file": "docs/tasks/Task-4.md", "source_location": null, "rationale": "Adult panel features: astrology, goals, AI assistant; plan-based access; blue/purple palette.", "confidence_score": 1.0},
+    {"id": "docs_tasks_task_4_phase1", "label": "Adult Panel Phase 1 features", "file_type": "document", "source_file": "docs/tasks/Task-4.md", "source_location": null, "rationale": "Astrology, goal setting, AI assistant.", "confidence_score": 1.0},
+
+    {"id": "docs_tasks_task_5_parent_child_design", "label": "Parent/Child/Teen Panel Design", "file_type": "document", "source_file": "docs/tasks/Task-5.md", "source_location": null, "rationale": "Creative visual design concept for parent and child/teen panels; age-adaptive; mock data only.", "confidence_score": 1.0},
+    {"id": "docs_tasks_task_5_access_link_model", "label": "Parent-to-child access link model", "file_type": "document", "source_file": "docs/tasks/Task-5.md", "source_location": null, "rationale": "Child has no auth account; enters via dedicated link; separate routes/layouts.", "confidence_score": 1.0},
+    {"id": "docs_tasks_task_5_age_variants", "label": "Age-based design variants (7-14 kid, 14-18 teen)", "file_type": "document", "source_file": "docs/tasks/Task-5.md", "source_location": null, "rationale": "Distinct visual identities per age group.", "confidence_score": 1.0},
+
+    {"id": "docs_tasks_task_6_story_api", "label": "Story API integration", "file_type": "document", "source_file": "docs/tasks/Task-6.md", "source_location": null, "rationale": "Connect Story UI to /.api/ui/story and /.api/ui/story/{id}; loading animation.", "confidence_score": 1.0},
+
+    {"id": "docs_tasks_task_7_arch_parent_child_adr", "label": "Parent & Child Panel ADR (Task-7 architecture)", "file_type": "document", "source_file": "docs/tasks/Task-7.architecture.md", "source_location": null, "rationale": "Approved ADR: types, server API, stores, child auth, routing, components.", "confidence_score": 1.0},
+    {"id": "docs_tasks_task_7_arch_types", "label": "Parent/Child type layer (ChildProfileDto, ChildStage, etc.)", "file_type": "document", "source_file": "docs/tasks/Task-7.architecture.md", "source_location": null, "rationale": "Complete replacement types; stageOfAge <14 child else teen.", "confidence_score": 1.0},
+    {"id": "docs_tasks_task_7_arch_server_api", "label": "Parent/Child Nuxt server API surface", "file_type": "document", "source_file": "docs/tasks/Task-7.architecture.md", "source_location": null, "rationale": "New endpoints under server/api/panels/parent and child; session cookies.", "confidence_score": 1.0},
+    {"id": "docs_tasks_task_7_arch_stores", "label": "parentPanel and childPanel Pinia stores", "file_type": "document", "source_file": "docs/tasks/Task-7.architecture.md", "source_location": null, "rationale": "Rewritten stores with SSR-safe loading flags and real counters.", "confidence_score": 1.0},
+    {"id": "docs_tasks_task_7_arch_child_auth", "label": "Child authentication (enter/exit/profile, child-panel middleware)", "file_type": "document", "source_file": "docs/tasks/Task-7.architecture.md", "source_location": null, "rationale": "11-digit code, httpOnly child-access-token cookie, session end reasons.", "confidence_score": 1.0},
+    {"id": "docs_tasks_task_7_arch_routing", "label": "Parent/Child routing plan", "file_type": "document", "source_file": "docs/tasks/Task-7.architecture.md", "source_location": null, "rationale": "Route tables for /panels/parent/** and /panels/child/**.", "confidence_score": 1.0},
+    {"id": "docs_tasks_task_7_arch_components", "label": "Parent/Child component plan", "file_type": "document", "source_file": "docs/tasks/Task-7.architecture.md", "source_location": null, "rationale": "New and modified components for parent and child.", "confidence_score": 1.0},
+    {"id": "docs_tasks_task_7_arch_members_limit", "label": "membersCount gate (two-tier, fails open)", "file_type": "document", "source_file": "docs/tasks/Task-7.architecture.md", "source_location": null, "rationale": "Client affordance for child creation limit from plan catalogue.", "confidence_score": 1.0},
+
+    {"id": "docs_tasks_task_7_parent_child_impl", "label": "Parent & Child Panel Feature Implementation", "file_type": "document", "source_file": "docs/tasks/Task-7.md", "source_location": null, "rationale": "Implementation task: connect parent/child panels to real backend per Swagger.", "confidence_score": 1.0},
+    {"id": "docs_tasks_task_7_child_management", "label": "Child management (create/list/stats/activities)", "file_type": "document", "source_file": "docs/tasks/Task-7.md", "source_location": null, "rationale": "Create child, list, stats, individual info, activities.", "confidence_score": 1.0},
+    {"id": "docs_tasks_task_7_access_code", "label": "Child access code management", "file_type": "document", "source_file": "docs/tasks/Task-7.md", "source_location": null, "rationale": "Create/revoke/delete access codes.", "confidence_score": 1.0},
+    {"id": "docs_tasks_task_7_accessibility", "label": "Child accessibility/time restrictions", "file_type": "document", "source_file": "docs/tasks/Task-7.md", "source_location": null, "rationale": "Configure allowed time ranges and disable state.", "confidence_score": 1.0},
+    {"id": "docs_tasks_task_7_test_allocation", "label": "Test allocation to children", "file_type": "document", "source_file": "docs/tasks/Task-7.md", "source_location": null, "rationale": "Assign purchased tests to a child via toggle.", "confidence_score": 1.0},
+
+    {"id": "docs_tasks_task_8_child_panel_goals", "label": "Child Panel + shared goal-award (Task-8)", "file_type": "document", "source_file": "docs/tasks/Task-8.md", "source_location": null, "rationale": "Child panel entry, exams, results, chatbot, profile, settings; shared goal-award feature.", "confidence_score": 1.0},
+    {"id": "docs_tasks_task_8_goal_award", "label": "Goal-award (shared parent/child feature)", "file_type": "document", "source_file": "docs/tasks/Task-8.md", "source_location": null, "rationale": "Parent creates goals/steps/awards for child; child views and completes; approve flow.", "confidence_score": 1.0},
+    {"id": "docs_tasks_task_8_child_entry", "label": "Child panel entry via code link", "file_type": "document", "source_file": "docs/tasks/Task-8.md", "source_location": null, "rationale": "Access via /panels/child/{code}; cookie check; accessibility/disable gating.", "confidence_score": 1.0},
+
+    {"id": "docs_tasks_task9_employee_panel", "label": "Employee Panel (Task9)", "file_type": "document", "source_file": "docs/tasks/Task9.md", "source_location": null, "rationale": "Employee panel: Phase1 functional (assistant/tests/results), Phase2 locked demos (radar/recruitment/coaching/assessment).", "confidence_score": 1.0},
+    {"id": "docs_tasks_task9_phase1", "label": "Employee Phase 1 functional features", "file_type": "document", "source_file": "docs/tasks/Task9.md", "source_location": null, "rationale": "AI assistant, active tests, test results reusing Big Panel.", "confidence_score": 1.0},
+    {"id": "docs_tasks_task9_phase2_demos", "label": "Employee Phase 2 locked demos", "file_type": "document", "source_file": "docs/tasks/Task9.md", "source_location": null, "rationale": "Radar shakar, recruitment, coaching, assessment-of-others as locked previews.", "confidence_score": 1.0},
+    {"id": "docs_tasks_task9_radar", "label": "Radar shakar (talent discovery demo)", "file_type": "document", "source_file": "docs/tasks/Task9.md", "source_location": null, "rationale": "Animated radar chart with fictional avatars; top of employee panel.", "confidence_score": 1.0},
+    {"id": "docs_tasks_task9_visibility_purchase", "label": "Employee panel visibility & purchase rules", "file_type": "document", "source_file": "docs/tasks/Task9.md", "source_location": null, "rationale": "Discoverable by all; requires employee plan for activation/access.", "confidence_score": 1.0},
+
+    {"id": "docs_tasks_cafe_phase2_arch", "label": "Cafe Messaging Phase 2 ADR", "file_type": "document", "source_file": "docs/tasks/cafe-messaging-phase2.architecture.md", "source_location": null, "rationale": "Phase 2 messaging: history, socket, seen, like, report, edit/delete, manager features.", "confidence_score": 1.0},
+    {"id": "docs_tasks_cafe_phase2_history", "label": "Cafe message history paging", "file_type": "document", "source_file": "docs/tasks/cafe-messaging-phase2.architecture.md", "source_location": null, "rationale": "Per-table thread cache, old/new cursors, catch-up.", "confidence_score": 1.0},
+    {"id": "docs_tasks_cafe_phase2_socket", "label": "Cafe socket wiring (plugin + composable)", "file_type": "document", "source_file": "docs/tasks/cafe-messaging-phase2.architecture.md", "source_location": null, "rationale": "Transport plugin, useCafeThreadSocket composable, room lifecycle.", "confidence_score": 1.0},
+    {"id": "docs_tasks_cafe_phase2_send", "label": "Cafe optimistic send & reconciliation", "file_type": "document", "source_file": "docs/tasks/cafe-messaging-phase2.architecture.md", "source_location": null, "rationale": "Optimistic row, local: id, REST 201 reconciliation, soft moderation.", "confidence_score": 1.0},
+    {"id": "docs_tasks_cafe_phase2_seen", "label": "Cafe seen receipts (throttled number)", "file_type": "document", "source_file": "docs/tasks/cafe-messaging-phase2.architecture.md", "source_location": null, "rationale": "One number per table; no per-message read UI; new-messages divider.", "confidence_score": 1.0},
+    {"id": "docs_tasks_cafe_phase2_like", "label": "Cafe like/unlike toggle", "file_type": "document", "source_file": "docs/tasks/cafe-messaging-phase2.architecture.md", "source_location": null, "rationale": "Single toggle, optimistic, authoritative arrays.", "confidence_score": 1.0},
+    {"id": "docs_tasks_cafe_phase2_reactions_not_supported", "label": "Cafe emoji reactions (NOT supported)", "file_type": "document", "source_file": "docs/tasks/cafe-messaging-phase2.architecture.md", "source_location": null, "rationale": "No backend capability; like toggle is alternative.", "confidence_score": 1.0},
+    {"id": "docs_tasks_cafe_phase2_report", "label": "Cafe report (message + table)", "file_type": "document", "source_file": "docs/tasks/cafe-messaging-phase2.architecture.md", "source_location": null, "rationale": "One Nitro route, bottom sheet, closed reason list.", "confidence_score": 1.0},
+    {"id": "docs_tasks_cafe_phase2_manager", "label": "Cafe manager features (edit/delete)", "file_type": "document", "source_file": "docs/tasks/cafe-messaging-phase2.architecture.md", "source_location": null, "rationale": "isManager UX gate; edit/delete on every message; no kick/mute/etc.", "confidence_score": 1.0},
+
+    {"id": "pnpm_workspace_yaml", "label": "pnpm workspace config", "file_type": "config", "source_file": "pnpm-workspace.yaml", "source_location": null, "rationale": "allowBuilds for parcel watcher, better-sqlite3, esbuild, sharp, vue-demi.", "confidence_score": 1.0},
+    {"id": "public_robots_txt", "label": "robots.txt (allow all)", "file_type": "config", "source_file": "public/robots.txt", "source_location": null, "rationale": "User-Agent * Disallow (empty) => allow all.", "confidence_score": 1.0}
+  ],
+  "edges": [
+    {"source": "docs_tasks_task_4_adult_panel", "target": "docs_tasks_big_panel_task_1_astrology", "relation": "references", "confidence": "EXTRACTED", "confidence_score": 1.0},
+    {"source": "docs_tasks_task_4_adult_panel", "target": "docs_tasks_big_panel_task_2_my_goals", "relation": "references", "confidence": "EXTRACTED", "confidence_score": 1.0},
+    {"source": "docs_tasks_task_4_adult_panel", "target": "docs_tasks_big_panel_task_3_pro_chatbot", "relation": "references", "confidence": "EXTRACTED", "confidence_score": 1.0},
+
+    {"source": "docs_tasks_task_7_parent_child_impl", "target": "docs_tasks_task_7_arch_parent_child_adr", "relation": "implements", "confidence": "EXTRACTED", "confidence_score": 1.0},
+    {"source": "docs_tasks_task_7_parent_child_impl", "target": "docs_tasks_task_5_parent_child_design", "relation": "implements", "confidence": "EXTRACTED", "confidence_score": 1.0},
+    {"source": "docs_tasks_task_7_arch_parent_child_adr", "target": "docs_tasks_task_5_parent_child_design", "relation": "specifies", "confidence": "EXTRACTED", "confidence_score": 1.0},
+
+    {"source": "docs_tasks_task_8_child_panel_goals", "target": "docs_tasks_task_7_arch_parent_child_adr", "relation": "extends", "confidence": "EXTRACTED", "confidence_score": 1.0},
+    {"source": "docs_tasks_task_8_child_panel_goals", "target": "docs_tasks_task_7_parent_child_impl", "relation": "extends", "confidence": "EXTRACTED", "confidence_score": 1.0},
+    {"source": "docs_tasks_task_8_goal_award", "target": "docs_tasks_task_8_child_panel_goals", "relation": "part_of", "confidence": "EXTRACTED", "confidence_score": 1.0},
+    {"source": "docs_tasks_task_8_child_entry", "target": "docs_tasks_task_7_arch_child_auth", "relation": "implements", "confidence": "EXTRACTED", "confidence_score": 1.0},
+
+    {"source": "docs_tasks_task_9_employee_panel", "target": "docs_tasks_task_4_adult_panel", "relation": "reuses", "confidence": "EXTRACTED", "confidence_score": 1.0},
+    {"source": "docs_tasks_task_9_phase1", "target": "docs_tasks_task_9_employee_panel", "relation": "part_of", "confidence": "EXTRACTED", "confidence_score": 1.0},
+    {"source": "docs_tasks_task_9_phase2_demos", "target": "docs_tasks_task_9_employee_panel", "relation": "part_of", "confidence": "EXTRACTED", "confidence_score": 1.0},
+    {"source": "docs_tasks_task9_radar", "target": "docs_tasks_task9_phase2_demos", "relation": "part_of", "confidence": "EXTRACTED", "confidence_score": 1.0},
+    {"source": "docs_tasks_task9_visibility_purchase", "target": "docs_tasks_task_1_plans_page", "relation": "uses", "confidence": "EXTRACTED", "confidence_score": 1.0},
+
+    {"source": "docs_design_child_panel_redesign_child_teen_panel_redesign", "target": "docs_tasks_task_5_parent_child_design", "relation": "redesigns", "confidence": "EXTRACTED", "confidence_score": 1.0},
+    {"source": "docs_design_child_panel_redesign_variants", "target": "docs_tasks_task_7_arch_types", "relation": "uses", "confidence": "EXTRACTED", "confidence_score": 1.0},
+    {"source": "docs_design_child_panel_redesign_gsap", "target": "docs_tasks_task_7_parent_child_impl", "relation": "used_in", "confidence": "INFERRED", "confidence_score": 0.8},
+
+    {"source": "docs_tasks_task_6_story_api", "target": "docs_tasks_task_2_stories_ui", "relation": "integrates", "confidence": "EXTRACTED", "confidence_score": 1.0},
+
+    {"source": "docs_tasks_cafe_phase2_arch", "target": "docs_tasks_cafe_phase2_history", "relation": "specifies", "confidence": "EXTRACTED", "confidence_score": 1.0},
+    {"source": "docs_tasks_cafe_phase2_arch", "target": "docs_tasks_cafe_phase2_socket", "relation": "specifies", "confidence": "EXTRACTED", "confidence_score": 1.0},
+    {"source": "docs_tasks_cafe_phase2_arch", "target": "docs_tasks_cafe_phase2_send", "relation": "specifies", "confidence": "EXTRACTED", "confidence_score": 1.0},
+    {"source": "docs_tasks_cafe_phase2_arch", "target": "docs_tasks_cafe_phase2_seen", "relation": "specifies", "confidence": "EXTRACTED", "confidence_score": 1.0},
+    {"source": "docs_tasks_cafe_phase2_arch", "target": "docs_tasks_cafe_phase2_like", "relation": "specifies", "confidence": "EXTRACTED", "confidence_score": 1.0},
+    {"source": "docs_tasks_cafe_phase2_arch", "target": "docs_tasks_cafe_phase2_report", "relation": "specifies", "confidence": "EXTRACTED", "confidence_score": 1.0},
+    {"source": "docs_tasks_cafe_phase2_arch", "target": "docs_tasks_cafe_phase2_manager", "relation": "specifies", "confidence": "EXTRACTED", "confidence_score": 1.0},
+    {"source": "docs_tasks_cafe_phase2_reactions_not_supported", "target": "docs_tasks_cafe_phase2_like", "relation": "alternative_to", "confidence": "EXTRACTED", "confidence_score": 1.0},
+
+    {"source": "docs_tasks_task_7_access_code", "target": "docs_tasks_task_7_arch_server_api", "relation": "uses", "confidence": "EXTRACTED", "confidence_score": 1.0},
+    {"source": "docs_tasks_task_7_accessibility", "target": "docs_tasks_task_7_arch_server_api", "relation": "uses", "confidence": "EXTRACTED", "confidence_score": 1.0},
+    {"source": "docs_tasks_task_7_test_allocation", "target": "docs_tasks_task_7_arch_server_api", "relation": "uses", "confidence": "EXTRACTED", "confidence_score": 1.0},
+    {"source": "docs_tasks_task_7_child_management", "target": "docs_tasks_task_7_arch_stores", "relation": "uses", "confidence": "EXTRACTED", "confidence_score": 1.0},
+
+    {"source": "docs_tasks_big_panel_task_2_my_goals", "target": "docs_tasks_task_8_goal_award", "relation": "related_to", "confidence": "INFERRED", "confidence_score": 0.7},
+    {"source": "docs_tasks_big_panel_task_1_astrology", "target": "docs_tasks_task_4_phase1", "relation": "part_of", "confidence": "EXTRACTED", "confidence_score": 1.0},
+    {"source": "docs_tasks_big_panel_task_2_my_goals", "target": "docs_tasks_task_4_phase1", "relation": "part_of", "confidence": "EXTRACTED", "confidence_score": 1.0},
+    {"source": "docs_tasks_big_panel_task_3_pro_chatbot", "target": "docs_tasks_task_4_phase1", "relation": "part_of", "confidence": "EXTRACTED", "confidence_score": 1.0}
+  ],
+  "hyperedges": [
+    {
+      "id": "he_adult_panel_features",
+      "label": "Adult Panel feature set",
+      "nodes": ["docs_tasks_big_panel_task_1_astrology", "docs_tasks_big_panel_task_2_my_goals", "docs_tasks_big_panel_task_3_pro_chatbot"],
+      "relation": "composes",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "id": "he_parent_child_system",
+      "label": "Parent & Child panel system",
+      "nodes": ["docs_tasks_task_5_parent_child_design", "docs_tasks_task_7_arch_parent_child_adr", "docs_tasks_task_7_parent_child_impl", "docs_tasks_task_8_child_panel_goals"],
+      "relation": "composes",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "id": "he_employee_panel",
+      "label": "Employee panel feature set",
+      "nodes": ["docs_tasks_task9_phase1", "docs_tasks_task9_phase2_demos", "docs_tasks_task9_visibility_purchase"],
+      "relation": "composes",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    }
+  ],
+  "input_tokens": 0,
+  "output_tokens": 0,
+  "coverage": {
+    "files_total": 17,
+    "files_processed": 17,
+    "notes": "Extracted named concepts from all 17 files in chunk 3 (15 docs + pnpm-workspace.yaml + robots.txt)."
+  }
+}

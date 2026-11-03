@@ -1,0 +1,254 @@
+{
+  "nodes": [
+    {
+      "id": "panel_home_image",
+      "label": "Panel Home Design Image",
+      "file_type": "image",
+      "source_file": "/Users/ahmad/DEV/Mentoya/Client/docs/design/panel-home.webp",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "rationale": "Reference design for a Panel Home screen: a mobile-first investment app UI with sky-blue accents, showing a home screen with watchlist and swap analytics alongside a watchlist creation screen."
+    },
+    {
+      "id": "panel_home_caption",
+      "label": "UI/UX Design Investment App Caption",
+      "file_type": "image",
+      "source_file": "/Users/ahmad/DEV/Mentoya/Client/docs/design/panel-home.webp",
+      "source_location": null
+    },
+    {
+      "id": "panel_home_left_screen",
+      "label": "Investment Home Screen",
+      "file_type": "image",
+      "source_file": "/Users/ahmad/DEV/Mentoya/Client/docs/design/panel-home.webp",
+      "source_location": null
+    },
+    {
+      "id": "panel_home_right_screen",
+      "label": "Watchlist Creation Screen",
+      "file_type": "image",
+      "source_file": "/Users/ahmad/DEV/Mentoya/Client/docs/design/panel-home.webp",
+      "source_location": null
+    },
+    {
+      "id": "panel_home_data_driven_insights",
+      "label": "Data-Driven Insights Hero Card",
+      "file_type": "image",
+      "source_file": "/Users/ahmad/DEV/Mentoya/Client/docs/design/panel-home.webp",
+      "source_location": null
+    },
+    {
+      "id": "panel_home_watchlist",
+      "label": "Watchlist Section",
+      "file_type": "image",
+      "source_file": "/Users/ahmad/DEV/Mentoya/Client/docs/design/panel-home.webp",
+      "source_location": null
+    },
+    {
+      "id": "panel_home_token_prices",
+      "label": "Token Price List (BTC/ETH/SOL)",
+      "file_type": "image",
+      "source_file": "/Users/ahmad/DEV/Mentoya/Client/docs/design/panel-home.webp",
+      "source_location": null
+    },
+    {
+      "id": "panel_home_swap_analytics",
+      "label": "Swap Analytics Card",
+      "file_type": "image",
+      "source_file": "/Users/ahmad/DEV/Mentoya/Client/docs/design/panel-home.webp",
+      "source_location": null
+    },
+    {
+      "id": "panel_home_buy_sell_stats",
+      "label": "Buy/Sell Percentage Stats",
+      "file_type": "image",
+      "source_file": "/Users/ahmad/DEV/Mentoya/Client/docs/design/panel-home.webp",
+      "source_location": null
+    },
+    {
+      "id": "panel_home_create_watchlist",
+      "label": "Create Watchlist Empty State",
+      "file_type": "image",
+      "source_file": "/Users/ahmad/DEV/Mentoya/Client/docs/design/panel-home.webp",
+      "source_location": null
+    },
+    {
+      "id": "panel_home_status_bar",
+      "label": "Mobile Status Bar (time)",
+      "file_type": "image",
+      "source_file": "/Users/ahmad/DEV/Mentoya/Client/docs/design/panel-home.webp",
+      "source_location": null
+    },
+    {
+      "id": "panel_home_palette",
+      "label": "Sky-Blue Accent Palette",
+      "file_type": "image",
+      "source_file": "/Users/ahmad/DEV/Mentoya/Client/docs/design/panel-home.webp",
+      "source_location": null
+    },
+    {
+      "id": "panel_home_mobile_frame",
+      "label": "Mobile App Frame",
+      "file_type": "image",
+      "source_file": "/Users/ahmad/DEV/Mentoya/Client/docs/design/panel-home.webp",
+      "source_location": null
+    }
+  ],
+  "edges": [
+    {
+      "source": "panel_home_image",
+      "target": "panel_home_caption",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/Users/ahmad/DEV/Mentoya/Client/docs/design/panel-home.webp",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "panel_home_image",
+      "target": "panel_home_left_screen",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/Users/ahmad/DEV/Mentoya/Client/docs/design/panel-home.webp",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "panel_home_image",
+      "target": "panel_home_right_screen",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/Users/ahmad/DEV/Mentoya/Client/docs/design/panel-home.webp",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "panel_home_image",
+      "target": "panel_home_palette",
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/Users/ahmad/DEV/Mentoya/Client/docs/design/panel-home.webp",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "panel_home_image",
+      "target": "panel_home_mobile_frame",
+      "relation": "depicts",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/Users/ahmad/DEV/Mentoya/Client/docs/design/panel-home.webp",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "panel_home_left_screen",
+      "target": "panel_home_data_driven_insights",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/Users/ahmad/DEV/Mentoya/Client/docs/design/panel-home.webp",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "panel_home_left_screen",
+      "target": "panel_home_watchlist",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/Users/ahmad/DEV/Mentoya/Client/docs/design/panel-home.webp",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "panel_home_left_screen",
+      "target": "panel_home_swap_analytics",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/Users/ahmad/DEV/Mentoya/Client/docs/design/panel-home.webp",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "panel_home_watchlist",
+      "target": "panel_home_token_prices",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/Users/ahmad/DEV/Mentoya/Client/docs/design/panel-home.webp",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "panel_home_swap_analytics",
+      "target": "panel_home_buy_sell_stats",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/Users/ahmad/DEV/Mentoya/Client/docs/design/panel-home.webp",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "panel_home_right_screen",
+      "target": "panel_home_create_watchlist",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/Users/ahmad/DEV/Mentoya/Client/docs/design/panel-home.webp",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "panel_home_left_screen",
+      "target": "panel_home_status_bar",
+      "relation": "uses",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "/Users/ahmad/DEV/Mentoya/Client/docs/design/panel-home.webp",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "panel_home_data_driven_insights",
+      "target": "panel_home_palette",
+      "relation": "uses",
+      "confidence": "INFERRED",
+      "confidence_score": 0.75,
+      "source_file": "/Users/ahmad/DEV/Mentoya/Client/docs/design/panel-home.webp",
+      "source_location": null,
+      "weight": 1.0
+    }
+  ],
+  "hyperedges": [
+    {
+      "id": "panel_home_composition",
+      "label": "Panel Home Composition",
+      "nodes": [
+        "panel_home_left_screen",
+        "panel_home_right_screen",
+        "panel_home_data_driven_insights",
+        "panel_home_watchlist",
+        "panel_home_swap_analytics"
+      ],
+      "relation": "form",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/Users/ahmad/DEV/Mentoya/Client/docs/design/panel-home.webp"
+    }
+  ],
+  "input_tokens": 0,
+  "output_tokens": 0,
+  "coverage": {
+    "/Users/ahmad/DEV/Mentoya/Client/docs/design/panel-home.webp": 1
+  }
+}

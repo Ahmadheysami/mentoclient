@@ -1,0 +1,261 @@
+{
+  "nodes": [
+    {
+      "id": "big_panel_reference_image",
+      "label": "Big Panel Reference Image",
+      "file_type": "image",
+      "source_file": "/Users/ahmad/DEV/Mentoya/Client/docs/design/big-panel-reference.jpg",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "rationale": "Reference design for the Big Panel (adult) home screen: a mobile-first, RTL, sky-blue-and-lime UI on warm/cool neutrals with amber status accents."
+    },
+    {
+      "id": "big_panel_reference_palette",
+      "label": "Big Panel Palette (sky blue dominant, lime secondary, amber status)",
+      "file_type": "image",
+      "source_file": "/Users/ahmad/DEV/Mentoya/Client/docs/design/big-panel-reference.jpg",
+      "source_location": null
+    },
+    {
+      "id": "big_panel_reference_sky_blue",
+      "label": "Sky Blue Surface Family",
+      "file_type": "image",
+      "source_file": "/Users/ahmad/DEV/Mentoya/Client/docs/design/big-panel-reference.jpg",
+      "source_location": null
+    },
+    {
+      "id": "big_panel_reference_lime",
+      "label": "Lime Surface Family",
+      "file_type": "image",
+      "source_file": "/Users/ahmad/DEV/Mentoya/Client/docs/design/big-panel-reference.jpg",
+      "source_location": null
+    },
+    {
+      "id": "big_panel_reference_amber",
+      "label": "Amber Status Accent",
+      "file_type": "image",
+      "source_file": "/Users/ahmad/DEV/Mentoya/Client/docs/design/big-panel-reference.jpg",
+      "source_location": null
+    },
+    {
+      "id": "big_panel_reference_mobile_rtl_layout",
+      "label": "Mobile-First RTL Layout (416px column)",
+      "file_type": "image",
+      "source_file": "/Users/ahmad/DEV/Mentoya/Client/docs/design/big-panel-reference.jpg",
+      "source_location": null
+    },
+    {
+      "id": "big_panel_reference_identity_block",
+      "label": "Identity Block (avatar, name, age, bell)",
+      "file_type": "image",
+      "source_file": "/Users/ahmad/DEV/Mentoya/Client/docs/design/big-panel-reference.jpg",
+      "source_location": null
+    },
+    {
+      "id": "big_panel_reference_hero_snapshot",
+      "label": "Hero Goal Snapshot Card",
+      "file_type": "image",
+      "source_file": "/Users/ahmad/DEV/Mentoya/Client/docs/design/big-panel-reference.jpg",
+      "source_location": null
+    },
+    {
+      "id": "big_panel_reference_feature_grid",
+      "label": "Features 2-Column Grid",
+      "file_type": "image",
+      "source_file": "/Users/ahmad/DEV/Mentoya/Client/docs/design/big-panel-reference.jpg",
+      "source_location": null
+    },
+    {
+      "id": "big_panel_reference_checkerboard",
+      "label": "Checkerboard Tint Pattern",
+      "file_type": "image",
+      "source_file": "/Users/ahmad/DEV/Mentoya/Client/docs/design/big-panel-reference.jpg",
+      "source_location": null
+    },
+    {
+      "id": "big_panel_reference_roadmap",
+      "label": "Roadmap Grouped Card (coming soon)",
+      "file_type": "image",
+      "source_file": "/Users/ahmad/DEV/Mentoya/Client/docs/design/big-panel-reference.jpg",
+      "source_location": null
+    },
+    {
+      "id": "big_panel_reference_plan_card",
+      "label": "Plan Info Card",
+      "file_type": "image",
+      "source_file": "/Users/ahmad/DEV/Mentoya/Client/docs/design/big-panel-reference.jpg",
+      "source_location": null
+    },
+    {
+      "id": "big_panel_reference_typography",
+      "label": "Yekan Typography Scale",
+      "file_type": "image",
+      "source_file": "/Users/ahmad/DEV/Mentoya/Client/docs/design/big-panel-reference.jpg",
+      "source_location": null
+    },
+    {
+      "id": "big_panel_reference_async_states",
+      "label": "Async UI States (loading, empty, error, ready)",
+      "file_type": "image",
+      "source_file": "/Users/ahmad/DEV/Mentoya/Client/docs/design/big-panel-reference.jpg",
+      "source_location": null
+    }
+  ],
+  "edges": [
+    {
+      "source": "big_panel_reference_image",
+      "target": "big_panel_reference_palette",
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/Users/ahmad/DEV/Mentoya/Client/docs/design/big-panel-reference.jpg",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "big_panel_reference_image",
+      "target": "big_panel_reference_mobile_rtl_layout",
+      "relation": "depicts",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/Users/ahmad/DEV/Mentoya/Client/docs/design/big-panel-reference.jpg",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "big_panel_reference_image",
+      "target": "big_panel_reference_identity_block",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/Users/ahmad/DEV/Mentoya/Client/docs/design/big-panel-reference.jpg",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "big_panel_reference_image",
+      "target": "big_panel_reference_hero_snapshot",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/Users/ahmad/DEV/Mentoya/Client/docs/design/big-panel-reference.jpg",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "big_panel_reference_image",
+      "target": "big_panel_reference_feature_grid",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/Users/ahmad/DEV/Mentoya/Client/docs/design/big-panel-reference.jpg",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "big_panel_reference_image",
+      "target": "big_panel_reference_roadmap",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/Users/ahmad/DEV/Mentoya/Client/docs/design/big-panel-reference.jpg",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "big_panel_reference_image",
+      "target": "big_panel_reference_plan_card",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/Users/ahmad/DEV/Mentoya/Client/docs/design/big-panel-reference.jpg",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "big_panel_reference_palette",
+      "target": "big_panel_reference_sky_blue",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/Users/ahmad/DEV/Mentoya/Client/docs/design/big-panel-reference.jpg",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "big_panel_reference_palette",
+      "target": "big_panel_reference_lime",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/Users/ahmad/DEV/Mentoya/Client/docs/design/big-panel-reference.jpg",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "big_panel_reference_palette",
+      "target": "big_panel_reference_amber",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/Users/ahmad/DEV/Mentoya/Client/docs/design/big-panel-reference.jpg",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "big_panel_reference_feature_grid",
+      "target": "big_panel_reference_checkerboard",
+      "relation": "uses",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/Users/ahmad/DEV/Mentoya/Client/docs/design/big-panel-reference.jpg",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "big_panel_reference_hero_snapshot",
+      "target": "big_panel_reference_async_states",
+      "relation": "requires",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "source_file": "/Users/ahmad/DEV/Mentoya/Client/docs/design/big-panel-reference.jpg",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "big_panel_reference_identity_block",
+      "target": "big_panel_reference_typography",
+      "relation": "uses",
+      "confidence": "INFERRED",
+      "confidence_score": 0.75,
+      "source_file": "/Users/ahmad/DEV/Mentoya/Client/docs/design/big-panel-reference.jpg",
+      "source_location": null,
+      "weight": 1.0
+    }
+  ],
+  "hyperedges": [
+    {
+      "id": "big_panel_reference_home_composition",
+      "label": "Big Panel Home Composition",
+      "nodes": [
+        "big_panel_reference_identity_block",
+        "big_panel_reference_hero_snapshot",
+        "big_panel_reference_feature_grid",
+        "big_panel_reference_roadmap",
+        "big_panel_reference_plan_card"
+      ],
+      "relation": "form",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/Users/ahmad/DEV/Mentoya/Client/docs/design/big-panel-reference.jpg"
+    }
+  ],
+  "input_tokens": 0,
+  "output_tokens": 0,
+  "coverage": {
+    "/Users/ahmad/DEV/Mentoya/Client/docs/design/big-panel-reference.jpg": 1
+  }
+}

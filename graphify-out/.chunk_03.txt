@@ -1,0 +1,17 @@
+/Users/ahmad/DEV/Mentoya/Client/docs/design/child-panel-redesign.md
+/Users/ahmad/DEV/Mentoya/Client/docs/tasks/Big-Panel/Task-1.md
+/Users/ahmad/DEV/Mentoya/Client/docs/tasks/Big-Panel/Task-2.md
+/Users/ahmad/DEV/Mentoya/Client/docs/tasks/Big-Panel/Task-3.md
+/Users/ahmad/DEV/Mentoya/Client/docs/tasks/Task-1.md
+/Users/ahmad/DEV/Mentoya/Client/docs/tasks/Task-2.md
+/Users/ahmad/DEV/Mentoya/Client/docs/tasks/Task-3.md
+/Users/ahmad/DEV/Mentoya/Client/docs/tasks/Task-4.md
+/Users/ahmad/DEV/Mentoya/Client/docs/tasks/Task-5.md
+/Users/ahmad/DEV/Mentoya/Client/docs/tasks/Task-6.md
+/Users/ahmad/DEV/Mentoya/Client/docs/tasks/Task-7.architecture.md
+/Users/ahmad/DEV/Mentoya/Client/docs/tasks/Task-7.md
+/Users/ahmad/DEV/Mentoya/Client/docs/tasks/Task-8.md
+/Users/ahmad/DEV/Mentoya/Client/docs/tasks/Task9.md
+/Users/ahmad/DEV/Mentoya/Client/docs/tasks/cafe-messaging-phase2.architecture.md
+/Users/ahmad/DEV/Mentoya/Client/pnpm-workspace.yaml
+/Users/ahmad/DEV/Mentoya/Client/public/robots.txt

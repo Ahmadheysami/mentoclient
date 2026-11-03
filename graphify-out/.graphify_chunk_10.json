@@ -1,0 +1,158 @@
+{
+  "nodes": [
+    {
+      "id": "mentoya_1_image",
+      "label": "Mentoya Banner 1 (Organization Performance Story)",
+      "file_type": "image",
+      "source_file": "/Users/ahmad/DEV/Mentoya/Client/public/images/banner/mentoya-1.png",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "rationale": "Story banner image (1536x1024) used in stories.mock.ts as a colorized story item titled 'نمودار عملکرد سازمان در ماه گذشته' (organization performance chart, last month) and in Carousel.vue. Classification: screenshot/document. Visible English chrome includes an 'App Store' label and a '4:29 AM' status-bar time; remaining on-image captions are Persian and could not be OCR'd (marked AMBIGUOUS). Accent palette referenced by the story: pink #e11d74 and purple-blue #7c86ff."
+    },
+    {
+      "id": "mentoya_1_phone_screenshot",
+      "label": "Phone Screenshot Mockup (status bar)",
+      "file_type": "image",
+      "source_file": "/Users/ahmad/DEV/Mentoya/Client/public/images/banner/mentoya-1.png",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "rationale": "The image reads as a phone screenshot/mockup: a status bar shows '4:29 AM' and an 'App Store' label is visible (OCR, confidence 1.0). The bulk of the depicted UI text is Persian and not recoverable via OCR."
+    },
+    {
+      "id": "mentoya_1_performance_chart",
+      "label": "Organization Performance Chart (last month)",
+      "file_type": "image",
+      "source_file": "/Users/ahmad/DEV/Mentoya/Client/public/images/banner/mentoya-1.png",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "rationale": "Per stories.mock.ts title for this asset: 'نمودار عملکرد سازمان در ماه گذشته' (organization performance chart for the previous month). The chart/metric content itself is rendered in Persian on the image and is AMBIGUOUS to automated extraction."
+    },
+    {
+      "id": "mentoya_1_accent_palette",
+      "label": "Accent Palette (pink #e11d74, purple-blue #7c86ff)",
+      "file_type": "image",
+      "source_file": "/Users/ahmad/DEV/Mentoya/Client/public/images/banner/mentoya-1.png",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "mentoya_1_colorized_story",
+      "label": "Colorized Story Variant",
+      "file_type": "concept",
+      "source_file": "/Users/ahmad/DEV/Mentoya/Client/public/images/banner/mentoya-1.png",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "rationale": "stories.mock.ts declares this item with variant 'colorized', url https://example.com/story, label 'مشاهده داشبورد' (view dashboard), icon solar:chart-square-bold-duotone."
+    },
+    {
+      "id": "mentoya_1_app_store_badge",
+      "label": "App Store Badge",
+      "file_type": "image",
+      "source_file": "/Users/ahmad/DEV/Mentoya/Client/public/images/banner/mentoya-1.png",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    }
+  ],
+  "edges": [
+    {
+      "source": "mentoya_1_image",
+      "target": "mentoya_1_phone_screenshot",
+      "relation": "depicts",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/Users/ahmad/DEV/Mentoya/Client/public/images/banner/mentoya-1.png",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "mentoya_1_image",
+      "target": "mentoya_1_performance_chart",
+      "relation": "depicts",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "source_file": "/Users/ahmad/DEV/Mentoya/Client/public/images/banner/mentoya-1.png",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "mentoya_1_image",
+      "target": "mentoya_1_accent_palette",
+      "relation": "defines",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/Users/ahmad/DEV/Mentoya/Client/public/images/banner/mentoya-1.png",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "mentoya_1_image",
+      "target": "mentoya_1_colorized_story",
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/Users/ahmad/DEV/Mentoya/Client/public/images/banner/mentoya-1.png",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "mentoya_1_phone_screenshot",
+      "target": "mentoya_1_app_store_badge",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/Users/ahmad/DEV/Mentoya/Client/public/images/banner/mentoya-1.png",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "mentoya_1_performance_chart",
+      "target": "mentoya_1_colorized_story",
+      "relation": "conceptually_related_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.75,
+      "source_file": "/Users/ahmad/DEV/Mentoya/Client/public/images/banner/mentoya-1.png",
+      "source_location": null,
+      "weight": 1.0
+    }
+  ],
+  "hyperedges": [
+    {
+      "id": "mentoya_1_story_composition",
+      "label": "Mentoya Banner 1 Story Composition",
+      "nodes": [
+        "mentoya_1_image",
+        "mentoya_1_phone_screenshot",
+        "mentoya_1_performance_chart",
+        "mentoya_1_accent_palette",
+        "mentoya_1_colorized_story"
+      ],
+      "relation": "form",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/Users/ahmad/DEV/Mentoya/Client/public/images/banner/mentoya-1.png"
+    }
+  ],
+  "input_tokens": 0,
+  "output_tokens": 0,
+  "coverage": {
+    "/Users/ahmad/DEV/Mentoya/Client/public/images/banner/mentoya-1.png": 1
+  }
+}
